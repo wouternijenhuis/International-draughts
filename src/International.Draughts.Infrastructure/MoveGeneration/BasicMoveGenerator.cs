@@ -153,16 +153,31 @@ public class BasicMoveGenerator : IMoveGenerator
     /// </summary>
     private void AddManCapturesDirection(MoveList list, Position position, Bitboard defender, Bitboard empty, Bitboard men, int inc)
     {
-        // Find men that can capture: have defender adjacent and empty square beyond
-        ulong canCapture = men.Value & (defender.Value << inc) & (empty.Value << (inc * 2));
+        // We need to properly shift bitboards and mask for the sparse board
+        Bitboard shifted1 = BitOps.Shift(defender, inc);
+        Bitboard shifted2 = BitOps.Shift(empty, inc * 2);
+        
+        // Find men that can capture
+        ulong canCapture = men.Value & shifted1.Value & shifted2.Value;
         
         foreach (var from in BitOps.Squares(new Bitboard(canCapture)))
         {
-            var jumpSquare = new Square(from.Value + inc);
-            var landSquare = new Square(from.Value + inc * 2);
+            int jumpSq = from.Value + inc;
+            int landSq = from.Value + inc * 2;
             
-            // Start the recursive capture sequence
-            AddManCapturesRecursive(list, position, defender, BitOps.Add(empty, from), from, jumpSquare, landSquare, Bitboard.Empty);
+            // Validate square indices are in valid range
+            if (jumpSq >= 0 && jumpSq < 63 && landSq >= 0 && landSq < 63)
+            {
+                var jumpSquare = new Square(jumpSq);
+                var landSquare = new Square(landSq);
+                
+                // Validate squares are on valid board squares
+                if (BitOps.Has(BitOps.SquaresMask, jumpSquare) && BitOps.Has(BitOps.SquaresMask, landSquare))
+                {
+                    // Start the recursive capture sequence
+                    AddManCapturesRecursive(list, position, defender, BitOps.Add(empty, from), from, jumpSquare, landSquare, Bitboard.Empty);
+                }
+            }
         }
     }
     
@@ -185,15 +200,19 @@ public class BasicMoveGenerator : IMoveGenerator
             int nextJump = current.Value + dir;
             int nextLand = current.Value + dir * 2;
             
-            if (nextLand >= 0 && nextLand < 63)
+            if (nextJump >= 0 && nextJump < 63 && nextLand >= 0 && nextLand < 63)
             {
                 var jumpSquare = new Square(nextJump);
                 var landSquare = new Square(nextLand);
                 
-                if (BitOps.Has(defender, jumpSquare) && BitOps.Has(empty, landSquare))
+                // Validate squares are on the valid board
+                if (BitOps.Has(BitOps.SquaresMask, jumpSquare) && BitOps.Has(BitOps.SquaresMask, landSquare))
                 {
-                    foundMoreCaptures = true;
-                    AddManCapturesRecursive(list, position, defender, empty, start, jumpSquare, landSquare, captured);
+                    if (BitOps.Has(defender, jumpSquare) && BitOps.Has(empty, landSquare))
+                    {
+                        foundMoreCaptures = true;
+                        AddManCapturesRecursive(list, position, defender, empty, start, jumpSquare, landSquare, captured);
+                    }
                 }
             }
         }

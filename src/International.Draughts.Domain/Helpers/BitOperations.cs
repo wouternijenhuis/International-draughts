@@ -53,7 +53,16 @@ public static class BitOps
     /// </summary>
     public static Bitboard Add(Bitboard b, Square sq)
     {
-        return new Bitboard(b.Value | (1UL << sq.Value));
+        if (sq.Value < 0 || sq.Value >= 63)
+            throw new ArgumentException($"Square value {sq.Value} is out of range");
+        
+        ulong newValue = b.Value | (1UL << sq.Value);
+        
+        // Validate the result is within valid squares
+        if ((newValue & ~SquaresMask.Value) != 0)
+            throw new ArgumentException($"Adding square {sq.Value} would create invalid bitboard");
+        
+        return new Bitboard(newValue);
     }
     
     /// <summary>

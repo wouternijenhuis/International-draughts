@@ -40,9 +40,11 @@ public class Position
     public static Position StartingPosition()
     {
         // Standard international draughts starting position
-        // White on bottom (squares 1-20), Black on top (squares 31-50)
-        var whiteMen = new Bitboard(0x000000000FBE7DF);
-        var blackMen = new Bitboard(0x7DF3E00000000000);
+        // In sparse 13x10 representation:
+        // White starts on top (higher bit positions)
+        // Black starts on bottom (lower bit positions)
+        var whiteMen = new Bitboard(0x7DF3EF8000000000);
+        var blackMen = new Bitboard(0x0000000000FBE7DF);
         var whiteKings = Bitboard.Empty;
         var blackKings = Bitboard.Empty;
         

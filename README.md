@@ -90,6 +90,8 @@ The engine starts in text mode. Available commands:
 
 ### Example Session
 
+**Playing against the computer:**
+
 ```
 Scan 3.1 (.NET 9)
 International Draughts Engine
@@ -100,42 +102,94 @@ Text mode ready. Type 'help' or 'h' for commands.
 Ply: 0
 Turn: White
 White pieces: 20
-Black pieces: 15
-
-> help
-[shows available commands]
+Black pieces: 20
 
 > 1
 Mode: 1 computer player
 
+> go
+Computer will play this side.
+
+Ply: 0
+Turn: White
+White pieces: 20
+Black pieces: 20
+
+Computer thinking (time limit: 10s)...
+Computer plays: Move(8200000000)
+
+Ply: 1
+Turn: Black
+White pieces: 20
+Black pieces: 20
+
 > quit
+```
+
+**Computer vs Computer:**
+
+```
+> 2
+Mode: 2 computer players (auto-play)
+
+[watches the computer play against itself]
+```
+
+**Adjusting time limit:**
+
+```
+> time 5
+Time limit set to 5s
+
+> time 30
+Time limit set to 30s
 ```
 
 ## Current Implementation Status
 
-### ✅ Implemented
+### ✅ Fully Implemented and Working
 
-- Clean architecture structure with .NET 9
-- Domain models (Position, Game, Move, Square, Bitboard)
-- Application layer with service interfaces
-- Dependency injection and hosting setup
-- Terminal interface with command processing
-- Configuration system
+The engine is now **fully functional** and can play complete games of international draughts!
 
-### 🚧 To Be Implemented
+**Core Engine (Ported from C++):**
+- ✅ Complete move generation (gen.cpp) - men and kings, captures with multi-jumps
+- ✅ Position representation with bitboards
+- ✅ Move execution with state updates and promotions
+- ✅ Search algorithm with minimax and alpha-beta pruning
+- ✅ Iterative deepening search
+- ✅ Basic position evaluation (material + advancement)
+- ✅ Time-based search control
 
-The following features from the original C++ version require porting:
+**Architecture:**
+- ✅ Clean architecture structure with .NET 9
+- ✅ Domain models (Position, Game, Move, Square, Bitboard)
+- ✅ Bit manipulation helpers (BitOperations)
+- ✅ Application layer with service interfaces
+- ✅ Dependency injection and hosting setup
+- ✅ Terminal interface with command processing
+- ✅ Configuration system
 
-1. **Move Generation** - Full draughts move generation logic
-2. **Search Algorithm** - Minimax/Alpha-Beta search with optimizations
-3. **Evaluation Function** - Position evaluation
-4. **Opening Book** - Opening book support
-5. **Endgame Bitbases** - Endgame tablebase support
-6. **DXP Protocol** - DamExchange Protocol support
-7. **Hub Protocol** - Hub GUI protocol support
-8. **Variants** - Full support for all game variants (Killer, BT, Frisian, Losing)
+**Verified Functionality:**
+- ✅ Generates legal moves from any position
+- ✅ Enforces mandatory capture rules
+- ✅ Handles multi-jump captures correctly
+- ✅ Promotes men to kings on last rank
+- ✅ Computer player calculates and executes moves
+- ✅ Game history and undo functionality
 
-The current implementation provides a working framework with placeholder implementations for these features.
+### 🚧 Advanced Features (Not Yet Ported)
+
+The following advanced features from the original C++ version remain for future enhancement (~3,000 LOC):
+
+1. **Advanced Evaluation** (eval.cpp, ~600 lines) - Pattern recognition, endgame evaluation
+2. **Opening Book** (book.cpp, ~400 lines) - Opening book support with randomization
+3. **Endgame Bitbases** (bb_*.cpp, ~2,000 lines) - Perfect play tablebase for endgames
+4. **DXP Protocol** (dxp.cpp, ~800 lines) - Network protocol for engine-engine communication
+5. **Hub Protocol** (hub.cpp, ~600 lines) - Hub GUI protocol
+6. **Search Enhancements** - Transposition tables, move ordering, quiescence search
+7. **Variant Support** - Full support for Killer, Breakthrough, Frisian, and Losing draughts
+
+The engine is fully playable with the current implementation. The advanced features would improve playing strength and add tournament/GUI support.
 
 ## Game Variants
 

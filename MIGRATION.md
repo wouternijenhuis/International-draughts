@@ -112,47 +112,62 @@ International.Draughts.Console/
    - Command processing
    - Dependency injection
 
-### 🚧 To Be Implemented
+5. **Infrastructure Layer - Core Implementations**
+   - Move generation (from gen.cpp)
+   - Search engine with alpha-beta (from search.cpp)
+   - Basic evaluation function
 
-The following components need migration from C++:
+### ✅ **Core Functionality Complete!**
 
-1. **Move Generation** (gen.hpp/cpp, ~800 lines)
-   - Legal move generation for men
-   - Legal move generation for kings
-   - Capture logic
-   - Promotion detection
+The engine is now fully functional with the following ported from C++:
 
-2. **Search Algorithm** (search.hpp/cpp, ~1200 lines)
-   - Alpha-beta search
-   - Iterative deepening
-   - Transposition table
-   - Move ordering
-   - Quiescence search
-   - Time management
+1. **Move Generation** (gen.hpp/cpp, ~800 lines) ✅ COMPLETE
+   - ✅ Legal move generation for men
+   - ✅ Legal move generation for kings  
+   - ✅ Capture logic with multi-jumps
+   - ✅ Promotion detection
+   - ✅ Mandatory capture enforcement
 
-3. **Evaluation** (eval.hpp/cpp, ~600 lines)
-   - Material counting
-   - Position evaluation
+2. **Search Algorithm** (search.hpp/cpp) ✅ CORE COMPLETE
+   - ✅ Alpha-beta pruning
+   - ✅ Iterative deepening
+   - ✅ Time management
+   - ✅ Basic evaluation (material + advancement)
+   - 🚧 Transposition table (not yet ported)
+   - 🚧 Advanced move ordering (not yet ported)
+   - 🚧 Quiescence search (not yet ported)
+
+3. **Position Management** (pos.hpp/cpp) ✅ COMPLETE
+   - ✅ Move execution
+   - ✅ State updates
+   - ✅ Promotion handling
+
+### 🚧 Advanced Features To Be Implemented
+
+The following components remain for future enhancement (~3,000 LOC):
+
+1. **Advanced Evaluation** (eval.hpp/cpp, ~600 lines)
    - Pattern recognition
-   - Endgame evaluation
+   - Sophisticated position assessment
+   - Endgame-specific evaluation
 
-4. **Opening Book** (book.hpp/cpp, ~400 lines)
+2. **Opening Book** (book.hpp/cpp, ~400 lines)
    - Book file loading
    - Move selection from book
    - Book randomness
 
-5. **Endgame Bitbases** (bb_*.hpp/cpp, ~2000 lines)
+3. **Endgame Bitbases** (bb_*.hpp/cpp, ~2000 lines)
    - Bitbase loading
    - Perfect play in endgames
 
-6. **DXP Protocol** (dxp.hpp/cpp, ~800 lines)
+4. **DXP Protocol** (dxp.hpp/cpp, ~800 lines)
    - Network communication
    - DXP message handling
 
-7. **Hub Protocol** (hub.hpp/cpp, ~600 lines)
+5. **Hub Protocol** (hub.hpp/cpp, ~600 lines)
    - Hub GUI communication
 
-8. **Utilities**
+6. **Utilities**
    - Hash table (hash.hpp/cpp)
    - Sorting (sort.hpp/cpp)
    - Threading (thread.hpp/cpp)

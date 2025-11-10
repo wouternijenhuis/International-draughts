@@ -31,13 +31,11 @@ public class Game
         _positions.Add(startPosition);
     }
     
-    public void AddMove(Move move, double timeSpent = 0.0)
+    public void AddMove(Move move, Position newPosition, double timeSpent = 0.0)
     {
-        // This is a placeholder - actual move execution would need the move generation logic
         _moves.Add(move);
         _moveTimes.Add(timeSpent);
-        // For now, we keep the same position - proper implementation would apply the move
-        _positions.Add(CurrentPosition);
+        _positions.Add(newPosition);
     }
     
     public void Clear()

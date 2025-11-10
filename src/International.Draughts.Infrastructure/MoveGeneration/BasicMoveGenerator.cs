@@ -301,9 +301,101 @@ public class BasicMoveGenerator : IMoveGenerator
     
     public Position ApplyMove(Position position, Move move)
     {
-        // This is a simplified implementation
-        // Full implementation would handle promotions and position updates
-        return position;
+        if (move.IsNone)
+            return position;
+        
+        Side attacker = position.Turn;
+        Side defender = attacker == Side.White ? Side.Black : Side.White;
+        
+        // Extract move components
+        Square from = move.GetFrom(position.GetPieces(attacker));
+        Square to = move.GetTo(position.EmptySquares, position.GetPieces(attacker));
+        Bitboard captured = move.GetCaptured(position.GetPieces(defender));
+        
+        // Start with current piece positions
+        Bitboard newWhiteMen = position.WhiteMen;
+        Bitboard newBlackMen = position.BlackMen;
+        Bitboard newWhiteKings = position.WhiteKings;
+        Bitboard newBlackKings = position.BlackKings;
+        
+        bool isKing = BitOps.Has(position.GetKings(attacker), from);
+        bool isPromotion = !isKing && IsPromotionSquare(to, attacker);
+        
+        if (attacker == Side.White)
+        {
+            if (isKing)
+            {
+                // King move
+                newWhiteKings = BitOps.Remove(newWhiteKings, from);
+                newWhiteKings = BitOps.Add(newWhiteKings, to);
+            }
+            else if (isPromotion)
+            {
+                // Promotion
+                newWhiteMen = BitOps.Remove(newWhiteMen, from);
+                newWhiteKings = BitOps.Add(newWhiteKings, to);
+            }
+            else
+            {
+                // Man move
+                newWhiteMen = BitOps.Remove(newWhiteMen, from);
+                newWhiteMen = BitOps.Add(newWhiteMen, to);
+            }
+            
+            // Remove captured pieces
+            foreach (var capSq in BitOps.Squares(captured))
+            {
+                if (BitOps.Has(newBlackMen, capSq))
+                    newBlackMen = BitOps.Remove(newBlackMen, capSq);
+                if (BitOps.Has(newBlackKings, capSq))
+                    newBlackKings = BitOps.Remove(newBlackKings, capSq);
+            }
+        }
+        else // Black
+        {
+            if (isKing)
+            {
+                // King move
+                newBlackKings = BitOps.Remove(newBlackKings, from);
+                newBlackKings = BitOps.Add(newBlackKings, to);
+            }
+            else if (isPromotion)
+            {
+                // Promotion
+                newBlackMen = BitOps.Remove(newBlackMen, from);
+                newBlackKings = BitOps.Add(newBlackKings, to);
+            }
+            else
+            {
+                // Man move
+                newBlackMen = BitOps.Remove(newBlackMen, from);
+                newBlackMen = BitOps.Add(newBlackMen, to);
+            }
+            
+            // Remove captured pieces
+            foreach (var capSq in BitOps.Squares(captured))
+            {
+                if (BitOps.Has(newWhiteMen, capSq))
+                    newWhiteMen = BitOps.Remove(newWhiteMen, capSq);
+                if (BitOps.Has(newWhiteKings, capSq))
+                    newWhiteKings = BitOps.Remove(newWhiteKings, capSq);
+            }
+        }
+        
+        // Switch turn
+        Side newTurn = defender;
+        
+        return new Position(newTurn, newWhiteMen, newBlackMen, newWhiteKings, newBlackKings);
+    }
+    
+    /// <summary>
+    /// Check if a square is a promotion square for a side.
+    /// </summary>
+    private bool IsPromotionSquare(Square sq, Side side)
+    {
+        // Promotion happens on the last rank
+        int rank = sq.Value / 13;
+        return side == Side.White ? rank == 9 : rank == 0;
     }
     
     public bool IsLegalMove(Position position, Move move)

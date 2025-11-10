@@ -32,7 +32,8 @@ public class GameService : IGameService
         if (!_moveGenerator.IsLegalMove(game.CurrentPosition, move))
             return false;
         
-        game.AddMove(move);
+        var newPosition = _moveGenerator.ApplyMove(game.CurrentPosition, move);
+        game.AddMove(move, newPosition);
         return true;
     }
     

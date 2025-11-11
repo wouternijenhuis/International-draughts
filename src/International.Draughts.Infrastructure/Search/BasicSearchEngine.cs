@@ -2,6 +2,7 @@ using International.Draughts.Application.Interfaces;
 using International.Draughts.Domain.Entities;
 using International.Draughts.Domain.Enums;
 using International.Draughts.Domain.ValueObjects;
+using International.Draughts.Infrastructure.Evaluation;
 
 namespace International.Draughts.Infrastructure.Search;
 
@@ -12,6 +13,7 @@ namespace International.Draughts.Infrastructure.Search;
 public class BasicSearchEngine : ISearchEngine
 {
     private readonly IMoveGenerator _moveGenerator;
+    private readonly ImprovedEvaluator _evaluator;
     private volatile bool _stopSearch;
     private DateTime _searchStartTime;
     private double _timeLimit;
@@ -23,6 +25,7 @@ public class BasicSearchEngine : ISearchEngine
     public BasicSearchEngine(IMoveGenerator moveGenerator)
     {
         _moveGenerator = moveGenerator ?? throw new ArgumentNullException(nameof(moveGenerator));
+        _evaluator = new ImprovedEvaluator();
     }
     
     public Move SearchBestMove(Position position, double timeLimit, int depthLimit = 0)
@@ -113,58 +116,12 @@ public class BasicSearchEngine : ISearchEngine
     }
     
     /// <summary>
-    /// Simple position evaluation.
+    /// Position evaluation using the improved evaluator.
     /// Positive scores favor the side to move.
     /// </summary>
     private int Evaluate(Position position)
     {
-        Side us = position.Turn;
-        Side them = us == Side.White ? Side.Black : Side.White;
-        
-        // Material count
-        int ourMen = position.GetMen(us).PopCount;
-        int ourKings = position.GetKings(us).PopCount;
-        int theirMen = position.GetMen(them).PopCount;
-        int theirKings = position.GetKings(them).PopCount;
-        
-        // Basic material evaluation
-        const int ManValue = 100;
-        const int KingValue = 300;
-        
-        int score = (ourMen * ManValue + ourKings * KingValue) - 
-                   (theirMen * ManValue + theirKings * KingValue);
-        
-        // Bonus for piece advancement (men closer to promotion)
-        score += EvaluateAdvancement(position, us);
-        score -= EvaluateAdvancement(position, them);
-        
-        return score;
-    }
-    
-    /// <summary>
-    /// Evaluate piece advancement toward promotion.
-    /// </summary>
-    private int EvaluateAdvancement(Position position, Side side)
-    {
-        int score = 0;
-        var men = position.GetMen(side);
-        
-        foreach (var sq in Domain.Helpers.BitOps.Squares(men))
-        {
-            int rank = sq.Value / 13;
-            if (side == Side.White)
-            {
-                // White advances up (higher ranks)
-                score += rank * 2;
-            }
-            else
-            {
-                // Black advances down (lower ranks)
-                score += (9 - rank) * 2;
-            }
-        }
-        
-        return score;
+        return _evaluator.Evaluate(position);
     }
     
     /// <summary>

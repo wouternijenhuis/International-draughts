@@ -160,6 +160,7 @@ The engine is now **fully functional** and can play complete games of internatio
 - ✅ Advanced position evaluation with positional/strategic heuristics
 - ✅ Transposition table (2^20 entries, ~16MB)
 - ✅ Move ordering (killer moves + history heuristic)
+- ✅ Opening book support (with randomization and margin selection)
 - ✅ Time-based search control
 
 **Architecture:**
@@ -181,16 +182,16 @@ The engine is now **fully functional** and can play complete games of internatio
 
 ### 🚧 Advanced Features (Optional Enhancements)
 
-The following advanced features from the original C++ version remain as optional enhancements (~2,500 LOC):
+The following advanced features from the original C++ version remain as optional enhancements (~2,100 LOC):
 
-1. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
-2. **Opening Book** (book.cpp, ~400 lines) - Opening book database with randomization
+1. ✅ **Opening Book** (book.cpp, ~400 lines) - **IMPLEMENTED** - Opening book database with randomization
+2. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
 3. **Endgame Bitbases** (bb_*.cpp, ~2,000 lines) - Perfect play tablebase for endgames
 4. **DXP Protocol** (dxp.cpp, ~800 lines) - Network protocol for engine-engine communication
 5. **Hub Protocol** (hub.cpp, ~600 lines) - Hub GUI protocol
 6. **Variant Support** - Full support for Killer, Breakthrough, Frisian, and Losing draughts
 
-The engine is fully playable with strong AI at the current implementation. These features would add specialized functionality for tournaments, GUIs, and ultra-strong play.
+The engine is fully playable with strong AI. Opening book support is now available (requires book data file). Other features would add specialized functionality for tournaments, GUIs, and ultra-strong play.
 
 ## Game Variants
 
@@ -201,6 +202,25 @@ The engine supports (or will support) multiple draughts variants:
 - **Breakthrough** - First to make a king wins
 - **Frisian** - Frisian draughts
 - **Losing** - Antidraughts/Giveaway variant
+
+## Opening Book
+
+The engine supports an optional opening book for improved opening play:
+
+**Features:**
+- Hash-based position storage for fast lookup
+- Randomization among good moves for variety
+- Configurable score margin for move selection
+- Automatic fallback to search if position not in book
+
+**Usage:**
+Place an opening book file at `data/book.dat`. The engine will automatically load it at startup. See [OPENINGBOOK.md](OPENINGBOOK.md) for details on the file format and creating custom books.
+
+**Benefits:**
+- Faster opening play (no search required)
+- Stronger opening moves (pre-analyzed positions)
+- Playing variety through randomization
+- Avoids weak opening traps
 
 ## Configuration
 

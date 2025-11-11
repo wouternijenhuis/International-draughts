@@ -12,11 +12,13 @@ public class GameService : IGameService
 {
     private readonly IMoveGenerator _moveGenerator;
     private readonly ISearchEngine _searchEngine;
+    private readonly IOpeningBook? _openingBook;
     
-    public GameService(IMoveGenerator moveGenerator, ISearchEngine searchEngine)
+    public GameService(IMoveGenerator moveGenerator, ISearchEngine searchEngine, IOpeningBook? openingBook = null)
     {
         _moveGenerator = moveGenerator ?? throw new ArgumentNullException(nameof(moveGenerator));
         _searchEngine = searchEngine ?? throw new ArgumentNullException(nameof(searchEngine));
+        _openingBook = openingBook;
     }
     
     public Game CreateGame(Variant variant = Variant.Normal)
@@ -41,6 +43,16 @@ public class GameService : IGameService
     {
         if (game == null)
             throw new ArgumentNullException(nameof(game));
+        
+        // Try opening book first if available
+        if (_openingBook != null && _openingBook.IsLoaded)
+        {
+            if (_openingBook.Probe(game.CurrentPosition, margin: 50, out Move bookMove, out int bookScore))
+            {
+                Console.WriteLine($"Using opening book move (score: {bookScore})");
+                return bookMove;
+            }
+        }
         
         return _searchEngine.SearchBestMove(game.CurrentPosition, timeLimit);
     }

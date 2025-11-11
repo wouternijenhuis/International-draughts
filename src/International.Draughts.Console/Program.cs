@@ -3,6 +3,7 @@ using International.Draughts.Application.UseCases;
 using International.Draughts.Domain;
 using International.Draughts.Infrastructure.Configuration;
 using International.Draughts.Infrastructure.MoveGeneration;
+using International.Draughts.Infrastructure.OpeningBook;
 using International.Draughts.Infrastructure.Search;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -59,6 +60,27 @@ class Program
                 // Register application services
                 services.AddSingleton<IMoveGenerator, BasicMoveGenerator>();
                 services.AddSingleton<ISearchEngine, BasicSearchEngine>();
+                
+                // Register opening book (optional)
+                services.AddSingleton<IOpeningBook>(sp =>
+                {
+                    var moveGenerator = sp.GetRequiredService<IMoveGenerator>();
+                    var book = new OpeningBook(moveGenerator);
+                    
+                    // Try to load opening book from standard location
+                    string bookPath = Path.Combine("data", "book.dat");
+                    if (File.Exists(bookPath))
+                    {
+                        book.LoadFromFile(bookPath);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("Opening book not found (optional feature)");
+                    }
+                    
+                    return book;
+                });
+                
                 services.AddSingleton<IGameService, GameService>();
                 
                 // Register terminal interface

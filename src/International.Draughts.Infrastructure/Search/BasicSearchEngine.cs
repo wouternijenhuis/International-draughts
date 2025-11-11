@@ -14,6 +14,7 @@ public class BasicSearchEngine : ISearchEngine
 {
     private readonly IMoveGenerator _moveGenerator;
     private readonly ImprovedEvaluator _evaluator;
+    private readonly TranspositionTable _transpositionTable;
     private volatile bool _stopSearch;
     private DateTime _searchStartTime;
     private double _timeLimit;
@@ -26,6 +27,7 @@ public class BasicSearchEngine : ISearchEngine
     {
         _moveGenerator = moveGenerator ?? throw new ArgumentNullException(nameof(moveGenerator));
         _evaluator = new ImprovedEvaluator();
+        _transpositionTable = new TranspositionTable(20); // 2^20 entries
     }
     
     public Move SearchBestMove(Position position, double timeLimit, int depthLimit = 0)
@@ -79,13 +81,41 @@ public class BasicSearchEngine : ISearchEngine
     }
     
     /// <summary>
-    /// Alpha-beta pruning search.
+    /// Alpha-beta pruning search with transposition table.
     /// </summary>
     private int AlphaBeta(Position position, int depth, int alpha, int beta)
     {
         if (ShouldStop() || depth <= 0)
         {
             return Evaluate(position);
+        }
+        
+        ulong posHash = position.GetHash();
+        int alphaOrig = alpha;
+        
+        // Probe transposition table
+        if (_transpositionTable.Probe(posHash, out Move ttMove, out int ttScore, out int ttDepth, out EntryType ttType))
+        {
+            if (ttDepth >= depth)
+            {
+                if (ttType == EntryType.Exact)
+                {
+                    return ttScore;
+                }
+                else if (ttType == EntryType.Lower)
+                {
+                    alpha = Math.Max(alpha, ttScore);
+                }
+                else if (ttType == EntryType.Upper)
+                {
+                    beta = Math.Min(beta, ttScore);
+                }
+                
+                if (alpha >= beta)
+                {
+                    return ttScore;
+                }
+            }
         }
         
         var moves = _moveGenerator.GenerateMoves(position).ToList();
@@ -96,6 +126,15 @@ public class BasicSearchEngine : ISearchEngine
             return -WinScore;
         }
         
+        // Try transposition table move first if available
+        if (!ttMove.IsNone && moves.Contains(ttMove))
+        {
+            moves.Remove(ttMove);
+            moves.Insert(0, ttMove);
+        }
+        
+        Move bestMove = Move.None;
+        
         foreach (var move in moves)
         {
             var newPosition = _moveGenerator.ApplyMove(position, move);
@@ -103,14 +142,22 @@ public class BasicSearchEngine : ISearchEngine
             
             if (score >= beta)
             {
+                // Store lower bound
+                _transpositionTable.Store(posHash, move, beta, depth, EntryType.Lower);
                 return beta; // Beta cutoff
             }
             
             if (score > alpha)
             {
                 alpha = score;
+                bestMove = move;
             }
         }
+        
+        // Store in transposition table
+        EntryType entryType = alpha <= alphaOrig ? EntryType.Upper : 
+                             alpha >= beta ? EntryType.Lower : EntryType.Exact;
+        _transpositionTable.Store(posHash, bestMove, alpha, depth, entryType);
         
         return alpha;
     }

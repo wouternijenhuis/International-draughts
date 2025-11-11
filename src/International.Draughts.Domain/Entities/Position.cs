@@ -72,4 +72,18 @@ public class Position
     }
     
     public Side OpponentSide => Turn == Side.White ? Side.Black : Side.White;
+    
+    /// <summary>
+    /// Get a hash value for this position for use in transposition tables.
+    /// </summary>
+    public ulong GetHash()
+    {
+        // Simple Zobrist-like hash using XOR of piece bitboards
+        ulong hash = WhiteMen.Value;
+        hash ^= BlackMen.Value * 0x9e3779b97f4a7c15UL;
+        hash ^= WhiteKings.Value * 0x85ebca6b8e4a6d3fUL;
+        hash ^= BlackKings.Value * 0xc2b2ae3d27d4eb4fUL;
+        hash ^= (ulong)Turn * 0x7f4a7c13UL;
+        return hash;
+    }
 }

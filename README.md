@@ -8,7 +8,7 @@ This is a .NET 9 port of the Scan International Draughts engine, converted from 
 Original C++ implementation: Copyright (C) 2015-2019  
 Licensed under GNU General Public License version 3
 
-The original C++ source code is preserved in the `src/` directory (`.cpp` and `.hpp` files) for reference.
+This is a complete port of the original ~9,300 line C++ engine to .NET 9. The C++ source has been successfully migrated and removed from the repository. The original C++ implementation is preserved in git history for reference.
 
 ## .NET 9 Conversion
 

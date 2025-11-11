@@ -6,6 +6,8 @@ This document describes the migration from the original C++ Scan 3.1 engine to t
 
 The migration follows Clean Architecture principles and converts the ~9,300 lines of C++ code into a structured, maintainable .NET solution.
 
+**Status:** Core functionality migration is **COMPLETE**. The original C++ source files have been removed from the repository as of the completion of this migration. If you need to reference the original C++ implementation, it is preserved in git history before commit (check out earlier commits).
+
 ## Architecture Mapping
 
 ### Original C++ Structure

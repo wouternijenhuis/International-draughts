@@ -16,6 +16,7 @@ public class BasicSearchEngine : ISearchEngine
     private readonly ImprovedEvaluator _evaluator;
     private readonly TranspositionTable _transpositionTable;
     private readonly MoveOrdering _moveOrdering;
+    private readonly IBitbase? _bitbase;
     private volatile bool _stopSearch;
     private DateTime _searchStartTime;
     private double _timeLimit;
@@ -24,12 +25,13 @@ public class BasicSearchEngine : ISearchEngine
     private const int InfiniteScore = 30000;
     private const int WinScore = 20000;
     
-    public BasicSearchEngine(IMoveGenerator moveGenerator)
+    public BasicSearchEngine(IMoveGenerator moveGenerator, IBitbase? bitbase = null)
     {
         _moveGenerator = moveGenerator ?? throw new ArgumentNullException(nameof(moveGenerator));
         _evaluator = new ImprovedEvaluator();
         _transpositionTable = new TranspositionTable(20); // 2^20 entries
         _moveOrdering = new MoveOrdering();
+        _bitbase = bitbase;
     }
     
     public Move SearchBestMove(Position position, double timeLimit, int depthLimit = 0)
@@ -88,6 +90,16 @@ public class BasicSearchEngine : ISearchEngine
     /// </summary>
     private int AlphaBeta(Position position, int depth, int alpha, int beta)
     {
+        // Check bitbase first for perfect endgame play
+        if (_bitbase != null && _bitbase.IsLoaded)
+        {
+            var bitbaseResult = _bitbase.Probe(position);
+            if (bitbaseResult != null)
+            {
+                return bitbaseResult.ToScore();
+            }
+        }
+        
         if (ShouldStop() || depth <= 0)
         {
             return Evaluate(position);

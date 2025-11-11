@@ -88,6 +88,12 @@ The engine starts in text mode. Available commands:
 - `h` or `help` - Show help
 - `q` or `quit` - Exit the program
 
+### Optional Features
+
+**Opening Book**: Place opening book database at `data/book.dat` for instant opening moves. See [OPENINGBOOK.md](OPENINGBOOK.md) for format details.
+
+**Endgame Bitbases**: Place bitbase files in `data/bitbases/` for perfect endgame play. See [BITBASES.md](BITBASES.md) for format details and generation instructions.
+
 ### Example Session
 
 **Playing against the computer:**
@@ -182,16 +188,16 @@ The engine is now **fully functional** and can play complete games of internatio
 
 ### 🚧 Advanced Features (Optional Enhancements)
 
-The following advanced features from the original C++ version remain as optional enhancements (~2,100 LOC):
+The following advanced features from the original C++ version remain as optional enhancements:
 
 1. ✅ **Opening Book** (book.cpp, ~400 lines) - **IMPLEMENTED** - Opening book database with randomization
-2. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
-3. **Endgame Bitbases** (bb_*.cpp, ~2,000 lines) - Perfect play tablebase for endgames
+2. ✅ **Endgame Bitbases** (bb_*.cpp, ~2,000 lines) - **IMPLEMENTED** - Perfect play tablebase for endgames
+3. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
 4. **DXP Protocol** (dxp.cpp, ~800 lines) - Network protocol for engine-engine communication
 5. **Hub Protocol** (hub.cpp, ~600 lines) - Hub GUI protocol
 6. **Variant Support** - Full support for Killer, Breakthrough, Frisian, and Losing draughts
 
-The engine is fully playable with strong AI. Opening book support is now available (requires book data file). Other features would add specialized functionality for tournaments, GUIs, and ultra-strong play.
+The engine is fully playable with strong AI. Opening book support and endgame bitbases are now available (require external data files). Other features would add specialized functionality for tournaments, GUIs, and ultra-strong play.
 
 ## Game Variants
 

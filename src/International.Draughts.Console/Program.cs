@@ -1,6 +1,7 @@
 ﻿using International.Draughts.Application.Interfaces;
 using International.Draughts.Application.UseCases;
 using International.Draughts.Domain;
+using International.Draughts.Infrastructure.Bitbase;
 using International.Draughts.Infrastructure.Configuration;
 using International.Draughts.Infrastructure.MoveGeneration;
 using International.Draughts.Infrastructure.OpeningBook;
@@ -59,7 +60,32 @@ class Program
                 
                 // Register application services
                 services.AddSingleton<IMoveGenerator, BasicMoveGenerator>();
-                services.AddSingleton<ISearchEngine, BasicSearchEngine>();
+                
+                // Register bitbase (optional)
+                services.AddSingleton<IBitbase>(sp =>
+                {
+                    var bitbase = new Infrastructure.Bitbase.Bitbase();
+                    
+                    // Try to load bitbases from standard location
+                    string bitbasePath = Path.Combine("data", "bitbases");
+                    if (Directory.Exists(bitbasePath))
+                    {
+                        bitbase.LoadBitbases();
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("Bitbases not found (optional feature)");
+                    }
+                    
+                    return bitbase;
+                });
+                
+                services.AddSingleton<ISearchEngine>(sp =>
+                {
+                    var moveGenerator = sp.GetRequiredService<IMoveGenerator>();
+                    var bitbase = sp.GetRequiredService<IBitbase>();
+                    return new BasicSearchEngine(moveGenerator, bitbase);
+                });
                 
                 // Register opening book (optional)
                 services.AddSingleton<IOpeningBook>(sp =>

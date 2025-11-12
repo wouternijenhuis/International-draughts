@@ -30,6 +30,10 @@ International.Draughts.Application/     - Application use cases and interfaces
 International.Draughts.Infrastructure/  - Infrastructure implementations
   ├── MoveGeneration/                    - Move generation implementation
   ├── Search/                            - Search algorithm implementation
+  ├── Evaluation/                        - Position evaluation
+  ├── OpeningBook/                       - Opening book database
+  ├── Bitbase/                           - Endgame bitbases
+  ├── Protocols/                         - Network protocols (DXP, Hub)
   └── Configuration/                     - Configuration classes
 
 International.Draughts.Console/         - Console application entry point
@@ -192,12 +196,11 @@ The following advanced features from the original C++ version remain as optional
 
 1. ✅ **Opening Book** (book.cpp, ~400 lines) - **IMPLEMENTED** - Opening book database with randomization
 2. ✅ **Endgame Bitbases** (bb_*.cpp, ~2,000 lines) - **IMPLEMENTED** - Perfect play tablebase for endgames
-3. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
-4. **DXP Protocol** (dxp.cpp, ~800 lines) - Network protocol for engine-engine communication
-5. **Hub Protocol** (hub.cpp, ~600 lines) - Hub GUI protocol
-6. **Variant Support** - Full support for Killer, Breakthrough, Frisian, and Losing draughts
+3. ✅ **Network Protocols** (dxp.cpp/hub.cpp, ~1,400 lines) - **IMPLEMENTED** - DXP and Hub protocols for tournament/GUI play
+4. **Machine-Learned Evaluation** (eval.cpp data files) - Pre-trained pattern weights for stronger play
+5. **Variant Support** - Full support for Killer, Breakthrough, Frisian, and Losing draughts
 
-The engine is fully playable with strong AI. Opening book support and endgame bitbases are now available (require external data files). Other features would add specialized functionality for tournaments, GUIs, and ultra-strong play.
+The engine is fully playable with strong AI. Opening book support, endgame bitbases, and network protocols are now available (book/bitbases require external data files). Other features would add ultra-strong play and variant support.
 
 ## Game Variants
 
@@ -227,6 +230,42 @@ Place an opening book file at `data/book.dat`. The engine will automatically loa
 - Stronger opening moves (pre-analyzed positions)
 - Playing variety through randomization
 - Avoids weak opening traps
+
+## Network Protocols
+
+The engine supports two network protocols for remote play:
+
+**DXP (Dammen eXchange Protocol):**
+- Engine-to-engine communication
+- Tournament play support
+- Default port: 27531
+- Compatible with Scan, Dam 2.2, and other DXP engines
+
+**Hub Protocol:**
+- GUI-to-engine communication
+- Compatible with Damage, Tornado, and other Hub GUIs
+- Text-based command protocol
+- Position setup and analysis support
+
+**Usage:**
+```bash
+# DXP server mode (wait for opponent)
+dotnet run -- --protocol dxp --server
+
+# DXP client mode (connect to opponent)
+dotnet run -- --protocol dxp --connect opponent.example.com:27531
+
+# Hub mode (for GUI)
+dotnet run -- --protocol hub --server
+```
+
+See [PROTOCOLS.md](PROTOCOLS.md) for complete documentation on protocol commands, formats, and usage examples.
+
+**Benefits:**
+- Play against remote engines in tournaments
+- Use graphical interfaces (Damage, Tornado)
+- Network-based engine analysis
+- Remote game observation
 
 ## Configuration
 

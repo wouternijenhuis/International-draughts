@@ -1,3 +1,4 @@
+using International.Draughts.Application.Interfaces;
 using International.Draughts.Domain.Entities;
 using International.Draughts.Domain.Enums;
 using International.Draughts.Domain.Helpers;
@@ -6,26 +7,27 @@ using International.Draughts.Domain.ValueObjects;
 namespace International.Draughts.Infrastructure.Evaluation;
 
 /// <summary>
-/// Improved position evaluator with more sophisticated heuristics.
-/// Inspired by eval.cpp but simplified without requiring external weight files.
+/// Improved position evaluator with sophisticated heuristics.
+/// Supports both default hand-tuned weights and machine-learned weights from external files.
 /// </summary>
 public class ImprovedEvaluator
 {
-    // Material values
-    private const int ManValue = 100;
-    private const int KingValue = 300;
-    private const int FirstKingBonus = 50; // Bonus for having the first king
+    private readonly IEvaluationWeights _weights;
     
-    // Positional bonuses
-    private const int CenterControlBonus = 5;
-    private const int AdvancedPieceBonus = 3;
-    private const int BackRankPenalty = 10;
+    /// <summary>
+    /// Create evaluator with specified weights.
+    /// </summary>
+    public ImprovedEvaluator(IEvaluationWeights weights)
+    {
+        _weights = weights;
+    }
     
-    // King mobility
-    private const int KingMobilityValue = 2;
-    
-    // Balance factors
-    private const int TempoDiagonal = 2;
+    /// <summary>
+    /// Create evaluator with default weights.
+    /// </summary>
+    public ImprovedEvaluator() : this(new DefaultEvaluationWeights())
+    {
+    }
     
     /// <summary>
     /// Evaluate a position from the perspective of the side to move.
@@ -66,17 +68,17 @@ public class ImprovedEvaluator
         int score = 0;
         
         // Basic material
-        score += (ourMen - theirMen) * ManValue;
-        score += (ourKings - theirKings) * KingValue;
+        score += (ourMen - theirMen) * _weights.ManValue;
+        score += (ourKings - theirKings) * _weights.KingValue;
         
         // First king advantage
         if (ourKings > 0 && theirKings == 0)
         {
-            score += FirstKingBonus;
+            score += _weights.FirstKingBonus;
         }
         else if (theirKings > 0 && ourKings == 0)
         {
-            score -= FirstKingBonus;
+            score -= _weights.FirstKingBonus;
         }
         
         return score;
@@ -115,19 +117,19 @@ public class ImprovedEvaluator
             // Center control (files 4-8 are more central)
             if (file >= 4 && file <= 8)
             {
-                score += CenterControlBonus;
+                score += _weights.CenterControlBonus;
             }
             
             // Advancement bonus for men
             if (!isKing)
             {
                 int advancementRank = side == Side.White ? rank : (9 - rank);
-                score += advancementRank * AdvancedPieceBonus;
+                score += advancementRank * _weights.AdvancedPieceBonus;
                 
                 // Penalty for pieces stuck on back rank
                 if (advancementRank == 0)
                 {
-                    score -= BackRankPenalty;
+                    score -= _weights.BackRankPenalty;
                 }
             }
         }
@@ -146,14 +148,14 @@ public class ImprovedEvaluator
         foreach (var kingSquare in BitOps.Squares(position.GetKings(us)))
         {
             int moves = CountKingMoves(kingSquare, position.EmptySquares);
-            score += moves * KingMobilityValue;
+            score += moves * _weights.KingMobilityValue;
         }
         
         // Opponent king mobility
         foreach (var kingSquare in BitOps.Squares(position.GetKings(them)))
         {
             int moves = CountKingMoves(kingSquare, position.EmptySquares);
-            score -= moves * KingMobilityValue;
+            score -= moves * _weights.KingMobilityValue;
         }
         
         return score;
@@ -209,11 +211,11 @@ public class ImprovedEvaluator
             
             if (ourKings > theirKings)
             {
-                score += 20; // King advantage in endgame
+                score += _weights.EndgameKingAdvantage;
             }
             else if (theirKings > ourKings)
             {
-                score -= 20;
+                score -= _weights.EndgameKingAdvantage;
             }
         }
         
@@ -241,7 +243,7 @@ public class ImprovedEvaluator
             // Main diagonal patterns
             if (Math.Abs(file - rank) <= 2)
             {
-                score += TempoDiagonal;
+                score += _weights.TempoDiagonal;
             }
         }
         

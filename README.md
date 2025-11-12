@@ -98,6 +98,8 @@ The engine starts in text mode. Available commands:
 
 **Endgame Bitbases**: Place bitbase files in `data/bitbases/` for perfect endgame play. See [BITBASES.md](BITBASES.md) for format details and generation instructions.
 
+**Evaluation Weights**: Place custom evaluation weights at `data/weights.dat` for machine-learned or tuned evaluation parameters. See [EVALUATION-WEIGHTS.md](EVALUATION-WEIGHTS.md) for format details and training guidance. If not provided, the engine uses optimized default weights.
+
 ### Example Session
 
 **Playing against the computer:**

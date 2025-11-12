@@ -3,6 +3,7 @@ using International.Draughts.Application.UseCases;
 using International.Draughts.Domain;
 using International.Draughts.Infrastructure.Bitbase;
 using International.Draughts.Infrastructure.Configuration;
+using International.Draughts.Infrastructure.Evaluation;
 using International.Draughts.Infrastructure.MoveGeneration;
 using International.Draughts.Infrastructure.OpeningBook;
 using International.Draughts.Infrastructure.Search;
@@ -60,6 +61,13 @@ class Program
                 
                 // Register application services
                 services.AddSingleton<IMoveGenerator, BasicMoveGenerator>();
+                
+                // Register evaluation weights (optional)
+                services.AddSingleton<IEvaluationWeights>(sp =>
+                {
+                    string weightsPath = Path.Combine("data", "weights.dat");
+                    return LearnedEvaluationWeights.LoadOrDefault(weightsPath, compressed: false);
+                });
                 
                 // Register bitbase (optional)
                 services.AddSingleton<IBitbase>(sp =>

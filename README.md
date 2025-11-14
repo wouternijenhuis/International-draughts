@@ -39,6 +39,11 @@ International.Draughts.Infrastructure/  - Infrastructure implementations
 International.Draughts.Console/         - Console application entry point
   ├── Program.cs                         - Application startup with DI
   └── TerminalInterface.cs               - Terminal user interface
+
+International.Draughts.Web/             - Blazor Server web interface
+  ├── Components/Pages/Home.razor        - Interactive game board UI
+  ├── Program.cs                         - Web application startup
+  └── wwwroot/                           - Static web assets (CSS, Bootstrap)
 ```
 
 ### Clean Architecture Principles
@@ -71,6 +76,28 @@ dotnet build -c Release
 ```
 
 ## Running
+
+### Web Interface (Blazor Server)
+
+Play International Draughts in your web browser with a graphical interface:
+
+```bash
+# Run the web application
+dotnet run --project src/International.Draughts.Web
+
+# Navigate to http://localhost:5000 in your browser
+```
+
+Features:
+- Interactive 10x10 draughts board
+- Click-to-move interface with visual feedback
+- Play against the computer AI
+- New game and undo functionality
+- Real-time game status updates
+
+See [src/International.Draughts.Web/README.md](src/International.Draughts.Web/README.md) for more details.
+
+### Console Interface
 
 ```bash
 # Run in text mode (default)

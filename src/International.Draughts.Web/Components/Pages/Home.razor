@@ -105,7 +105,8 @@
     private bool IsPlayableSquare(int file, int rank)
     {
         // In international draughts, only dark squares are playable
-        return (file + rank) % 2 == 1;
+        // Per FMJD rules 2.4: the first square at the left hand (bottom-left for white) must be dark
+        return (file + rank) % 2 == 0;
     }
 
     private PieceSide GetPieceAt(int squareIndex)

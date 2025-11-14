@@ -1,0 +1,279 @@
+﻿@page "/"
+@using International.Draughts.Application.Interfaces
+@using International.Draughts.Domain.Entities
+@using International.Draughts.Domain.Enums
+@using International.Draughts.Domain.ValueObjects
+@using International.Draughts.Infrastructure.Bitbase
+@inject IGameService GameService
+@inject IMoveGenerator MoveGenerator
+@rendermode InteractiveServer
+
+<PageTitle>International Draughts - Play vs Computer</PageTitle>
+
+<div class="game-container">
+    <h1>International Draughts</h1>
+    
+    <div class="game-controls">
+        <button class="btn btn-primary" @onclick="NewGame">New Game</button>
+        <button class="btn btn-secondary" @onclick="UndoMove" disabled="@(game?.CurrentPly <= 0)">Undo Move</button>
+        <div class="game-status">
+            @if (game != null)
+            {
+                <div><strong>Turn:</strong> @game.CurrentPosition.Turn</div>
+                <div><strong>Moves:</strong> @game.MoveCount</div>
+                @if (isComputerThinking)
+                {
+                    <div class="thinking-indicator">🤔 Computer is thinking...</div>
+                }
+                @if (gameOverMessage != null)
+                {
+                    <div class="game-over">@gameOverMessage</div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (game != null)
+    {
+        <div class="board-container">
+            @for (int rank = 9; rank >= 0; rank--)
+            {
+                <div class="board-row">
+                    @for (int file = 0; file < 10; file++)
+                    {
+                        var squareIndex = GetSquareIndex(file, rank);
+                        var isPlayable = IsPlayableSquare(file, rank);
+                        var piece = GetPieceAt(squareIndex);
+                        var isSelected = selectedSquare.HasValue && selectedSquare.Value == squareIndex;
+                        var isValidMove = validMoves.Contains(squareIndex);
+                        
+                        <div class="square @(isPlayable ? "playable" : "unplayable") @(isSelected ? "selected" : "") @(isValidMove ? "valid-move" : "")"
+                             @onclick="() => OnSquareClick(squareIndex, isPlayable)">
+                            @if (piece != PieceSide.Empty)
+                            {
+                                <span class="piece @GetPieceClass(piece)">@GetPieceSymbol(piece)</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private Game? game;
+    private int? selectedSquare;
+    private HashSet<int> validMoves = new();
+    private List<Move> legalMoves = new();
+    private bool isComputerThinking = false;
+    private string? gameOverMessage;
+
+    protected override void OnInitialized()
+    {
+        NewGame();
+    }
+
+    private void NewGame()
+    {
+        game = GameService.CreateGame(Variant.Normal);
+        selectedSquare = null;
+        validMoves.Clear();
+        legalMoves.Clear();
+        isComputerThinking = false;
+        gameOverMessage = null;
+    }
+
+    private void UndoMove()
+    {
+        if (game != null && game.CurrentPly > 0)
+        {
+            game.GoToPly(game.CurrentPly - 1);
+            selectedSquare = null;
+            validMoves.Clear();
+            legalMoves.Clear();
+            gameOverMessage = null;
+        }
+    }
+
+    private int GetSquareIndex(int file, int rank)
+    {
+        // Convert board coordinates to sparse representation
+        return rank * 13 + file;
+    }
+
+    private bool IsPlayableSquare(int file, int rank)
+    {
+        // In international draughts, only dark squares are playable
+        return (file + rank) % 2 == 1;
+    }
+
+    private PieceSide GetPieceAt(int squareIndex)
+    {
+        if (game == null || squareIndex < 0 || squareIndex >= 63)
+            return PieceSide.Empty;
+
+        var pos = game.CurrentPosition;
+        var bitMask = 1UL << squareIndex;
+
+        if ((pos.WhiteMen.Value & bitMask) != 0)
+            return PieceSide.WhiteMan;
+        if ((pos.WhiteKings.Value & bitMask) != 0)
+            return PieceSide.WhiteKing;
+        if ((pos.BlackMen.Value & bitMask) != 0)
+            return PieceSide.BlackMan;
+        if ((pos.BlackKings.Value & bitMask) != 0)
+            return PieceSide.BlackKing;
+
+        return PieceSide.Empty;
+    }
+
+    private string GetPieceClass(PieceSide piece)
+    {
+        return piece switch
+        {
+            PieceSide.WhiteMan => "white-man",
+            PieceSide.WhiteKing => "white-king",
+            PieceSide.BlackMan => "black-man",
+            PieceSide.BlackKing => "black-king",
+            _ => ""
+        };
+    }
+
+    private string GetPieceSymbol(PieceSide piece)
+    {
+        return piece switch
+        {
+            PieceSide.WhiteMan => "⛀",
+            PieceSide.WhiteKing => "⛁",
+            PieceSide.BlackMan => "⛂",
+            PieceSide.BlackKing => "⛃",
+            _ => ""
+        };
+    }
+
+    private async Task OnSquareClick(int squareIndex, bool isPlayable)
+    {
+        if (game == null || !isPlayable || isComputerThinking)
+            return;
+
+        if (GameService.IsGameOver(game))
+        {
+            gameOverMessage = "Game Over!";
+            return;
+        }
+
+        var piece = GetPieceAt(squareIndex);
+        var currentPlayer = game.CurrentPosition.Turn;
+
+        // If no piece is selected
+        if (!selectedSquare.HasValue)
+        {
+            // Can only select own pieces
+            if ((currentPlayer == Side.White && (piece == PieceSide.WhiteMan || piece == PieceSide.WhiteKing)) ||
+                (currentPlayer == Side.Black && (piece == PieceSide.BlackMan || piece == PieceSide.BlackKing)))
+            {
+                selectedSquare = squareIndex;
+                legalMoves = MoveGenerator.GenerateMoves(game.CurrentPosition).ToList();
+                
+                // Find valid destination squares for this piece
+                validMoves.Clear();
+                foreach (var move in legalMoves)
+                {
+                    var friendlyPieces = currentPlayer == Side.White ? game.CurrentPosition.WhitePieces : game.CurrentPosition.BlackPieces;
+                    var from = move.GetFrom(friendlyPieces);
+                    if (from.Value == squareIndex)
+                    {
+                        var to = move.GetTo(game.CurrentPosition.EmptySquares, friendlyPieces);
+                        validMoves.Add(to.Value);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // If clicking on the same square, deselect
+            if (selectedSquare.Value == squareIndex)
+            {
+                selectedSquare = null;
+                validMoves.Clear();
+                return;
+            }
+
+            // Try to make a move
+            var moveToMake = legalMoves.FirstOrDefault(m =>
+            {
+                var friendlyPieces = currentPlayer == Side.White ? game.CurrentPosition.WhitePieces : game.CurrentPosition.BlackPieces;
+                var from = m.GetFrom(friendlyPieces);
+                var to = m.GetTo(game.CurrentPosition.EmptySquares, friendlyPieces);
+                return from.Value == selectedSquare.Value && to.Value == squareIndex;
+            });
+
+            if (!moveToMake.IsNone)
+            {
+                GameService.MakeMove(game, moveToMake);
+                selectedSquare = null;
+                validMoves.Clear();
+                legalMoves.Clear();
+
+                // Check if game is over
+                if (GameService.IsGameOver(game))
+                {
+                    gameOverMessage = currentPlayer == Side.White ? "White wins!" : "Black wins!";
+                }
+                else
+                {
+                    // Computer's turn
+                    await ComputerMove();
+                }
+            }
+            else
+            {
+                // If clicking on another own piece, select that instead
+                if ((currentPlayer == Side.White && (piece == PieceSide.WhiteMan || piece == PieceSide.WhiteKing)) ||
+                    (currentPlayer == Side.Black && (piece == PieceSide.BlackMan || piece == PieceSide.BlackKing)))
+                {
+                    selectedSquare = squareIndex;
+                    
+                    validMoves.Clear();
+                    foreach (var move in legalMoves)
+                    {
+                        var friendlyPieces = currentPlayer == Side.White ? game.CurrentPosition.WhitePieces : game.CurrentPosition.BlackPieces;
+                        var from = move.GetFrom(friendlyPieces);
+                        if (from.Value == squareIndex)
+                        {
+                            var to = move.GetTo(game.CurrentPosition.EmptySquares, friendlyPieces);
+                            validMoves.Add(to.Value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task ComputerMove()
+    {
+        if (game == null)
+            return;
+
+        isComputerThinking = true;
+        StateHasChanged();
+
+        await Task.Delay(500); // Small delay so user can see the board state
+
+        try
+        {
+            var computerMove = await Task.Run(() => GameService.GetBestMove(game, 5.0));
+            GameService.MakeMove(game, computerMove);
+
+            if (GameService.IsGameOver(game))
+            {
+                gameOverMessage = game.CurrentPosition.Turn == Side.White ? "Black wins!" : "White wins!";
+            }
+        }
+        finally
+        {
+            isComputerThinking = false;
+        }
+    }
+}

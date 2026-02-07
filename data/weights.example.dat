@@ -1,0 +1,25 @@
+# Example Evaluation Weights File
+# This file shows the format for custom evaluation weights
+# Copy to data/weights.dat to use these weights
+
+# Material values
+man_value=100
+king_value=300
+first_king_bonus=50
+
+# Positional weights
+center_control=5
+advancement=3
+back_rank_penalty=10
+
+# Mobility
+king_mobility=2
+
+# Strategic
+tempo_diagonal=2
+endgame_king_advantage=20
+
+# Optional: Pattern weights (advanced feature)
+# pattern_bridge=15
+# pattern_wedge=10
+# pattern_trap=20

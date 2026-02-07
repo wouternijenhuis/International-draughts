@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Board theme: Classic */
+  --color-board-light: #f0d9b5;
+  --color-board-dark: #b58863;
+
+  /* Surface colors */
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f8fafc;
+  --color-surface-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: 'Courier New', monospace;
+
+  /* Board sizing */
+  --board-size: min(90vw, 90vh, 600px);
+  --square-size: calc(var(--board-size) / 10);
+  --board-radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: #0f172a;
+    --color-surface-elevated: #1e293b;
+    --color-surface-overlay: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Accessibility: Skip to content */
+.skip-to-content {
+  @apply absolute -top-full left-4 z-50 bg-primary-600 text-white px-4 py-2 rounded-b-lg focus:top-0 transition-all;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary-500;
+}

@@ -80,6 +80,32 @@ export async function checkHealth(): Promise<{ status: string }> {
   return apiGet<{ status: string }>('/health');
 }
 
+/** Response from the Expert AI move endpoint */
+export interface AiMoveResponse {
+  notation: string;
+  from: number;
+  to: number;
+  capturedSquares: number[];
+  score: number;
+  depthReached: number;
+  timeConsumedMs: number;
+}
+
+/** Request an AI move from the backend Expert AI engine */
+export async function requestAiMove(
+  board: number[],
+  currentPlayer: string,
+  difficulty: string,
+  timeLimitMs?: number,
+): Promise<AiMoveResponse> {
+  return apiPost<AiMoveResponse>('/ai/move', {
+    board,
+    currentPlayer,
+    difficulty,
+    timeLimitMs,
+  });
+}
+
 /** Convenience object wrapping the standalone API functions */
 export const apiClient = {
   get: apiGet,

@@ -13,8 +13,8 @@ test.describe('Tutorial', () => {
     await expect(page.getByText(/Welcome to International Draughts/i)).toBeVisible();
     await expect(page.getByText(/Step 1 of/)).toBeVisible();
     
-    // Navigate to next step
-    await page.getByRole('button', { name: /next/i }).click();
+    // Navigate to next step (use exact button text to avoid Next.js DevTools conflict)
+    await page.getByRole('button', { name: /Next →/i }).click();
     await expect(page.getByText(/How Men Move/i)).toBeVisible();
     await expect(page.getByText(/Step 2 of/)).toBeVisible();
   });
@@ -27,9 +27,9 @@ test.describe('Tutorial', () => {
 
   test('can navigate to last step and see start playing', async ({ page }) => {
     await page.goto('/tutorial');
-    // Click through all steps
+    // Click through all steps using exact button text
     for (let i = 0; i < 5; i++) {
-      await page.getByRole('button', { name: /next/i }).click();
+      await page.getByRole('button', { name: /Next →/i }).click();
     }
     await expect(page.getByText(/Start Playing/i)).toBeVisible();
   });

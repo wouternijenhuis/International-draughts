@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: ASP.NET Core",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Cleanup dev ports",
+      "program": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/backend/src/InternationalDraughts.Api/InternationalDraughts.Api.csproj"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/swagger"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "justMyCode": true
+    },
+    {
+      "name": "Frontend: Next.js",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/frontend"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: Frontend + Backend",
+      "configurations": [
+        "Backend: ASP.NET Core",
+        "Frontend: Next.js"
+      ],
+      "stopAll": true
+    }
+  ]
+}

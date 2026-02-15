@@ -10,11 +10,15 @@ describe('HomePage', () => {
 
   it('should render Play Now button', () => {
     render(<HomePage />);
-    expect(screen.getByRole('button', { name: /start a new game/i })).toBeInTheDocument();
+    const playNowLink = screen.getByRole('link', { name: /start a new game/i });
+    expect(playNowLink).toBeInTheDocument();
+    expect(playNowLink).toHaveAttribute('href', '/play');
   });
 
   it('should render How to Play button', () => {
     render(<HomePage />);
-    expect(screen.getByRole('button', { name: /learn how to play/i })).toBeInTheDocument();
+    const tutorialLink = screen.getByRole('link', { name: /learn how to play/i });
+    expect(tutorialLink).toBeInTheDocument();
+    expect(tutorialLink).toHaveAttribute('href', '/tutorial');
   });
 });

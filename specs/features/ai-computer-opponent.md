@@ -40,6 +40,7 @@ Deliver four clearly differentiated AI difficulty levels — Easy, Medium, Hard,
 
 - A single legal move to play, chosen according to the difficulty level's strategy
 - Time consumed for the move (for time management)
+- In development mode only, structured diagnostic logs for AI decision lifecycle (scheduling, search diagnostics, selected move, and failure/cancellation paths)
 
 ---
 

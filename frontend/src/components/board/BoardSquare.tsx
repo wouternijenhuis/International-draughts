@@ -10,6 +10,7 @@ export interface BoardSquareProps {
   isLegalMove: boolean;
   isLastMove: boolean;
   onClick?: () => void;
+  onDragStart?: (e: React.MouseEvent | React.TouchEvent) => void;
   piece: Piece | null;
 }
 
@@ -21,6 +22,7 @@ export const BoardSquare: React.FC<BoardSquareProps> = ({
   isLegalMove,
   isLastMove,
   onClick,
+  onDragStart,
   piece,
 }) => {
   const bgColor = isDark ? 'var(--board-dark)' : 'var(--board-light)';
@@ -41,6 +43,8 @@ export const BoardSquare: React.FC<BoardSquareProps> = ({
       `}
       style={{ backgroundColor: bgColor }}
       onClick={onClick}
+      onMouseDown={onDragStart}
+      onTouchStart={onDragStart}
       role={isDark ? 'gridcell' : undefined}
       aria-label={ariaLabel}
       tabIndex={isDark ? 0 : undefined}

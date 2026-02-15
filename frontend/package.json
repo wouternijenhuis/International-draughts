@@ -16,6 +16,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@international-draughts/engine": "file:../shared/draughts-engine",
     "next": "^16.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

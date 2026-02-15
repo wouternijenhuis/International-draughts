@@ -1,3 +1,5 @@
+'use client';
+
 export default function OfflinePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -10,7 +12,7 @@ export default function OfflinePage() {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
                      transition-colors font-medium"
         >
           Try Again

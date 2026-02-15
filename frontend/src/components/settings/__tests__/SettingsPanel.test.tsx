@@ -36,6 +36,18 @@ describe('SettingsPanel', () => {
     expect(useGameStore.getState().config.aiDifficulty).toBe('hard');
   });
 
+  it('renders Expert difficulty option', () => {
+    render(<SettingsPanel />);
+    expect(screen.getByText('Expert')).toBeDefined();
+    expect(screen.getByTitle('Server-side AI \u2014 strongest')).toBeDefined();
+  });
+
+  it('sets expert difficulty when clicked', () => {
+    render(<SettingsPanel />);
+    fireEvent.click(screen.getByText('Expert'));
+    expect(useGameStore.getState().config.aiDifficulty).toBe('expert');
+  });
+
   it('disables difficulty change during active game', () => {
     useGameStore.getState().startGame();
     render(<SettingsPanel />);

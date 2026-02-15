@@ -41,6 +41,11 @@ Implement comprehensive end-to-end (E2E) tests that verify critical user flows a
 #### Pause/Resume
 - Crash recovery: start PvC game → play 3 moves → simulate tab close → reopen app → resume prompt → resume → correct position
 
+### Development Diagnostics (Local Runs)
+- During local development E2E runs, capture browser console output and page errors for faster root-cause analysis.
+- Diagnostic output must be environment-gated (enabled locally, disabled by default in CI) to avoid noisy pipeline logs.
+- At minimum, AI gameplay tests should emit browser-side debug lines that correlate UI actions with AI-turn state changes.
+
 ### Performance Baselines
 - Page load time: < 3 seconds on simulated broadband
 - AI response time (Easy): < 2 seconds

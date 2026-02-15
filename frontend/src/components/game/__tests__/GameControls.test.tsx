@@ -23,14 +23,14 @@ describe('GameControls', () => {
     useGameStore.getState().startGame();
     render(<GameControls />);
     expect(screen.getByLabelText('Pause game')).toBeDefined();
-    expect(screen.getByLabelText('Undo last move')).toBeDefined();
+    expect(screen.getByLabelText(/Undo/)).toBeDefined();
     expect(screen.getByLabelText('Resign game')).toBeDefined();
   });
 
   it('disables undo when no moves made', () => {
     useGameStore.getState().startGame();
     render(<GameControls />);
-    const undo = screen.getByLabelText('Undo last move');
+    const undo = screen.getByLabelText(/Undo/);
     expect(undo).toHaveProperty('disabled', true);
   });
 

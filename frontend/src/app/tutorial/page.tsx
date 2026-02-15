@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Board } from '@/components/board/Board';
 import { createInitialBoard, createEmptyBoard, PieceType, PlayerColor, Square } from '@/lib/draughts-types';
 import Link from 'next/link';

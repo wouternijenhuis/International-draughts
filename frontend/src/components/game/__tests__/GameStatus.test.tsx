@@ -10,20 +10,21 @@ describe('GameStatus', () => {
 
   it('shows ready to start initially', () => {
     render(<GameStatus />);
-    expect(screen.getByText('Ready to start')).toBeDefined();
+    expect(screen.getByText('Press "New Game" to start')).toBeDefined();
   });
 
   it('shows current turn when in progress', () => {
-    useGameStore.getState().startGame();
+    useGameStore.getState().startGame({ opponent: 'human' });
     render(<GameStatus />);
-    expect(screen.getByText("White's turn")).toBeDefined();
+    expect(screen.getByText(/White's turn/)).toBeDefined();
   });
 
   it('shows winner when game is over', () => {
     useGameStore.getState().startGame();
     useGameStore.getState().resign(); // White resigns
     render(<GameStatus />);
-    expect(screen.getByText('Black wins!')).toBeDefined();
+    // Default playerColor is White, so Black wins = 'You lost'
+    expect(screen.getByText('You lost')).toBeDefined();
   });
 
   it('shows paused status', () => {

@@ -30,7 +30,7 @@ describe('PlayPage', () => {
 
   it('shows game status', () => {
     render(<PlayPage />);
-    expect(screen.getByText('Ready to start')).toBeDefined();
+    expect(screen.getByText('Press "New Game" to start')).toBeDefined();
   });
 
   it('renders board and controls', () => {

@@ -72,6 +72,26 @@ describe('Game Store', () => {
       useGameStore.getState().selectSquare(25); // Empty square
       expect(useGameStore.getState().selectedSquare).toBeNull();
     });
+
+    it('computes legal move squares when selecting a movable piece', () => {
+      useGameStore.getState().startGame();
+      useGameStore.getState().selectSquare(17);
+
+      const { legalMoveSquares } = useGameStore.getState();
+      expect(legalMoveSquares.sort((a, b) => a - b)).toEqual([21, 22]);
+    });
+
+    it('executes a legal move when selecting destination square', () => {
+      useGameStore.getState().startGame();
+      useGameStore.getState().selectSquare(17);
+      useGameStore.getState().selectSquare(21);
+
+      const { position, currentTurn, selectedSquare } = useGameStore.getState();
+      expect(position[17]).toBeNull();
+      expect(position[21]).toEqual({ type: PieceType.Man, color: PlayerColor.White });
+      expect(currentTurn).toBe(PlayerColor.Black);
+      expect(selectedSquare).toBeNull();
+    });
   });
 
   describe('makeMove', () => {
@@ -206,6 +226,11 @@ describe('Game Store', () => {
       useGameStore.getState().setConfig({ aiDifficulty: 'hard' });
       expect(useGameStore.getState().config.aiDifficulty).toBe('hard');
       expect(useGameStore.getState().config.opponent).toBe('ai'); // unchanged
+    });
+
+    it('accepts expert difficulty', () => {
+      useGameStore.getState().setConfig({ aiDifficulty: 'expert' });
+      expect(useGameStore.getState().config.aiDifficulty).toBe('expert');
     });
   });
 });

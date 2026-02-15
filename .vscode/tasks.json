@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Cleanup dev ports",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ports = @(3000,3001,5000,5001); foreach ($port in $ports) { $pids = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($processId in $pids) { Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue } }; $lockPath = Join-Path \"${workspaceFolder}\" \"frontend/.next/dev/lock\"; if (Test-Path $lockPath) { Remove-Item $lockPath -Force -ErrorAction SilentlyContinue }"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

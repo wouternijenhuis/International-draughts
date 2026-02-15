@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Board } from '@/components/board';
 import { useGameStore } from '@/stores/game-store';
 import { PlayerColor } from '@/lib/draughts-types';
 
 /**
- * Interactive game board wrapper that handles piece selection and move execution.
- * Connects the Board visual component to the game store.
+ * Interactive game board wrapper that handles piece selection, move execution,
+ * and drag-and-drop. Connects the Board visual component to the game store.
  */
 export const GameBoard: React.FC = () => {
   const {
@@ -17,58 +17,132 @@ export const GameBoard: React.FC = () => {
     lastMoveSquares,
     config,
     phase,
-    currentTurn,
     isPaused,
+    isAiThinking,
+    currentTurn,
     selectSquare,
-    makeMove,
   } = useGameStore();
 
+  // Drag state
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  const isInteractive = phase === 'in-progress' && !isPaused && !isAiThinking &&
+    (config.opponent !== 'ai' || currentTurn === config.playerColor);
+
   const handleSquareClick = useCallback((square: number) => {
-    if (phase !== 'in-progress' || isPaused) return;
-    
+    if (!isInteractive) return;
+    selectSquare(square);
+  }, [isInteractive, selectSquare]);
+
+  const handleDragStart = useCallback((square: number, e: React.MouseEvent | React.TouchEvent) => {
+    if (!isInteractive) return;
     const piece = position[square];
-    
-    // If clicking own piece, select it
-    if (piece && piece.color === currentTurn) {
-      selectSquare(square);
+    if (!piece || piece.color !== currentTurn) return;
+
+    // Select the piece first
+    selectSquare(square);
+    setDragFrom(square);
+
+    const clientX = 'touches' in e ? e.touches[0]!.clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0]!.clientY : e.clientY;
+    setDragPosition({ x: clientX, y: clientY });
+  }, [isInteractive, position, currentTurn, selectSquare]);
+
+  const handleDragMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (dragFrom === null) return;
+    const clientX = 'touches' in e ? e.touches[0]!.clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0]!.clientY : e.clientY;
+    setDragPosition({ x: clientX, y: clientY });
+  }, [dragFrom]);
+
+  const handleDragEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (dragFrom === null || !boardRef.current) {
+      setDragFrom(null);
+      setDragPosition(null);
       return;
     }
-    
-    // If we have a selected square and clicking elsewhere, try to move
-    if (selectedSquare !== null) {
-      const isLegalDestination = legalMoveSquares.includes(square);
-      
-      if (isLegalDestination) {
-        // Determine if this is a capture or quiet move
-        const isCapture = position[square] !== null || Math.abs(square - selectedSquare) > 6;
-        const notation = isCapture 
-          ? `${selectedSquare}x${square}` 
-          : `${selectedSquare}-${square}`;
-        
-        // For simplicity, captured squares are computed externally
-        // This is a placeholder — real capture logic would come from the engine
-        makeMove(selectedSquare, square, notation);
-      } else {
-        // Clicking non-legal square deselects
-        selectSquare(square);
+
+    const clientX = 'changedTouches' in e ? e.changedTouches[0]!.clientX : e.clientX;
+    const clientY = 'changedTouches' in e ? e.changedTouches[0]!.clientY : e.clientY;
+
+    // Find which square was dropped on
+    const boardRect = boardRef.current.getBoundingClientRect();
+    const squareSize = boardRect.width / 10;
+    let col = Math.floor((clientX - boardRect.left) / squareSize);
+    let row = Math.floor((clientY - boardRect.top) / squareSize);
+
+    // Adjust for board orientation
+    if (config.playerColor === PlayerColor.Black) {
+      col = 9 - col;
+      row = 9 - row;
+    }
+
+    // Convert to square number
+    if (row >= 0 && row <= 9 && col >= 0 && col <= 9) {
+      const isEvenRow = row % 2 === 0;
+      const isDark = isEvenRow ? col % 2 === 1 : col % 2 === 0;
+      if (isDark) {
+        const posInRow = isEvenRow ? (col - 1) / 2 : col / 2;
+        const targetSquare = row * 5 + posInRow + 1;
+        if (legalMoveSquares.includes(targetSquare)) {
+          selectSquare(targetSquare);
+        }
       }
     }
-  }, [phase, isPaused, position, currentTurn, selectedSquare, legalMoveSquares, selectSquare, makeMove]);
+
+    setDragFrom(null);
+    setDragPosition(null);
+  }, [dragFrom, legalMoveSquares, config.playerColor, selectSquare]);
 
   const orientation = config.playerColor === PlayerColor.Black 
     ? PlayerColor.Black 
     : PlayerColor.White;
 
   return (
-    <Board
-      position={position}
-      showNotation={config.showNotation}
-      theme={config.boardTheme}
-      selectedSquare={selectedSquare}
-      legalMoveSquares={legalMoveSquares}
-      lastMoveSquares={lastMoveSquares}
-      onSquareClick={handleSquareClick}
-      orientation={orientation}
-    />
+    <div
+      ref={boardRef}
+      className="relative w-full max-w-[600px]"
+      onMouseMove={handleDragMove}
+      onMouseUp={handleDragEnd}
+      onTouchMove={handleDragMove}
+      onTouchEnd={handleDragEnd}
+    >
+      <Board
+        position={position}
+        showNotation={config.showNotation}
+        theme={config.boardTheme}
+        selectedSquare={selectedSquare}
+        legalMoveSquares={config.showLegalMoves ? legalMoveSquares : []}
+        lastMoveSquares={lastMoveSquares}
+        onSquareClick={handleSquareClick}
+        onSquareDragStart={handleDragStart}
+        orientation={orientation}
+      />
+      {/* AI thinking overlay */}
+      {isAiThinking && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg pointer-events-none z-20">
+          <div className="bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Thinking...</span>
+          </div>
+        </div>
+      )}
+      {/* Drag ghost */}
+      {dragFrom !== null && dragPosition && (
+        <div
+          className="fixed pointer-events-none z-50"
+          style={{
+            left: dragPosition.x - 25,
+            top: dragPosition.y - 25,
+            width: 50,
+            height: 50,
+          }}
+        >
+          {/* The drag ghost is handled via CSS opacity on the original piece */}
+        </div>
+      )}
+    </div>
   );
 };

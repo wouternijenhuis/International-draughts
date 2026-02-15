@@ -20,9 +20,9 @@ test.describe('Gameplay', () => {
     await expect(pieces.first()).toBeVisible();
   });
 
-  test('board renders 100 squares', async ({ page }) => {
+  test('board renders 50 playable squares', async ({ page }) => {
     const squares = page.getByRole('gridcell');
-    await expect(squares).toHaveCount(100);
+    await expect(squares).toHaveCount(50);
   });
 
   test('can click on a piece square', async ({ page }) => {
@@ -34,15 +34,18 @@ test.describe('Gameplay', () => {
     await expect(whitePiece).toBeVisible();
   });
 
-  test('undo button exists', async ({ page }) => {
+  test('undo button exists after starting game', async ({ page }) => {
+    await page.getByRole('button', { name: /new game/i }).click();
     await expect(page.getByRole('button', { name: /undo/i })).toBeVisible();
   });
 
-  test('resign button exists', async ({ page }) => {
+  test('resign button exists after starting game', async ({ page }) => {
+    await page.getByRole('button', { name: /new game/i }).click();
     await expect(page.getByRole('button', { name: /resign/i })).toBeVisible();
   });
 
-  test('draw button exists', async ({ page }) => {
+  test('draw button exists after starting game', async ({ page }) => {
+    await page.getByRole('button', { name: /new game/i }).click();
     await expect(page.getByRole('button', { name: /draw/i })).toBeVisible();
   });
 });

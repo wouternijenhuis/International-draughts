@@ -19,6 +19,8 @@ export interface BoardProps {
   lastMoveSquares?: number[];
   /** Called when a dark square is clicked */
   onSquareClick?: (square: number) => void;
+  /** Called when a drag starts on a dark square */
+  onSquareDragStart?: (square: number, e: React.MouseEvent | React.TouchEvent) => void;
   /** Board orientation — which color is at the bottom */
   orientation?: PlayerColor;
 }
@@ -59,6 +61,7 @@ export const Board: React.FC<BoardProps> = ({
   legalMoveSquares = [],
   lastMoveSquares = [],
   onSquareClick,
+  onSquareDragStart,
   orientation = PlayerColor.White,
 }) => {
   const themeColors = THEME_VARS[theme] ?? THEME_VARS['classic-wood'];
@@ -95,6 +98,9 @@ export const Board: React.FC<BoardProps> = ({
             isLastMove={cell.squareNumber !== null && lastMoveSet.has(cell.squareNumber)}
             onClick={cell.isDark && cell.squareNumber !== null && onSquareClick
               ? () => onSquareClick(cell.squareNumber!)
+              : undefined}
+            onDragStart={cell.isDark && cell.squareNumber !== null && onSquareDragStart
+              ? (e: React.MouseEvent | React.TouchEvent) => onSquareDragStart(cell.squareNumber!, e)
               : undefined}
             piece={cell.squareNumber !== null ? position[cell.squareNumber] ?? null : null}
           />

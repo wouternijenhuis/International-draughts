@@ -1,59 +1,83 @@
+using InternationalDraughts.Application.ExpertAi;
 using InternationalDraughts.Application.Interfaces;
+using InternationalDraughts.Domain.Draughts;
 using Microsoft.Extensions.Logging;
 
 namespace InternationalDraughts.Application.Services;
 
 /// <summary>
-/// Server-side AI service for expert difficulty.
-/// Uses a simplified evaluation for now — the full engine integration 
-/// will come from the shared TypeScript library via a worker or native bridge.
+/// Expert AI service that computes the best move for a given board position.
+/// Uses a deep alpha-beta search engine with iterative deepening, PVS, LMR,
+/// transposition table, killer moves, and history heuristic.
+/// Stateless: each request gets its own search instance (REQ-70).
 /// </summary>
 public class AiService : IAiService
 {
+    private readonly Evaluator _evaluator;
+    private readonly ExpertAiOptions _options;
     private readonly ILogger<AiService> _logger;
+    private readonly ILogger<SearchEngine> _searchLogger;
 
-    public AiService(ILogger<AiService> logger)
+    public AiService(
+        Evaluator evaluator,
+        ExpertAiOptions options,
+        ILogger<AiService> logger,
+        ILogger<SearchEngine> searchLogger)
     {
+        _evaluator = evaluator;
+        _options = options;
         _logger = logger;
+        _searchLogger = searchLogger;
     }
 
-    public async Task<AiMoveResponse> GetBestMoveAsync(AiMoveRequest request)
+    public Task<AiMoveResponse> GetBestMoveAsync(AiMoveRequest request, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Computing AI move for {Player} at difficulty {Difficulty}",
-            request.CurrentPlayer, request.Difficulty);
+        _logger.LogInformation(
+            "Computing Expert AI move for {Player} (difficulty={Difficulty}, timeLimit={TimeLimit}ms)",
+            request.CurrentPlayer, request.Difficulty, request.TimeLimitMs ?? _options.TimeLimitMs);
 
-        // Simulate computation time for expert-level search
-        await Task.Delay(100);
+        // Parse the board from the integer array
+        var board = BoardPosition.FromIntArray(request.Board);
+        var player = ParseColor(request.CurrentPlayer);
 
-        // Find pieces for the current player
-        var pieceValue = request.CurrentPlayer.ToLower() == "white" ? 1 : 2;
-        var pieces = new List<int>();
-        for (int i = 1; i < request.Board.Length && i <= 50; i++)
-        {
-            if (request.Board[i] == pieceValue || request.Board[i] == pieceValue + 2)
-            {
-                pieces.Add(i);
-            }
-        }
-
-        if (pieces.Count == 0)
-        {
+        // Validate that the player has pieces on the board
+        var (_, _, total) = board.CountPieces(player);
+        if (total == 0)
             throw new InvalidOperationException("No pieces available for the current player");
-        }
 
-        // Placeholder: return a simple move suggestion
-        // In production, this would use a proper game engine
-        var from = pieces[0];
-        var to = from + (request.CurrentPlayer.ToLower() == "white" ? 5 : -5);
-        to = Math.Clamp(to, 1, 50);
+        // Create a fresh search instance per request (stateless, concurrent-safe)
+        var tt = new TranspositionTable(_options.TranspositionTableSizeMb);
+        var engine = new SearchEngine(_evaluator, tt, _options, _searchLogger);
 
-        return new AiMoveResponse(
-            Notation: $"{from}-{to}",
-            From: from,
-            To: to,
-            CapturedSquares: Array.Empty<int>(),
-            Score: 0.0,
-            DepthReached: 10
+        // Compute the best move
+        var result = engine.FindBestMove(board, player, request.TimeLimitMs);
+
+        if (result == null)
+            throw new InvalidOperationException("No legal moves available for the current player");
+
+        _logger.LogInformation(
+            "Expert AI computed move {Move}: score={Score}, depth={Depth}, nodes={Nodes}, time={Time}ms",
+            result.Move.ToNotation(), result.Score, result.DepthReached,
+            result.NodesEvaluated, result.TimeElapsedMs);
+
+        var response = new AiMoveResponse(
+            Notation: result.Move.ToNotation(),
+            From: result.Move.Origin,
+            To: result.Move.Destination,
+            CapturedSquares: result.Move.CapturedSquares,
+            Score: result.Score,
+            DepthReached: result.DepthReached,
+            TimeConsumedMs: result.TimeElapsedMs
         );
+
+        return Task.FromResult(response);
     }
+
+    private static PieceColor ParseColor(string color) =>
+        color.ToLowerInvariant() switch
+        {
+            "white" => PieceColor.White,
+            "black" => PieceColor.Black,
+            _ => throw new InvalidOperationException($"Invalid player color: '{color}'. Must be 'white' or 'black'.")
+        };
 }

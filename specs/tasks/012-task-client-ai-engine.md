@@ -56,6 +56,13 @@ This AI runs entirely in the browser and must respond within 2 seconds per move 
 - Communication between the main thread and AI worker via message passing
 - Response time for Easy–Hard: < 2 seconds on a modern device (e.g., 2020+ smartphone or mid-range laptop)
 
+### Development Diagnostics
+- Add structured debug logs for AI lifecycle events in development mode only (`NODE_ENV=development`), including:
+  - AI move scheduling/start/completion
+  - Selected difficulty and search diagnostics (e.g., depth reached, nodes evaluated, score)
+  - Cancellation/failure paths (no legal move, missing config, interrupted game state)
+- Logging must not be emitted in production builds unless explicitly enabled via environment configuration.
+
 ---
 
 ## Acceptance Criteria

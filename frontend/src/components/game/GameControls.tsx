@@ -12,6 +12,8 @@ export const GameControls: React.FC = () => {
     isPaused,
     moveIndex,
     moveHistory,
+    isAiThinking,
+    config,
     startGame,
     resign,
     offerDraw,
@@ -22,8 +24,10 @@ export const GameControls: React.FC = () => {
   } = useGameStore();
 
   const isInProgress = phase === 'in-progress';
-  const canUndo = isInProgress && moveIndex >= 0;
-  const canRedo = isInProgress && moveIndex < moveHistory.length - 1;
+  const canUndo = isInProgress && moveIndex >= 0 && !isAiThinking;
+  // For AI games, need at least 2 moves (1 player + 1 AI) to redo
+  const canRedo = isInProgress && moveIndex < moveHistory.length - 1 && !isAiThinking;
+  const canInteract = isInProgress && !isAiThinking;
 
   return (
     <div className="flex flex-wrap gap-2 justify-center mt-4" role="toolbar" aria-label="Game controls">
@@ -41,7 +45,8 @@ export const GameControls: React.FC = () => {
         <>
           <button
             onClick={togglePause}
-            className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm transition-colors"
+            disabled={isAiThinking}
+            className="px-3 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
             aria-label={isPaused ? 'Resume game' : 'Pause game'}
           >
             {isPaused ? '▶ Resume' : '⏸ Pause'}
@@ -51,7 +56,7 @@ export const GameControls: React.FC = () => {
             onClick={undoMove}
             disabled={!canUndo}
             className="px-3 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
-            aria-label="Undo last move"
+            aria-label={config.opponent === 'ai' ? 'Undo your last move' : 'Undo last move'}
           >
             ↩ Undo
           </button>
@@ -67,7 +72,8 @@ export const GameControls: React.FC = () => {
           
           <button
             onClick={offerDraw}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+            disabled={!canInteract}
+            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
             aria-label="Offer draw"
           >
             ½ Draw
@@ -75,7 +81,8 @@ export const GameControls: React.FC = () => {
           
           <button
             onClick={resign}
-            className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors"
+            disabled={isAiThinking}
+            className="px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
             aria-label="Resign game"
           >
             🏳 Resign

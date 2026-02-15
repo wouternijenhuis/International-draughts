@@ -156,6 +156,9 @@ var corsOrigins = empty(customDomainFrontend)
     ]
 
 // Backend App Service
+// CORS is configured at both the Azure platform level (siteConfig.cors) and
+// the application level (via Cors__AllowedOrigins__* app settings for ASP.NET Core middleware).
+// Both must include the same origins to avoid conflicts.
 resource backendApp 'Microsoft.Web/sites@2024-04-01' = {
   name: '${baseName}-api'
   location: location

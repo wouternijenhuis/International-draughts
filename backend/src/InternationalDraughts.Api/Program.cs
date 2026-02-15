@@ -76,6 +76,7 @@ app.MapAuthEndpoints();
 app.MapSettingsEndpoints();
 app.MapPlayerEndpoints();
 app.MapAiEndpoints();
+app.MapGameEndpoints();
 
 app.Run();
 

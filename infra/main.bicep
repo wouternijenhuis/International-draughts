@@ -7,6 +7,12 @@ param location string = resourceGroup().location
 @description('The name prefix for all resources')
 param namePrefix string = 'draughts'
 
+@description('Custom domain for the frontend (optional)')
+param customDomainFrontend string = ''
+
+@description('Custom domain for the backend API (optional)')
+param customDomainBackend string = ''
+
 var uniqueSuffix = uniqueString(resourceGroup().id)
 var baseName = '${namePrefix}-${environment}-${uniqueSuffix}'
 
@@ -220,5 +226,68 @@ resource keyVault 'Microsoft.KeyVault/vaults@2024-04-01-preview' = {
     accessPolicies: []
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
+  }
+}
+
+// Custom domain for backend (when configured)
+resource backendCustomDomain 'Microsoft.Web/sites/hostNameBindings@2024-04-01' = if (!empty(customDomainBackend)) {
+  parent: backendApp
+  name: customDomainBackend
+  properties: {
+    siteName: backendApp.name
+    hostNameType: 'Verified'
+    sslState: 'SniEnabled'
+  }
+}
+
+// Response time alert
+resource responseTimeAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: '${baseName}-response-time'
+  location: 'global'
+  properties: {
+    severity: 3
+    enabled: true
+    scopes: [backendApp.id]
+    evaluationFrequency: 'PT5M'
+    windowSize: 'PT15M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'ResponseTime'
+          metricName: 'HttpResponseTime'
+          operator: 'GreaterThan'
+          threshold: 5
+          timeAggregation: 'Average'
+          criterionType: 'StaticThresholdCriterion'
+        }
+      ]
+    }
+  }
+}
+
+// Health check alert
+resource healthCheckAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: '${baseName}-health-check'
+  location: 'global'
+  properties: {
+    severity: 1
+    enabled: true
+    scopes: [backendApp.id]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'HealthCheck'
+          metricName: 'HealthCheckStatus'
+          operator: 'LessThan'
+          threshold: 100
+          timeAggregation: 'Average'
+          criterionType: 'StaticThresholdCriterion'
+        }
+      ]
+    }
   }
 }

@@ -14,6 +14,10 @@ public class DraughtsDbContext : DbContext
     public DbSet<GameRecord> GameRecords => Set<GameRecord>();
     public DbSet<PlayerStats> PlayerStats => Set<PlayerStats>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<AuthProvider> AuthProviders => Set<AuthProvider>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<RatingHistory> RatingHistory => Set<RatingHistory>();
+    public DbSet<InProgressGame> InProgressGames => Set<InProgressGame>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

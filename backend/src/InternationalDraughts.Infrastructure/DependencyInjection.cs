@@ -20,6 +20,10 @@ public static class DependencyInjection
         services.AddScoped<IGameRecordRepository, GameRecordRepository>();
         services.AddScoped<IPlayerStatsRepository, PlayerStatsRepository>();
         services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+        services.AddScoped<IAuthProviderRepository, AuthProviderRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IRatingHistoryRepository, RatingHistoryRepository>();
+        services.AddScoped<IInProgressGameRepository, InProgressGameRepository>();
 
         return services;
     }

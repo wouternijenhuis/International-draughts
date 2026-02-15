@@ -9,5 +9,8 @@ public record PlayerStatsDto(
     int Wins,
     int Losses,
     int Draws,
-    double WinRate
+    double WinRate,
+    int CurrentStreak,
+    string CurrentStreakType,
+    int BestWinStreak
 );

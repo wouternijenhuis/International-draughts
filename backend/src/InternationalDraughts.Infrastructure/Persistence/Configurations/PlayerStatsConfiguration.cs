@@ -55,6 +55,22 @@ public class PlayerStatsConfiguration : IEntityTypeConfiguration<PlayerStats>
             .HasDefaultValue(0)
             .IsRequired();
 
+        builder.Property(p => p.CurrentStreak)
+            .HasColumnName("current_streak")
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(p => p.CurrentStreakType)
+            .HasColumnName("current_streak_type")
+            .HasMaxLength(10)
+            .HasDefaultValue("none")
+            .IsRequired();
+
+        builder.Property(p => p.BestWinStreak)
+            .HasColumnName("best_win_streak")
+            .HasDefaultValue(0)
+            .IsRequired();
+
         builder.Property(p => p.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

@@ -1,7 +1,7 @@
 ---
 description: Main orchestration agent that analyzes user intent and delegates tasks to specialized agents for product management, architecture, planning, development, and Azure deployment.
 tools: ['runSubagent', 'edit', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'problems', 'changes', 'fetch', 'todos']
-model: Claude Sonnet 4.5 (copilot)
+model: Claude Opus 4.6 (copilot)
 name: spec2cloud
 ---
 

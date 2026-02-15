@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { GameBoard } from '@/components/game/GameBoard';
 import { GameControls } from '@/components/game/GameControls';
@@ -9,11 +9,71 @@ import { MoveHistory } from '@/components/game/MoveHistory';
 import { PauseOverlay } from '@/components/game/PauseOverlay';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { ChessClock } from '@/components/clock/ChessClock';
+import { ResumePrompt } from '@/components/game/ResumePrompt';
 import { useGameStore } from '@/stores/game-store';
+import { useAuthStore } from '@/stores/auth-store';
+import {
+  loadGuestGame,
+  loadUserGame,
+  clearGuestGame,
+  clearUserGameLocal,
+  clearUserGameBackend,
+  type SerializedGameState,
+} from '@/lib/game-persistence';
+
+function getGameDescription(game: SerializedGameState): string {
+  if (game.config.opponent === 'ai') {
+    const difficulty = game.config.aiDifficulty.charAt(0).toUpperCase() + game.config.aiDifficulty.slice(1);
+    return `vs AI (${difficulty})`;
+  }
+  return 'Local PvP';
+}
 
 export default function PlayPage() {
-  const { config, currentTurn, isPaused, clockState } = useGameStore();
+  const { config, currentTurn, isPaused, clockState, resumeGame, phase } = useGameStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [showSettings, setShowSettings] = useState(false);
+  const [savedGame, setSavedGame] = useState<SerializedGameState | null>(null);
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
+
+  useEffect(() => {
+    const checkForSavedGame = async () => {
+      let saved: SerializedGameState | null = null;
+
+      if (user && isAuthenticated()) {
+        saved = await loadUserGame(user.userId);
+      } else {
+        saved = loadGuestGame();
+      }
+
+      if (saved) {
+        setSavedGame(saved);
+        setShowResumePrompt(true);
+      }
+    };
+
+    if (phase === 'not-started') {
+      checkForSavedGame();
+    }
+  }, [user, isAuthenticated, phase]);
+
+  const handleResume = () => {
+    if (savedGame) {
+      resumeGame(savedGame);
+    }
+    setShowResumePrompt(false);
+    setSavedGame(null);
+  };
+
+  const handleDiscard = () => {
+    setShowResumePrompt(false);
+    setSavedGame(null);
+    clearGuestGame();
+    clearUserGameLocal();
+    if (user?.userId) {
+      void clearUserGameBackend(user.userId);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -106,6 +166,17 @@ export default function PlayPage() {
 
       {/* Pause overlay */}
       <PauseOverlay />
+
+      {/* Resume prompt for saved games */}
+      {showResumePrompt && savedGame && (
+        <ResumePrompt
+          savedAt={new Date(savedGame.savedAt)}
+          gameDescription={getGameDescription(savedGame)}
+          moveCount={savedGame.moveHistory.length}
+          onResume={handleResume}
+          onDiscard={handleDiscard}
+        />
+      )}
     </main>
   );
 }

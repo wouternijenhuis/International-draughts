@@ -48,6 +48,19 @@ public class GameRecordConfiguration : IEntityTypeConfiguration<GameRecord>
             .HasMaxLength(20)
             .IsRequired();
 
+        builder.Property(g => g.Difficulty)
+            .HasColumnName("difficulty")
+            .HasMaxLength(20);
+
+        builder.Property(g => g.MoveCount)
+            .HasColumnName("move_count")
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(g => g.TimeControl)
+            .HasColumnName("time_control")
+            .HasColumnType("jsonb");
+
         builder.Property(g => g.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();
@@ -68,5 +81,8 @@ public class GameRecordConfiguration : IEntityTypeConfiguration<GameRecord>
         builder.HasIndex(g => g.WhitePlayerId);
         builder.HasIndex(g => g.BlackPlayerId);
         builder.HasIndex(g => g.StartedAt);
+        builder.HasIndex(g => new { g.WhitePlayerId, g.StartedAt });
+        builder.HasIndex(g => new { g.BlackPlayerId, g.StartedAt });
+        builder.HasIndex(g => new { g.WhitePlayerId, g.Difficulty, g.Result });
     }
 }

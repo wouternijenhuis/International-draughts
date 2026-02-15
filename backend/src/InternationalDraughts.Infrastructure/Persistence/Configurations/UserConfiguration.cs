@@ -39,6 +39,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("oauth_id")
             .HasMaxLength(255);
 
+        builder.Property(u => u.AvatarId)
+            .HasColumnName("avatar_id")
+            .HasMaxLength(50)
+            .HasDefaultValue("default")
+            .IsRequired();
+
         builder.Property(u => u.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

@@ -2,11 +2,19 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
 
 env:
-  AZURE_WEBAPP_NAME: draughts-prod-api
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/draughts-api
 
@@ -51,13 +59,124 @@ jobs:
           dotnet build --no-restore
           dotnet test --no-build
 
-  deploy-backend:
+  deploy-staging:
     needs: build-and-test
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: staging
     permissions:
       contents: read
       packages: write
+    env:
+      AZURE_WEBAPP_NAME: draughts-staging-api
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Setup .NET for migrations
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Run database migrations
+        run: |
+          cd backend
+          dotnet ef database update \
+            --project src/InternationalDraughts.Infrastructure/InternationalDraughts.Infrastructure.csproj \
+            --startup-project src/InternationalDraughts.Api/InternationalDraughts.Api.csproj
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.STAGING_DB_CONNECTION_STRING }}
+
+      - name: Deploy backend to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.STAGING_AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      - name: Deploy frontend to Azure Static Web Apps (staging)
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+        # Static Web App deploy handled by Azure SWA workflow
+
+      - name: Health check
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: status $STATUS, waiting..."
+            sleep 15
+          done
+          echo "Health check failed after 10 attempts"
+          exit 1
+
+  e2e-staging:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run E2E tests against staging
+        working-directory: e2e
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ vars.STAGING_URL }}
+
+      - name: Upload E2E report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-staging-report
+          path: e2e/playwright-report/
+
+  deploy-production:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      packages: write
+    env:
+      AZURE_WEBAPP_NAME: draughts-prod-api
     steps:
       - uses: actions/checkout@v4
 
@@ -77,7 +196,31 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Deploy to Azure App Service
+      - name: Setup .NET for migrations
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Run database migrations
+        run: |
+          cd backend
+          dotnet ef database update \
+            --project src/InternationalDraughts.Infrastructure/InternationalDraughts.Infrastructure.csproj \
+            --startup-project src/InternationalDraughts.Api/InternationalDraughts.Api.csproj
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PROD_DB_CONNECTION_STRING }}
+
+      - name: Save previous image tag for rollback
+        id: previous
+        run: |
+          echo "tag=$(curl -s -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            'https://ghcr.io/v2/${{ env.IMAGE_NAME }}/tags/list' | \
+            jq -r '.tags | map(select(. != "latest" and . != "${{ github.sha }}")) | last // "latest"')" >> $GITHUB_OUTPUT
+
+      - name: Deploy backend to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
@@ -85,24 +228,34 @@ jobs:
         env:
           AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 
-  deploy-frontend:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Build Frontend
+      - name: Health check with rollback
         run: |
-          cd frontend
-          npm ci
-          npm run build
+          HEALTHY=false
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              HEALTHY=true
+              echo "Health check passed"
+              break
+            fi
+            echo "Attempt $i: status $STATUS, waiting..."
+            sleep 15
+          done
+          if [ "$HEALTHY" = "false" ]; then
+            echo "::error::Health check failed \u2014 triggering rollback"
+            exit 1
+          fi
 
-      - name: Deploy to Azure Static Web Apps
+      - name: Rollback on failure
+        if: failure()
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.previous.outputs.tag }}
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+      - name: Deploy frontend to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}

@@ -23,6 +23,12 @@ import {
 } from '@/lib/engine';
 import { requestAiMove } from '@/lib/api-client';
 import { devLog, devWarn } from '@/lib/dev-logger';
+import {
+  type SerializedGameState,
+  saveGuestGame, clearGuestGame,
+  saveUserGameLocal, clearUserGameLocal,
+  saveUserGameBackend, clearUserGameBackend,
+} from '@/lib/game-persistence';
 
 /** Game phase */
 export type GamePhase = 'not-started' | 'in-progress' | 'white-wins' | 'black-wins' | 'draw';
@@ -102,6 +108,7 @@ export interface GameState {
   setConfig: (config: Partial<GameConfig>) => void;
   setBoardTheme: (theme: GameConfig['boardTheme']) => void;
   toggleNotation: () => void;
+  resumeGame: (saved: SerializedGameState) => void;
   tickClockAction: () => void;
 }
 
@@ -136,6 +143,137 @@ function convertEngineMove(move: EngineMove): {
     notation,
     capturedSquares: [...engineGetCapturedSquares(captureMove)],
   };
+}
+
+/** Serializes the current game state for persistence */
+function serializeGameState(state: GameState): SerializedGameState {
+  return {
+    version: 1,
+    position: state.position.map(sq => sq ? { type: sq.type, color: sq.color } : null),
+    currentTurn: state.currentTurn === PlayerColor.White ? 'white' : 'black',
+    moveHistory: state.moveHistory.map(m => ({
+      notation: m.notation,
+      player: m.player === PlayerColor.White ? 'white' : 'black',
+      positionAfter: m.positionAfter.map(sq => sq ? { type: sq.type, color: sq.color } : null),
+      timestamp: m.timestamp,
+    })),
+    moveIndex: state.moveIndex,
+    config: {
+      opponent: state.config.opponent,
+      aiDifficulty: state.config.aiDifficulty,
+      playerColor: state.config.playerColor === PlayerColor.White ? 'white' : 'black',
+      timedMode: state.config.timedMode,
+      clockPreset: state.config.clockPreset,
+      showNotation: state.config.showNotation,
+      boardTheme: state.config.boardTheme,
+      confirmMoves: state.config.confirmMoves,
+      showLegalMoves: state.config.showLegalMoves,
+      animationSpeed: state.config.animationSpeed,
+    },
+    clockState: state.clockState ? {
+      white: { remainingMs: state.clockState.white.remainingMs },
+      black: { remainingMs: state.clockState.black.remainingMs },
+      activePlayer: state.clockState.activePlayer ?? 'white',
+      isRunning: state.clockState.isStarted ?? false,
+    } : null,
+    savedAt: Date.now(),
+  };
+}
+
+/** Deserializes a saved game state back into the store format */
+function deserializeGameState(saved: SerializedGameState): Partial<GameState> {
+  const parseColor = (c: string) => c === 'white' ? PlayerColor.White : PlayerColor.Black;
+  const parsePiece = (p: { type: string; color: string } | null) => {
+    if (!p) return null;
+    return {
+      type: p.type === 'man' ? PieceType.Man : PieceType.King,
+      color: p.color === 'white' ? PlayerColor.White : PlayerColor.Black,
+    };
+  };
+
+  const position = Array(51).fill(null).map((_, i) => i < saved.position.length ? parsePiece(saved.position[i]) : null) as BoardPosition;
+  const moveHistory: MoveRecord[] = saved.moveHistory.map(m => ({
+    notation: m.notation,
+    player: parseColor(m.player),
+    positionAfter: Array(51).fill(null).map((_, i) => i < m.positionAfter.length ? parsePiece(m.positionAfter[i]) : null) as BoardPosition,
+    timestamp: m.timestamp,
+  }));
+
+  return {
+    phase: 'in-progress',
+    position,
+    currentTurn: parseColor(saved.currentTurn),
+    moveHistory,
+    moveIndex: saved.moveIndex,
+    config: {
+      opponent: saved.config.opponent as OpponentType,
+      aiDifficulty: saved.config.aiDifficulty as AIDifficulty,
+      playerColor: parseColor(saved.config.playerColor),
+      timedMode: saved.config.timedMode,
+      clockPreset: saved.config.clockPreset,
+      showNotation: saved.config.showNotation,
+      boardTheme: saved.config.boardTheme as GameConfig['boardTheme'],
+      confirmMoves: saved.config.confirmMoves,
+      showLegalMoves: saved.config.showLegalMoves,
+      animationSpeed: saved.config.animationSpeed as GameConfig['animationSpeed'],
+    },
+    selectedSquare: null,
+    legalMoveSquares: [],
+    legalMovesForSelection: [],
+    lastMoveSquares: [],
+    isPaused: false,
+    isAiThinking: false,
+    gameOverReason: null,
+  };
+}
+
+/**
+ * Auto-saves game state after each move.
+ * For registered users: saves to localStorage and syncs to backend.
+ * For guests: saves to sessionStorage.
+ */
+function autoSaveGame(state: GameState): void {
+  if (state.phase !== 'in-progress') return;
+
+  const serialized = serializeGameState(state);
+  
+  // Check if user is authenticated via zustand persisted store
+  try {
+    const authRaw = localStorage.getItem('draughts-auth');
+    if (authRaw) {
+      const authData = JSON.parse(authRaw);
+      const user = authData?.state?.user;
+      if (user?.userId && new Date(user.expiresAt) > new Date()) {
+        saveUserGameLocal(serialized);
+        // Fire-and-forget backend sync
+        void saveUserGameBackend(user.userId, serialized);
+        return;
+      }
+    }
+  } catch {
+    // Fall through to guest save
+  }
+
+  saveGuestGame(serialized);
+}
+
+/** Clears all saved game data */
+function clearSavedGame(): void {
+  clearGuestGame();
+  clearUserGameLocal();
+  
+  try {
+    const authRaw = localStorage.getItem('draughts-auth');
+    if (authRaw) {
+      const authData = JSON.parse(authRaw);
+      const user = authData?.state?.user;
+      if (user?.userId) {
+        void clearUserGameBackend(user.userId);
+      }
+    }
+  } catch {
+    // Ignore
+  }
 }
 
 /** Check if the opponent has no legal moves (meaning current player wins) */
@@ -195,6 +333,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       clearInterval(clockIntervalRef);
       clockIntervalRef = null;
     }
+    clearSavedGame();
 
     const config = { ...get().config, ...configOverrides };
     devLog('game-store', 'Starting game', {
@@ -370,6 +509,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       clockState: clockUpdate,
     });
 
+    // Auto-save after each move; clear if game ended
+    if (finalPhase !== 'in-progress') {
+      clearSavedGame();
+    } else {
+      autoSaveGame(get());
+    }
+
     // If game is not over and it's AI's turn, schedule AI move
     if (
       finalPhase === 'in-progress' &&
@@ -477,6 +623,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     const winner = state.config.playerColor === PlayerColor.White ? 'black-wins' : 'white-wins';
+    clearSavedGame();
     set({
       phase: winner as GamePhase,
       gameOverReason: `${state.config.playerColor === PlayerColor.White ? 'White' : 'Black'} resigned`,
@@ -498,6 +645,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         clearInterval(clockIntervalRef);
         clockIntervalRef = null;
       }
+      clearSavedGame();
       set({
         phase: 'draw',
         gameOverReason: 'Draw by mutual agreement',
@@ -568,6 +716,57 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   toggleNotation: () => {
     set((state) => ({ config: { ...state.config, showNotation: !state.config.showNotation } }));
+  },
+
+  resumeGame: (saved) => {
+    if (aiTimerRef) {
+      clearTimeout(aiTimerRef);
+      aiTimerRef = null;
+    }
+    aiMoveGeneration++;
+    if (clockIntervalRef) {
+      clearInterval(clockIntervalRef);
+      clockIntervalRef = null;
+    }
+
+    const restored = deserializeGameState(saved);
+    devLog('game-store', 'Resuming saved game', {
+      moveCount: saved.moveHistory.length,
+      currentTurn: saved.currentTurn,
+      config: saved.config.opponent,
+    });
+
+    // Restore clock if timed
+    let clockState: ClockState | null = null;
+    if (saved.clockState && saved.config.timedMode) {
+      const clockConfig = getClockConfig(saved.config.clockPreset);
+      clockState = createClockState(clockConfig);
+      // Override remaining times from saved state
+      clockState = {
+        ...clockState,
+        white: { ...clockState.white, remainingMs: saved.clockState.white.remainingMs },
+        black: { ...clockState.black, remainingMs: saved.clockState.black.remainingMs },
+        isRunning: false,
+      } as ClockState;
+
+      clockIntervalRef = setInterval(() => {
+        const state = get();
+        if (state.phase !== 'in-progress' || state.isPaused || !state.clockState) return;
+        state.tickClockAction();
+      }, 100);
+    }
+
+    set({
+      ...restored,
+      clockState,
+    });
+
+    // If it's AI's turn, trigger AI move
+    const config = restored.config!;
+    const currentTurn = restored.currentTurn!;
+    if (config.opponent === 'ai' && currentTurn !== config.playerColor) {
+      triggerAiMove(get, set);
+    }
   },
 
   tickClockAction: () => {

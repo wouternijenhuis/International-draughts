@@ -20,6 +20,12 @@ public class PlayerStats : BaseEntity
 
     public int Draws { get; private set; }
 
+    public int CurrentStreak { get; private set; }
+
+    public string CurrentStreakType { get; private set; } = "none";
+
+    public int BestWinStreak { get; private set; }
+
     public User User { get; private set; } = null!;
 
     private PlayerStats() { }
@@ -44,6 +50,19 @@ public class PlayerStats : BaseEntity
     {
         GamesPlayed++;
         Wins++;
+        if (CurrentStreakType == "win")
+        {
+            CurrentStreak++;
+        }
+        else
+        {
+            CurrentStreakType = "win";
+            CurrentStreak = 1;
+        }
+        if (CurrentStreak > BestWinStreak)
+        {
+            BestWinStreak = CurrentStreak;
+        }
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -51,6 +70,15 @@ public class PlayerStats : BaseEntity
     {
         GamesPlayed++;
         Losses++;
+        if (CurrentStreakType == "loss")
+        {
+            CurrentStreak++;
+        }
+        else
+        {
+            CurrentStreakType = "loss";
+            CurrentStreak = 1;
+        }
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -58,6 +86,15 @@ public class PlayerStats : BaseEntity
     {
         GamesPlayed++;
         Draws++;
+        if (CurrentStreakType == "draw")
+        {
+            CurrentStreak++;
+        }
+        else
+        {
+            CurrentStreakType = "draw";
+            CurrentStreak = 1;
+        }
         UpdatedAt = DateTime.UtcNow;
     }
 }

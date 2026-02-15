@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IPlayerService, PlayerService>();
+        services.AddScoped<IInProgressGameService, InProgressGameService>();
 
         // Expert AI configuration
         var expertAiOptions = new ExpertAiOptions();

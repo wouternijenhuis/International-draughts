@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+import { OfflineBanner } from '@/components/pwa/OfflineBanner';
 
 export const metadata: Metadata = {
   title: 'International Draughts',
@@ -30,12 +32,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className="min-h-screen bg-surface text-slate-900 dark:text-slate-100 antialiased">
+        <OfflineBanner />
         <a href="#main-content" className="skip-to-content">
           Skip to content
         </a>
         <main id="main-content" role="main">
           {children}
         </main>
+        <InstallPrompt />
         <ServiceWorkerRegistration />
       </body>
     </html>

@@ -14,6 +14,8 @@ public class User : BaseEntity
 
     public string? OAuthId { get; private set; }
 
+    public string AvatarId { get; private set; } = "default";
+
     public bool IsDeleted { get; private set; }
 
     private User() { }
@@ -44,6 +46,18 @@ public class User : BaseEntity
     {
         Username = username;
         Email = email;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateDisplayName(string username)
+    {
+        Username = username;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateAvatar(string avatarId)
+    {
+        AvatarId = avatarId;
         UpdatedAt = DateTime.UtcNow;
     }
 

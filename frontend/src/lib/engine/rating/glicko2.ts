@@ -42,9 +42,9 @@ export interface Glicko2Config {
 
 /** AI opponent ratings (pre-configured, RD=0) */
 export const AI_RATINGS: Record<string, { rating: number; rd: number }> = {
-  easy: { rating: 800, rd: 0 },
-  medium: { rating: 1200, rd: 0 },
-  hard: { rating: 1800, rd: 0 },
+  easy: { rating: 250, rd: 0 },
+  medium: { rating: 750, rd: 0 },
+  hard: { rating: 1250, rd: 0 },
   expert: { rating: 2200, rd: 0 },
 };
 

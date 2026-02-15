@@ -4,9 +4,9 @@
 
 | Level | Runs On | Search Depth | Time Limit | Blunder Rate | Target Audience |
 |-------|---------|-------------|------------|--------------|-----------------|
-| **Easy** | Client | 2 ply | 1s | 35% | Beginners |
-| **Medium** | Client | 5 ply | 1.5s | 10% | Casual players |
-| **Hard** | Client | 8 ply | 2s | 0% | Experienced players |
+| **Easy** | Client | 1 ply | 1s | 50% | Beginners |
+| **Medium** | Client | 3 ply | 1.5s | 20% | Casual players |
+| **Hard** | Client | 5 ply | 2s | 5% | Experienced players |
 | **Expert** | Server | Iterative deepening | 30s | 0% | Competitive players |
 
 ## Client-Side AI (Easy/Medium/Hard)
@@ -31,7 +31,7 @@ The position evaluation considers:
 
 Lower difficulties achieve human-like play through:
 
-- **Evaluation noise**: Random value added to scores (±150cp for Easy, ±50cp for Medium)
+- **Evaluation noise**: Random value added to scores (±300cp for Easy, ±120cp for Medium, ±30cp for Hard)
 - **Blunder probability**: Chance of selecting a suboptimal move
 - **Blunder margin**: How bad the selected blunder can be
 

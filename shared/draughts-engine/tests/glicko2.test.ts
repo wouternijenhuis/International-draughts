@@ -164,10 +164,10 @@ describe('Glicko-2 Rating Engine', () => {
 
   describe('AI ratings', () => {
     it('has all AI difficulties configured', () => {
-      expect(AI_RATINGS.medium!.rating).toBe(1200);
-      expect(AI_RATINGS.hard!.rating).toBe(1800);
+      expect(AI_RATINGS.medium!.rating).toBe(750);
+      expect(AI_RATINGS.hard!.rating).toBe(1250);
       expect(AI_RATINGS.expert!.rating).toBe(2200);
-      expect(AI_RATINGS.easy!.rating).toBe(800);
+      expect(AI_RATINGS.easy!.rating).toBe(250);
     });
 
     it('AI opponents have RD=0 (fully known)', () => {

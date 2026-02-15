@@ -111,10 +111,10 @@ describe('Difficulty configs', () => {
     expect(easy.blunderProbability).toBeGreaterThan(0.2);
   });
 
-  it('hard has high depth and no blunders', () => {
+  it('hard has high depth and low blunders', () => {
     const hard = DIFFICULTY_CONFIGS.hard!;
-    expect(hard.maxDepth).toBeGreaterThanOrEqual(6);
-    expect(hard.blunderProbability).toBe(0);
+    expect(hard.maxDepth).toBeGreaterThanOrEqual(5);
+    expect(hard.blunderProbability).toBeLessThan(0.1);
   });
 });
 

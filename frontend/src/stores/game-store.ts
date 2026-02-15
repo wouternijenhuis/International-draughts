@@ -39,6 +39,12 @@ export type OpponentType = 'human' | 'ai';
 /** AI difficulty */
 export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
+/** Game mode */
+export type GameMode = 'standard' | 'learning';
+
+/** Move feedback for learning mode */
+export type MoveFeedback = 'good' | 'neutral' | 'bad' | null;
+
 /** Move record for history */
 export interface MoveRecord {
   /** Move notation (e.g., "28-33" or "28x39") */
@@ -53,6 +59,7 @@ export interface MoveRecord {
 
 /** Game session configuration */
 export interface GameConfig {
+  readonly gameMode: GameMode;
   readonly opponent: OpponentType;
   readonly aiDifficulty: AIDifficulty;
   readonly playerColor: PlayerColor;
@@ -95,6 +102,11 @@ export interface GameState {
   // Game result info
   gameOverReason: string | null;
   
+  // Learning mode state
+  hintSquares: number[];
+  moveFeedback: MoveFeedback;
+  moveFeedbackMessage: string | null;
+  
   // Actions
   startGame: (config?: Partial<GameConfig>) => void;
   selectSquare: (square: number) => void;
@@ -110,9 +122,12 @@ export interface GameState {
   toggleNotation: () => void;
   resumeGame: (saved: SerializedGameState) => void;
   tickClockAction: () => void;
+  showHint: () => void;
+  clearHint: () => void;
 }
 
 const DEFAULT_CONFIG: GameConfig = {
+  gameMode: 'standard',
   opponent: 'ai',
   aiDifficulty: 'medium',
   playerColor: PlayerColor.White,
@@ -159,6 +174,7 @@ function serializeGameState(state: GameState): SerializedGameState {
     })),
     moveIndex: state.moveIndex,
     config: {
+      gameMode: state.config.gameMode,
       opponent: state.config.opponent,
       aiDifficulty: state.config.aiDifficulty,
       playerColor: state.config.playerColor === PlayerColor.White ? 'white' : 'black',
@@ -206,6 +222,7 @@ function deserializeGameState(saved: SerializedGameState): Partial<GameState> {
     moveHistory,
     moveIndex: saved.moveIndex,
     config: {
+      gameMode: (saved.config.gameMode ?? 'standard') as GameMode,
       opponent: saved.config.opponent as OpponentType,
       aiDifficulty: saved.config.aiDifficulty as AIDifficulty,
       playerColor: parseColor(saved.config.playerColor),
@@ -321,6 +338,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   clockState: null,
   isAiThinking: false,
   gameOverReason: null,
+  hintSquares: [],
+  moveFeedback: null,
+  moveFeedbackMessage: null,
 
   startGame: (configOverrides) => {
     // Clear any pending AI move
@@ -373,6 +393,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       clockState: initialClock,
       isAiThinking: false,
       gameOverReason: null,
+      hintSquares: [],
+      moveFeedback: null,
+      moveFeedbackMessage: null,
     });
 
     // If player chose Black, AI plays first as White
@@ -495,6 +518,45 @@ export const useGameStore = create<GameState>((set, get) => ({
       });
     }
 
+    // Learning mode: evaluate the player's move quality
+    let moveFeedback: MoveFeedback = null;
+    let moveFeedbackMessage: string | null = null;
+    if (state.config.gameMode === 'learning' && state.config.opponent === 'ai' && piece.color === state.config.playerColor) {
+      // Compare to the engine's best move
+      const difficultyConfig = DIFFICULTY_CONFIGS['medium'];
+      if (difficultyConfig) {
+        const bestResult = findBestMove(
+          state.position as Square[],
+          state.currentTurn,
+          difficultyConfig,
+        );
+        if (bestResult) {
+          const bestMove = convertEngineMove(bestResult.move);
+          if (bestMove.from === from && bestMove.to === to) {
+            moveFeedback = 'good';
+            moveFeedbackMessage = capturedSquares.length > 0
+              ? 'Great capture! That was the best move.'
+              : 'Excellent move! The engine agrees.';
+          } else {
+            // Evaluate the score difference
+            // The player's move results in the opponent moving next, so we need to compare
+            // from the opponent's perspective after both moves
+            const bestMoveCaptures = bestMove.capturedSquares.length;
+            if (capturedSquares.length > 0 && capturedSquares.length >= bestMoveCaptures) {
+              moveFeedback = 'good';
+              moveFeedbackMessage = 'Good capture!';
+            } else if (capturedSquares.length > 0) {
+              moveFeedback = 'neutral';
+              moveFeedbackMessage = 'Decent capture, but there was a better sequence.';
+            } else {
+              moveFeedback = 'neutral';
+              moveFeedbackMessage = 'Okay move. Try using the hint button to find stronger moves!';
+            }
+          }
+        }
+      }
+    }
+
     set({
       position: newPosition,
       currentTurn: nextTurn,
@@ -507,6 +569,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       phase: finalPhase,
       gameOverReason,
       clockState: clockUpdate,
+      hintSquares: [],
+      moveFeedback,
+      moveFeedbackMessage,
     });
 
     // Auto-save after each move; clear if game ended
@@ -568,6 +633,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       phase: 'in-progress',
       gameOverReason: null,
       isAiThinking: false,
+      hintSquares: [],
+      moveFeedback: null,
+      moveFeedbackMessage: null,
     });
   },
 
@@ -703,6 +771,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       clockState: null,
       isAiThinking: false,
       gameOverReason: null,
+      hintSquares: [],
+      moveFeedback: null,
+      moveFeedbackMessage: null,
     });
   },
 
@@ -804,6 +875,29 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     set({ clockState: newClock });
+  },
+
+  showHint: () => {
+    const state = get();
+    if (state.phase !== 'in-progress' || state.isAiThinking || state.config.gameMode !== 'learning') return;
+    
+    const difficultyConfig = DIFFICULTY_CONFIGS['medium'];
+    if (!difficultyConfig) return;
+    
+    const result = findBestMove(
+      state.position as Square[],
+      state.currentTurn,
+      difficultyConfig,
+    );
+    
+    if (result) {
+      const bestMove = convertEngineMove(result.move);
+      set({ hintSquares: [bestMove.from, bestMove.to] });
+    }
+  },
+
+  clearHint: () => {
+    set({ hintSquares: [] });
   },
 }));
 

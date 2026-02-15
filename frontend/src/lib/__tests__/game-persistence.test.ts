@@ -31,6 +31,7 @@ function createValidState(overrides: Partial<SerializedGameState> = {}): Seriali
     moveHistory: [],
     moveIndex: -1,
     config: {
+      gameMode: 'standard',
       opponent: 'ai',
       aiDifficulty: 'medium',
       playerColor: 'white',

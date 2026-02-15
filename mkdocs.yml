@@ -1,0 +1,33 @@
+site_name: International Draughts
+site_description: Documentation for the International Draughts web application
+repo_url: https://github.com/wouternijenhuis/International-draughts
+
+theme:
+  name: material
+  palette:
+    primary: amber
+    accent: deep-orange
+  features:
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Backend: architecture/backend.md
+    - Frontend: architecture/frontend.md
+    - Shared Engine: architecture/shared-engine.md
+  - API Reference: api/reference.md
+  - Game Rules: game-rules.md
+  - AI Engine: ai-engine.md
+  - Deployment: deployment.md
+
+markdown_extensions:
+  - tables
+  - admonitions
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+strict: true

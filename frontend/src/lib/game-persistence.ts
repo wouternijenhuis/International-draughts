@@ -23,6 +23,7 @@ export interface SerializedGameState {
   moveIndex: number;
   /** Game configuration */
   config: {
+    gameMode: string;
     opponent: string;
     aiDifficulty: string;
     playerColor: string;

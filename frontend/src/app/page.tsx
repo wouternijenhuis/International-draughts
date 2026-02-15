@@ -33,19 +33,33 @@ export default function HomePage() {
             ♟ Play Now
           </Link>
           <Link
+            href="/learn"
+            className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 
+                       focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2
+                       transition-colors font-medium text-lg inline-flex items-center justify-center shadow-md"
+            aria-label="Learn how to play with interactive tutorial"
+          >
+            🎓 Learn
+          </Link>
+          <Link
             href="/tutorial"
             className="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300
                        rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800
                        focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2
                        transition-colors font-medium text-lg inline-flex items-center justify-center"
-            aria-label="Learn how to play"
+            aria-label="Quick rules reference"
           >
-            📖 How to Play
+            📖 Rules
           </Link>
         </div>
 
         {/* Quick info cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <div className="text-2xl mb-2">🎓</div>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm">Learning Mode</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Interactive tutorial with hints, undo/redo, and move feedback</p>
+          </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
             <div className="text-2xl mb-2">🤖</div>
             <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm">AI Opponents</h3>

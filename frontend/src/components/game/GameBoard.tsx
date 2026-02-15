@@ -15,6 +15,7 @@ export const GameBoard: React.FC = () => {
     selectedSquare,
     legalMoveSquares,
     lastMoveSquares,
+    hintSquares,
     config,
     phase,
     isPaused,
@@ -100,6 +101,9 @@ export const GameBoard: React.FC = () => {
     ? PlayerColor.Black 
     : PlayerColor.White;
 
+  // Combine last move and hint squares for display
+  const displayLastMoveSquares = hintSquares.length > 0 ? hintSquares : lastMoveSquares;
+
   return (
     <div
       ref={boardRef}
@@ -115,7 +119,7 @@ export const GameBoard: React.FC = () => {
         theme={config.boardTheme}
         selectedSquare={selectedSquare}
         legalMoveSquares={config.showLegalMoves ? legalMoveSquares : []}
-        lastMoveSquares={lastMoveSquares}
+        lastMoveSquares={displayLastMoveSquares}
         onSquareClick={handleSquareClick}
         onSquareDragStart={handleDragStart}
         orientation={orientation}

@@ -4,7 +4,7 @@ import React from 'react';
 import { useGameStore } from '@/stores/game-store';
 
 /**
- * Game control buttons: New Game, Resign, Undo, Redo, Draw, Pause.
+ * Game control buttons: New Game, Resign, Undo, Redo (learning only), Hint (learning only), Draw, Pause.
  */
 export const GameControls: React.FC = () => {
   const {
@@ -21,13 +21,16 @@ export const GameControls: React.FC = () => {
     redoMove,
     togglePause,
     resetGame,
+    showHint,
+    hintSquares,
+    clearHint,
   } = useGameStore();
 
   const isInProgress = phase === 'in-progress';
   const canUndo = isInProgress && moveIndex >= 0 && !isAiThinking;
-  // For AI games, need at least 2 moves (1 player + 1 AI) to redo
   const canRedo = isInProgress && moveIndex < moveHistory.length - 1 && !isAiThinking;
   const canInteract = isInProgress && !isAiThinking;
+  const isLearning = config.gameMode === 'learning';
 
   return (
     <div className="flex flex-wrap gap-2 justify-center mt-4" role="toolbar" aria-label="Game controls">
@@ -61,14 +64,33 @@ export const GameControls: React.FC = () => {
             ↩ Undo
           </button>
           
-          <button
-            onClick={redoMove}
-            disabled={!canRedo}
-            className="px-3 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
-            aria-label="Redo move"
-          >
-            ↪ Redo
-          </button>
+          {/* Redo only available in Learning mode */}
+          {isLearning && (
+            <button
+              onClick={redoMove}
+              disabled={!canRedo}
+              className="px-3 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors"
+              aria-label="Redo move"
+            >
+              ↪ Redo
+            </button>
+          )}
+
+          {/* Hint only available in Learning mode */}
+          {isLearning && (
+            <button
+              onClick={hintSquares.length > 0 ? clearHint : showHint}
+              disabled={!canInteract}
+              className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                hintSquares.length > 0
+                  ? 'bg-purple-700 hover:bg-purple-800 text-white'
+                  : 'bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 disabled:cursor-not-allowed text-white'
+              }`}
+              aria-label={hintSquares.length > 0 ? 'Clear hint' : 'Show hint'}
+            >
+              {hintSquares.length > 0 ? '💡 Hide Hint' : '💡 Hint'}
+            </button>
+          )}
           
           <button
             onClick={offerDraw}

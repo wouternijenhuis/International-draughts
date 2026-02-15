@@ -19,6 +19,6 @@ describe('HomePage', () => {
     render(<HomePage />);
     const tutorialLink = screen.getByRole('link', { name: /learn how to play/i });
     expect(tutorialLink).toBeInTheDocument();
-    expect(tutorialLink).toHaveAttribute('href', '/tutorial');
+    expect(tutorialLink).toHaveAttribute('href', '/learn');
   });
 });

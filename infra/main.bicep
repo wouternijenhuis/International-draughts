@@ -145,6 +145,16 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   }
 }
 
+// Compute CORS origins: always include the SWA default hostname, plus custom domain if configured
+var corsOrigins = empty(customDomainFrontend)
+  ? [
+      'https://${staticWebApp.properties.defaultHostname}'
+    ]
+  : [
+      'https://${staticWebApp.properties.defaultHostname}'
+      'https://${customDomainFrontend}'
+    ]
+
 // Backend App Service
 resource backendApp 'Microsoft.Web/sites@2024-04-01' = {
   name: '${baseName}-api'
@@ -163,12 +173,10 @@ resource backendApp 'Microsoft.Web/sites@2024-04-01' = {
       minTlsVersion: '1.2'
       ftpsState: 'Disabled'
       cors: {
-        allowedOrigins: [
-          'https://${staticWebApp.properties.defaultHostname}'
-        ]
+        allowedOrigins: corsOrigins
         supportCredentials: true
       }
-      appSettings: [
+      appSettings: union([
         {
           name: 'ASPNETCORE_ENVIRONMENT'
           value: environment == 'prod' ? 'Production' : 'Development'
@@ -185,7 +193,12 @@ resource backendApp 'Microsoft.Web/sites@2024-04-01' = {
           name: 'Cors__AllowedOrigins__0'
           value: 'https://${staticWebApp.properties.defaultHostname}'
         }
-      ]
+      ], empty(customDomainFrontend) ? [] : [
+        {
+          name: 'Cors__AllowedOrigins__1'
+          value: 'https://${customDomainFrontend}'
+        }
+      ])
     }
     httpsOnly: true
   }
@@ -370,6 +383,13 @@ resource healthCheckAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
       ]
     }
   }
+}
+
+// Custom domain for frontend Static Web App (when configured)
+resource frontendCustomDomain 'Microsoft.Web/staticSites/customDomains@2024-04-01' = if (!empty(customDomainFrontend)) {
+  parent: staticWebApp
+  name: customDomainFrontend
+  properties: {}
 }
 
 // Custom domain for backend (when configured)

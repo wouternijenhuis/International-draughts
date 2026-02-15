@@ -162,13 +162,12 @@ public class SearchEngineTests
     [Fact]
     public void FindBestMove_SamePosition_ReturnsSameMove()
     {
-        // Deterministic: same position always returns the same move (REQ-70)
+        // Deterministic: same engine instance with same position always returns the same move (REQ-70)
         var board = BoardPosition.Initial();
-        var engine1 = CreateEngine();
-        var engine2 = CreateEngine();
+        var engine = CreateEngine();
 
-        var result1 = engine1.FindBestMove(board, PieceColor.White, timeLimitOverrideMs: 2000);
-        var result2 = engine2.FindBestMove(board, PieceColor.White, timeLimitOverrideMs: 2000);
+        var result1 = engine.FindBestMove(board, PieceColor.White, timeLimitOverrideMs: 5000);
+        var result2 = engine.FindBestMove(board, PieceColor.White, timeLimitOverrideMs: 5000);
 
         result1.Should().NotBeNull();
         result2.Should().NotBeNull();

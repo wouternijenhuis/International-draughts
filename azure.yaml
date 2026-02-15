@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: international-draughts
+metadata:
+  template: azd-init
+
+infra:
+  provider: bicep
+  path: infra
+  module: main
+
+services:
+  api:
+    project: ./backend/src/InternationalDraughts.Api
+    host: appservice
+    language: dotnet
+    module: main
+
+  web:
+    project: ./frontend
+    host: staticwebapp
+    language: js
+    module: main
+    dist: .next
+    hooks:
+      prepackage:
+        shell: sh
+        run: |
+          cd ../shared/draughts-engine && npm ci && npm run build
+          cd ../../frontend && npm ci && npm run build

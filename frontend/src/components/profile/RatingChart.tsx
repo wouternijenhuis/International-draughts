@@ -22,8 +22,8 @@ export const RatingChart: React.FC<RatingChartProps> = ({ data }) => {
     height: CHART_HEIGHT - PADDING.top - PADDING.bottom,
   }), []);
 
-  const { yMin, yMax, xScale, yScale, points, confidencePath, linePath, yTicks } = useMemo(() => {
-    if (data.length === 0) return { yMin: 0, yMax: 0, xScale: () => 0, yScale: () => 0, points: [], confidencePath: '', linePath: '', yTicks: [] };
+  const { points, confidencePath, linePath, yTicks } = useMemo(() => {
+    if (data.length === 0) return { points: [] as { x: number; y: number; data: RatingHistoryEntry; index: number }[], confidencePath: '', linePath: '', yTicks: [] as { rating: number; y: number }[] };
 
     const ratings = data.map(d => d.rating);
     const margin = 50;

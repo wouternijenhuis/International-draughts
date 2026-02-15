@@ -70,7 +70,7 @@ describe('game-persistence', () => {
 
     it('returns null for wrong version', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).version = 2;
+      (state as unknown as Record<string, unknown>).version = 2;
       expect(validateSerializedState(state)).toBeNull();
     });
 
@@ -81,49 +81,49 @@ describe('game-persistence', () => {
 
     it('returns null for missing currentTurn', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).currentTurn = 123;
+      (state as unknown as Record<string, unknown>).currentTurn = 123;
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for non-array moveHistory', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).moveHistory = 'not-an-array';
+      (state as unknown as Record<string, unknown>).moveHistory = 'not-an-array';
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for non-number moveIndex', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).moveIndex = 'abc';
+      (state as unknown as Record<string, unknown>).moveIndex = 'abc';
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null when config is missing', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).config = null;
+      (state as unknown as Record<string, unknown>).config = null;
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for missing savedAt', () => {
       const state = createValidState();
-      (state as Record<string, unknown>).savedAt = 'not-a-number';
+      (state as unknown as Record<string, unknown>).savedAt = 'not-a-number';
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for missing config.opponent', () => {
       const state = createValidState();
-      (state.config as Record<string, unknown>).opponent = 123;
+      (state.config as unknown as Record<string, unknown>).opponent = 123;
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for missing config.aiDifficulty', () => {
       const state = createValidState();
-      (state.config as Record<string, unknown>).aiDifficulty = 123;
+      (state.config as unknown as Record<string, unknown>).aiDifficulty = 123;
       expect(validateSerializedState(state)).toBeNull();
     });
 
     it('returns null for missing config.playerColor', () => {
       const state = createValidState();
-      (state.config as Record<string, unknown>).playerColor = 123;
+      (state.config as unknown as Record<string, unknown>).playerColor = 123;
       expect(validateSerializedState(state)).toBeNull();
     });
   });

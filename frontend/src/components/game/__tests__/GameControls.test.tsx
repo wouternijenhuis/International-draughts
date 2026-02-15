@@ -47,4 +47,37 @@ describe('GameControls', () => {
     render(<GameControls />);
     expect(screen.getByLabelText('Start new game')).toBeDefined();
   });
+
+  /* ─── Learning mode tests ─── */
+
+  it('does not show Redo button in standard mode', () => {
+    useGameStore.getState().startGame({ gameMode: 'standard' });
+    render(<GameControls />);
+    expect(screen.queryByLabelText('Redo move')).toBeNull();
+  });
+
+  it('shows Redo button in learning mode', () => {
+    useGameStore.getState().startGame({ gameMode: 'learning' });
+    render(<GameControls />);
+    expect(screen.getByLabelText('Redo move')).toBeDefined();
+  });
+
+  it('does not show Hint button in standard mode', () => {
+    useGameStore.getState().startGame({ gameMode: 'standard' });
+    render(<GameControls />);
+    expect(screen.queryByLabelText('Show hint')).toBeNull();
+  });
+
+  it('shows Hint button in learning mode', () => {
+    useGameStore.getState().startGame({ gameMode: 'learning' });
+    render(<GameControls />);
+    expect(screen.getByLabelText('Show hint')).toBeDefined();
+  });
+
+  it('Redo button is disabled when redo stack is empty', () => {
+    useGameStore.getState().startGame({ gameMode: 'learning' });
+    render(<GameControls />);
+    const redo = screen.getByLabelText('Redo move');
+    expect(redo).toHaveProperty('disabled', true);
+  });
 });

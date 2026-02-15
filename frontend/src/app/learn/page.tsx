@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Board } from '@/components/board/Board';
 import { GameBoard } from '@/components/game/GameBoard';
 import { GameControls } from '@/components/game/GameControls';
@@ -10,18 +10,38 @@ import { MoveFeedback } from '@/components/game/MoveFeedback';
 import { PauseOverlay } from '@/components/game/PauseOverlay';
 import { useGameStore } from '@/stores/game-store';
 import { createInitialBoard, createEmptyBoard, PieceType, PlayerColor, Square } from '@/lib/draughts-types';
+import { generateLegalMoves, GeneratedMove } from '@/lib/move-generation';
 import Link from 'next/link';
 
-/* ─────────── Tutorial data ─────────── */
+/* ─────────── Tutorial types ─────────── */
+
+/** Defines the goal action the player must complete for a tutorial step. */
+interface TutorialGoalAction {
+  readonly type: 'info' | 'move' | 'any-move';
+  /** Required starting square for 'move' goals. */
+  readonly goalFrom?: number;
+  /** Required destination square(s) for 'move' goals. Accepts a single square or an array. */
+  readonly goalTo?: number | readonly number[];
+}
 
 interface TutorialStep {
-  title: string;
-  description: string;
-  board: Square[];
-  highlights?: number[];
+  readonly title: string;
+  readonly description: string;
+  readonly board: Square[];
+  readonly highlights?: number[];
   /** Detailed bullet points (rendered below description) */
-  details?: string[];
+  readonly details?: string[];
+  /** The goal the player must accomplish on this step's board. */
+  readonly goalAction: TutorialGoalAction;
 }
+
+/** Feedback message shown after a tutorial move attempt. */
+interface TutorialFeedback {
+  readonly type: 'success' | 'error';
+  readonly message: string;
+}
+
+/* ─────────── Tutorial helpers ─────────── */
 
 const createTutorialBoard = (
   pieces: { sq: number; type: PieceType; color: PlayerColor }[],
@@ -33,6 +53,70 @@ const createTutorialBoard = (
   return board;
 };
 
+/**
+ * Generate legal moves for tutorial boards.
+ *
+ * Tutorial boards place White pieces at high square numbers (visually at the
+ * bottom of the board) moving toward lower numbers (upward). The engine's
+ * convention has White at low square numbers moving downward. To reconcile,
+ * we swap all piece colours and generate moves for Black, whose forward
+ * direction (NE/NW) matches the upward visual movement of the tutorial's
+ * white pieces.
+ */
+const generateTutorialLegalMoves = (board: Square[]): GeneratedMove[] => {
+  const swapped: Square[] = board.map((sq) =>
+    sq
+      ? {
+          type: sq.type,
+          color:
+            sq.color === PlayerColor.White
+              ? PlayerColor.Black
+              : PlayerColor.White,
+        }
+      : null,
+  );
+  return generateLegalMoves(swapped, PlayerColor.Black);
+};
+
+/** Apply a move to the board, returning a new board position. */
+const applyTutorialMove = (
+  board: Square[],
+  move: GeneratedMove,
+): Square[] => {
+  const newBoard = [...board];
+  const piece = newBoard[move.from];
+  newBoard[move.from] = null;
+  newBoard[move.to] = piece;
+  for (const cap of move.capturedSquares) {
+    newBoard[cap] = null;
+  }
+  return newBoard;
+};
+
+/** Check whether a move satisfies the step's goal. */
+const checkGoalMet = (
+  move: GeneratedMove,
+  goal: TutorialGoalAction,
+): boolean => {
+  if (goal.type === 'info') return true;
+  if (goal.type === 'any-move') return true;
+  if (goal.type === 'move') {
+    if (goal.goalFrom !== undefined && move.from !== goal.goalFrom) {
+      return false;
+    }
+    if (goal.goalTo !== undefined) {
+      const targets = Array.isArray(goal.goalTo)
+        ? goal.goalTo
+        : [goal.goalTo];
+      if (!targets.includes(move.to)) return false;
+    }
+    return true;
+  }
+  return false;
+};
+
+/* ─────────── Tutorial data ─────────── */
+
 const TUTORIAL_STEPS: TutorialStep[] = [
   /* 1 — Board & Setup */
   {
@@ -40,6 +124,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     description:
       'International Draughts is played on a 10×10 board with alternating light and dark squares. Only the dark (brown) squares are used. Each player starts with 20 pieces — called "men" — placed on the first four rows of their side.',
     board: createInitialBoard(),
+    goalAction: { type: 'info' },
     details: [
       'White pieces occupy squares 31–50 (the bottom four rows).',
       'Black pieces occupy squares 1–20 (the top four rows).',
@@ -56,6 +141,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 33, type: PieceType.Man, color: PlayerColor.White },
     ]),
     highlights: [28, 29],
+    goalAction: { type: 'move', goalFrom: 33, goalTo: [28, 29] },
     details: [
       'A man can only move forward — never backward (except when capturing).',
       'Each move goes diagonally to an adjacent empty square.',
@@ -72,6 +158,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 28, type: PieceType.Man, color: PlayerColor.Black },
     ]),
     highlights: [22],
+    goalAction: { type: 'move', goalFrom: 33, goalTo: 22 },
     details: [
       'The square behind the enemy piece must be empty.',
       'The captured piece is removed from the board.',
@@ -89,6 +176,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 38, type: PieceType.Man, color: PlayerColor.White },
     ]),
     highlights: [22],
+    goalAction: { type: 'move', goalFrom: 33, goalTo: 22 },
     details: [
       'If any of your pieces can capture, you must make a capture move.',
       'You cannot choose to move a different piece that cannot capture.',
@@ -107,6 +195,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 22, type: PieceType.Man, color: PlayerColor.Black },
     ]),
     highlights: [28, 17],
+    goalAction: { type: 'any-move' },
     details: [
       'Count the total pieces captured in each possible sequence.',
       'You must pick the sequence with the highest total captures.',
@@ -125,6 +214,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 22, type: PieceType.Man, color: PlayerColor.Black },
     ]),
     highlights: [28, 17],
+    goalAction: { type: 'move', goalFrom: 39, goalTo: 17 },
     details: [
       'A man continues jumping as long as captures are available.',
       'You may not stop in the middle of a chain capture.',
@@ -142,6 +232,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 47, type: PieceType.Man, color: PlayerColor.Black },
       { sq: 25, type: PieceType.King, color: PlayerColor.White },
     ]),
+    goalAction: { type: 'info' },
     details: [
       'White promotes on squares 1–5 (top row).',
       'Black promotes on squares 46–50 (bottom row).',
@@ -157,6 +248,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 28, type: PieceType.King, color: PlayerColor.White },
     ]),
     highlights: [1, 6, 10, 14, 19, 23, 32, 37, 41, 46, 5, 12, 17, 22, 33, 39, 44, 50],
+    goalAction: { type: 'any-move' },
     details: [
       'A king can move along any of its four diagonals.',
       'It can travel any number of empty squares along a diagonal.',
@@ -174,6 +266,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 28, type: PieceType.Man, color: PlayerColor.Black },
     ]),
     highlights: [23, 19, 14, 10, 5],
+    goalAction: { type: 'any-move' },
     details: [
       'The king can be far from the enemy piece — it just needs a clear diagonal path.',
       'After capturing, the king can land on ANY empty square beyond the captured piece.',
@@ -189,8 +282,9 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     board: createTutorialBoard([
       { sq: 28, type: PieceType.King, color: PlayerColor.White },
       { sq: 22, type: PieceType.Man, color: PlayerColor.White },
-      { sq: 47, type: PieceType.Man, color: PlayerColor.Black },
+      { sq: 33, type: PieceType.Man, color: PlayerColor.Black },
     ]),
+    goalAction: { type: 'any-move' },
     details: [
       'Capture all enemy pieces — most common way to win.',
       'Block all enemy pieces so they cannot move — a positional win.',
@@ -206,6 +300,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       { sq: 28, type: PieceType.King, color: PlayerColor.White },
       { sq: 46, type: PieceType.King, color: PlayerColor.Black },
     ]),
+    goalAction: { type: 'info' },
     details: [
       'Mutual agreement — both players agree to a draw.',
       'Threefold repetition — the same position occurs three times with the same player to move.',
@@ -220,6 +315,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     description:
       'Now that you know the rules, here are some strategic principles to improve your game. International Draughts is a deep game with lots of tactics!',
     board: createInitialBoard(),
+    goalAction: { type: 'info' },
     details: [
       'Control the center — pieces in the center have more movement options.',
       'Keep your back row filled — this prevents your opponent from promoting.',
@@ -244,6 +340,144 @@ export default function LearnPage() {
 
   const step = TUTORIAL_STEPS[stepIndex]!;
 
+  /* ── Interactive tutorial state ── */
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
+  const [currentBoard, setCurrentBoard] = useState<Square[]>(step.board);
+  const [feedback, setFeedback] = useState<TutorialFeedback | null>(null);
+  const [lastMoveSquares, setLastMoveSquares] = useState<number[]>([]);
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /*
+   * Reset interactive state when the step changes.
+   * Uses the "adjust state during render" pattern (React docs) instead of an
+   * effect so we avoid the react-hooks/set-state-in-effect lint rule.
+   */
+  const [prevStepIndex, setPrevStepIndex] = useState(stepIndex);
+  if (prevStepIndex !== stepIndex) {
+    setPrevStepIndex(stepIndex);
+    setSelectedSquare(null);
+    setCurrentBoard([...TUTORIAL_STEPS[stepIndex]!.board]);
+    setFeedback(null);
+    setLastMoveSquares([]);
+
+    // Info steps are automatically completed on arrival
+    const incoming = TUTORIAL_STEPS[stepIndex]!;
+    if (incoming.goalAction.type === 'info') {
+      setCompletedSteps((prev) => {
+        if (prev.has(stepIndex)) return prev;
+        const next = new Set(prev);
+        next.add(stepIndex);
+        return next;
+      });
+    }
+  }
+
+  // Also auto-complete step 0 on first render (it's info)
+  if (!completedSteps.has(0) && TUTORIAL_STEPS[0]!.goalAction.type === 'info') {
+    setCompletedSteps((prev) => {
+      const next = new Set(prev);
+      next.add(0);
+      return next;
+    });
+  }
+
+  // Clean up feedback timeout when step changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if (feedbackTimeoutRef.current) {
+        clearTimeout(feedbackTimeoutRef.current);
+        feedbackTimeoutRef.current = null;
+      }
+    };
+  }, [stepIndex]);
+
+  const isInteractiveStep = step.goalAction.type !== 'info';
+  const isStepCompleted = completedSteps.has(stepIndex);
+
+  /** All legal moves for the current interactive board position. */
+  const allLegalMoves = useMemo(
+    () => (isInteractiveStep ? generateTutorialLegalMoves(currentBoard) : []),
+    [currentBoard, isInteractiveStep],
+  );
+
+  /** Legal moves originating from the currently selected piece. */
+  const selectedPieceMoves = useMemo(
+    () =>
+      selectedSquare !== null
+        ? allLegalMoves.filter((m) => m.from === selectedSquare)
+        : [],
+    [allLegalMoves, selectedSquare],
+  );
+
+  /** Destination squares for the selected piece (used for board highlights). */
+  const legalMoveDestinations = useMemo(
+    () => selectedPieceMoves.map((m) => m.to),
+    [selectedPieceMoves],
+  );
+
+  /* ── Handle square clicks on the interactive tutorial board ── */
+  const handleTutorialSquareClick = useCallback(
+    (square: number) => {
+      if (isStepCompleted || !isInteractiveStep) return;
+
+      // If clicking a legal-move destination while a piece is selected — execute
+      if (
+        selectedSquare !== null &&
+        legalMoveDestinations.includes(square)
+      ) {
+        const move = selectedPieceMoves.find((m) => m.to === square)!;
+
+        if (checkGoalMet(move, step.goalAction)) {
+          // Correct move!
+          const newBoard = applyTutorialMove(currentBoard, move);
+          setCurrentBoard(newBoard);
+          setSelectedSquare(null);
+          setLastMoveSquares([move.from, move.to]);
+          setFeedback({ type: 'success', message: 'Correct! Well done!' });
+          setCompletedSteps((prev) => new Set(prev).add(stepIndex));
+        } else {
+          // Incorrect move — show error and let the player retry
+          setFeedback({
+            type: 'error',
+            message: 'Not quite — try again!',
+          });
+          setSelectedSquare(null);
+          feedbackTimeoutRef.current = setTimeout(() => {
+            setFeedback(null);
+            feedbackTimeoutRef.current = null;
+          }, 2000);
+        }
+        return;
+      }
+
+      // If clicking a player's piece that has legal moves — select it
+      const piece = currentBoard[square];
+      if (
+        piece?.color === PlayerColor.White &&
+        allLegalMoves.some((m) => m.from === square)
+      ) {
+        setSelectedSquare(square);
+        setFeedback(null);
+        return;
+      }
+
+      // Otherwise deselect
+      setSelectedSquare(null);
+    },
+    [
+      isStepCompleted,
+      isInteractiveStep,
+      selectedSquare,
+      legalMoveDestinations,
+      selectedPieceMoves,
+      step.goalAction,
+      currentBoard,
+      stepIndex,
+      allLegalMoves,
+    ],
+  );
+
   const startPractice = useCallback(() => {
     setTab('practice');
     if (phase === 'not-started') {
@@ -266,6 +500,9 @@ export default function LearnPage() {
       timedMode: false,
     });
   }, [startGame]);
+
+  /* ── Determine whether the Next button should be enabled ── */
+  const canAdvance = !isInteractiveStep || isStepCompleted;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -342,7 +579,9 @@ export default function LearnPage() {
                       key={i}
                       onClick={() => setStepIndex(i)}
                       className={`flex-1 h-1.5 rounded-full transition-colors ${
-                        i <= stepIndex ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-700'
+                        completedSteps.has(i) || i === stepIndex
+                          ? 'bg-blue-500'
+                          : 'bg-gray-300 dark:bg-gray-700'
                       }`}
                       aria-label={`Go to step ${i + 1}`}
                     />
@@ -368,14 +607,56 @@ export default function LearnPage() {
                     </ul>
                   )}
 
-                  {/* Board visualization */}
-                  <div className="max-w-sm mx-auto mt-4">
-                    <Board
-                      position={step.board}
-                      showNotation={true}
-                      legalMoveSquares={step.highlights}
-                    />
-                  </div>
+                  {/* Board — interactive or static depending on step type */}
+                  {isInteractiveStep ? (
+                    <div className="max-w-sm mx-auto mt-4">
+                      {/* Interactive prompt */}
+                      {!isStepCompleted && (
+                        <p className="text-sm text-center text-blue-600 dark:text-blue-400 mb-2 font-medium">
+                          🎯 Your turn! Click on the white piece to make the move.
+                        </p>
+                      )}
+
+                      <Board
+                        position={currentBoard}
+                        showNotation={true}
+                        selectedSquare={selectedSquare}
+                        legalMoveSquares={
+                          isStepCompleted ? [] : legalMoveDestinations
+                        }
+                        lastMoveSquares={lastMoveSquares}
+                        onSquareClick={
+                          isStepCompleted
+                            ? undefined
+                            : handleTutorialSquareClick
+                        }
+                      />
+
+                      {/* Feedback message */}
+                      {feedback && (
+                        <div
+                          className={`mt-3 text-center text-sm font-medium rounded-lg px-3 py-2 ${
+                            feedback.type === 'success'
+                              ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                              : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}
+                          role="status"
+                          aria-live="polite"
+                        >
+                          {feedback.type === 'success' ? '✅' : '❌'}{' '}
+                          {feedback.message}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="max-w-sm mx-auto mt-4">
+                      <Board
+                        position={step.board}
+                        showNotation={true}
+                        legalMoveSquares={step.highlights}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Navigation */}
@@ -395,7 +676,13 @@ export default function LearnPage() {
                   {stepIndex < TUTORIAL_STEPS.length - 1 ? (
                     <button
                       onClick={() => setStepIndex((i) => i + 1)}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm"
+                      disabled={!canAdvance}
+                      aria-disabled={!canAdvance}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                        canAdvance
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      }`}
                     >
                       Next →
                     </button>
@@ -422,13 +709,13 @@ export default function LearnPage() {
                         className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors ${
                           i === stepIndex
                             ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium'
-                            : i < stepIndex
+                            : completedSteps.has(i)
                               ? 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         <span className="inline-flex items-center gap-2">
-                          {i < stepIndex ? (
+                          {completedSteps.has(i) && i !== stepIndex ? (
                             <span className="text-green-500 text-xs">✓</span>
                           ) : i === stepIndex ? (
                             <span className="text-blue-500 text-xs">▶</span>

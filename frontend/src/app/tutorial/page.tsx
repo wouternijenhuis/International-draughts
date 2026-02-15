@@ -59,7 +59,7 @@ const STEPS: TutorialStep[] = [
     board: createTutorialBoard([
       { sq: 25, type: PieceType.King, color: PlayerColor.White },
     ]),
-    highlights: [20, 30, 34, 39, 44, 48, 3, 14],
+    highlights: [3, 9, 14, 20, 30, 34, 39, 43, 48],
   },
   {
     title: 'Winning the Game',

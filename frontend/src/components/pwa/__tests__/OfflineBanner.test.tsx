@@ -31,6 +31,7 @@ describe('OfflineBanner', () => {
     expect(screen.queryByText(/offline/i)).not.toBeInTheDocument();
 
     act(() => {
+      onLineSpy.mockReturnValue(false);
       window.dispatchEvent(new Event('offline'));
     });
     expect(screen.getByText(/You are offline/i)).toBeInTheDocument();
@@ -42,6 +43,7 @@ describe('OfflineBanner', () => {
     expect(screen.getByText(/You are offline/i)).toBeInTheDocument();
 
     act(() => {
+      onLineSpy.mockReturnValue(true);
       window.dispatchEvent(new Event('online'));
     });
     expect(screen.queryByText(/offline/i)).not.toBeInTheDocument();

@@ -71,7 +71,7 @@ public static class MoveGenerator
         return captures;
     }
 
-    /// <summary>Man quiet moves: one square diagonally forward.</summary>
+    /// <summary>Regular piece quiet moves: one square diagonally forward.</summary>
     private static void GenerateManQuietMoves(
         BoardPosition board, int square, PieceColor color, List<DraughtsMove> moves)
     {
@@ -101,10 +101,10 @@ public static class MoveGenerator
     }
 
     /// <summary>
-    /// Recursively finds all capture sequences for a man.
-    /// Men capture in all four directions (forward and backward).
+    /// Recursively finds all capture sequences for a regular piece.
+    /// Regular pieces capture in all four directions (forward and backward).
     /// Jumped pieces remain on the board during the sequence but cannot be jumped twice.
-    /// A man passing through the promotion row mid-capture is NOT promoted (FMJD rule).
+    /// A regular piece passing through the promotion row mid-capture is NOT promoted (FMJD rule).
     /// </summary>
     private static void GenerateManCaptures(
         BoardPosition board, int square, PieceColor color,

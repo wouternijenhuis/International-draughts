@@ -112,7 +112,7 @@ Sound effects apply to: piece placement, capture, king promotion, game end, cloc
 7. **Board notation:** When enabled, FMJD square numbers (1–50) are displayed on the board. When disabled, the board is clean.
 8. **Move history panel:** When enabled, a move list panel shows the game's moves in standard notation. When disabled, the panel is hidden.
 9. **Confirm move:** When enabled, after the player selects a move, a confirmation prompt appears before the move is committed. When disabled, moves are applied immediately.
-10. **Promotion animation:** When enabled, a visual celebration plays when a man is promoted. When disabled, promotion happens without fanfare.
+10. **Promotion animation:** When enabled, a visual celebration plays when a regular piece is promoted. When disabled, promotion happens without fanfare.
 11. **Persistence (registered):** A registered user changes settings, logs out, logs back in — settings are restored.
 12. **Persistence (guest):** A guest changes settings, navigates away and back within the same session — settings are retained. Closing the browser resets settings to defaults.
 13. **Defaults:** A new user (registered or guest) starts with sensible defaults as listed in the table above.

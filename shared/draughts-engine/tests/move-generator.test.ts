@@ -25,8 +25,8 @@ function captureCount(move: Move): number {
   return move.type === 'capture' ? move.steps.length : 0;
 }
 
-describe('Man quiet moves', () => {
-  it('white man on center square has two forward moves', () => {
+describe('Regular piece quiet moves', () => {
+  it('white regular piece on center square has two forward moves', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
     ]);
@@ -36,7 +36,7 @@ describe('Man quiet moves', () => {
     expect(hasMove(moves, 28, 32)).toBe(true); // SW
   });
 
-  it('black man on center square has two forward moves', () => {
+  it('black regular piece on center square has two forward moves', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.Black },
     ]);
@@ -46,8 +46,8 @@ describe('Man quiet moves', () => {
     expect(hasMove(moves, 28, 22)).toBe(true); // NW
   });
 
-  it('man on edge (left) has only one forward move', () => {
-    // Square 6 (row 1, col 0) - white man
+  it('regular piece on edge (left) has only one forward move', () => {
+    // Square 6 (row 1, col 0) - white regular piece
     const board = setupBoard([
       { square: 6, type: PieceType.Man, color: PlayerColor.White },
     ]);
@@ -56,7 +56,7 @@ describe('Man quiet moves', () => {
     expect(hasMove(moves, 6, 11)).toBe(true); // SE only (SW would be off-board)
   });
 
-  it('man blocked by friendly pieces has no moves', () => {
+  it('regular piece blocked by friendly pieces has no moves', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 32, type: PieceType.Man, color: PlayerColor.White },
@@ -68,10 +68,10 @@ describe('Man quiet moves', () => {
     expect(movesFrom28).toHaveLength(0);
   });
 
-  it('man on promotion row cannot move forward (already at edge)', () => {
+  it('regular piece on promotion row cannot move forward (already at edge)', () => {
     // Square 46 (row 9) for white — but white is already on promotion row
-    // This is actually a king scenario; men wouldn't normally be here unless just promoted
-    // Let's test: white man at row 8, can move to row 9
+    // This is actually a king scenario; regular pieces would not normally be here unless just promoted
+    // Let's test: white regular piece at row 8, can move to row 9
     const board = setupBoard([
       { square: 41, type: PieceType.Man, color: PlayerColor.White },
     ]);
@@ -129,8 +129,8 @@ describe('King quiet moves (flying king)', () => {
   });
 });
 
-describe('Man captures', () => {
-  it('man captures forward over enemy piece', () => {
+describe('Regular piece captures', () => {
+  it('regular piece captures forward over enemy piece', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },
@@ -143,7 +143,7 @@ describe('Man captures', () => {
     expect(getMoveDestination(moves[0]!)).toBe(39);
   });
 
-  it('man captures backward', () => {
+  it('regular piece captures backward', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 22, type: PieceType.Man, color: PlayerColor.Black },
@@ -156,7 +156,7 @@ describe('Man captures', () => {
     expect(getMoveDestination(moves[0]!)).toBe(17);
   });
 
-  it('man cannot capture if landing square is occupied', () => {
+  it('regular piece cannot capture if landing square is occupied', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },
@@ -211,7 +211,7 @@ describe('King captures (flying king)', () => {
 });
 
 describe('Multi-jump captures', () => {
-  it('man double capture (forced continuation)', () => {
+  it('regular piece double capture (forced continuation)', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },
@@ -224,7 +224,7 @@ describe('Multi-jump captures', () => {
     expect(getMoveDestination(moves[0]!)).toBe(50);
   });
 
-  it('man triple capture', () => {
+  it('regular piece triple capture', () => {
     // Setup doesn't work for a triple capture — skip
     // 17 -> captures 22 -> 28 (but 28 is also enemy)
     // Actually: 17 SE -> capture 22 -> land 28? No, 22 is adjacent to 17?
@@ -290,12 +290,12 @@ describe('Multi-jump captures', () => {
 });
 
 describe('Promotion during capture', () => {
-  it('man ending capture on promotion row gets promoted (move result)', () => {
+  it('regular piece ending capture on promotion row gets promoted (move result)', () => {
     // We verify the move generates correctly. Actual promotion happens during move application.
     // Original setup didn't work:
     // 41(row8,col1) SW -> (row9,col0)=46. That would be a quiet move.
     // 41 SE -> (row9,col2)=47. Enemy. Land at... row10 = off board. No.
-    // Adjusted setup: man at 39, enemy at 44, lands at 50 (promotion row)
+    // Adjusted setup: regular piece at 39, enemy at 44, lands at 50 (promotion row)
     const board2 = setupBoard([
       { square: 39, type: PieceType.Man, color: PlayerColor.White },
       { square: 44, type: PieceType.Man, color: PlayerColor.Black },
@@ -306,14 +306,14 @@ describe('Promotion during capture', () => {
     expect(getMoveDestination(moves[0]!)).toBe(50);
   });
 
-  it('man passing through promotion row mid-capture does NOT promote', () => {
-    // A white man at square 39, enemy at 44 (can land on 50 = promotion row)
+  it('regular piece passing through promotion row mid-capture does NOT promote', () => {
+    // A white regular piece at square 39, enemy at 44 (can land on 50 = promotion row)
     // If there were another enemy beyond 50... impossible since 50 is the edge.
-    // Let's use black: black man at 12, enemy at 7, lands on 1 (promotion row for black)
+    // Let's use black: black regular piece at 12, enemy at 7, lands on 1 (promotion row for black)
     // If there's another enemy to continue from 1... 1 is row 0, can only go SE/SW
     // 1(row0,col1) SE -> 7 (just jumped!), SW -> 6. If 6 is enemy... 
     // 1 SW -> (row1,col0)=6. If 6 is enemy, land at (row2,col-1) = off board. No.
-    // This scenario is hard to construct for man. The rule mainly matters for kings.
+    // This scenario is hard to construct for a regular piece. The rule mainly matters for kings.
     // Verify the basic case works:
     const board = setupBoard([
       { square: 12, type: PieceType.Man, color: PlayerColor.Black },
@@ -354,7 +354,7 @@ describe('No legal moves', () => {
   });
 
   it('player with all pieces blocked has no moves', () => {
-    // White man at corner, blocked by black pieces
+    // White regular piece at corner, blocked by black pieces
     const board = setupBoard([
       { square: 5, type: PieceType.Man, color: PlayerColor.White },
       { square: 10, type: PieceType.Man, color: PlayerColor.Black },
@@ -371,8 +371,8 @@ describe('No legal moves', () => {
   });
 });
 
-describe('Mixed board: men and kings together', () => {
-  it('mandatory capture is global: king capture overrides man quiet moves', () => {
+describe('Mixed board: regular pieces and kings together', () => {
+  it('mandatory capture is global: king capture overrides regular piece quiet moves', () => {
     const board = setupBoard([
       { square: 17, type: PieceType.Man, color: PlayerColor.White },  // Has quiet moves only
       { square: 28, type: PieceType.King, color: PlayerColor.White }, // Has captures

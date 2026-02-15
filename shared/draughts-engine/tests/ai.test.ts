@@ -46,7 +46,7 @@ describe('Evaluation function', () => {
     expect(score).toBeLessThan(-50);
   });
 
-  it('king is worth more than man', () => {
+  it('king is worth more than a regular piece', () => {
     const boardWithKing = setupBoard([
       { square: 28, type: PieceType.King, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },
@@ -85,7 +85,7 @@ describe('Quick evaluate', () => {
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },
     ]);
     const score = quickEvaluate(board, PlayerColor.White);
-    expect(score).toBe(100); // 2 men - 1 man = +100
+    expect(score).toBe(100); // 2 regular pieces - 1 regular piece = +100
   });
 });
 
@@ -145,7 +145,7 @@ describe('AI Search - findBestMove', () => {
   });
 
   it('captures when capture is mandatory (finds forced win)', () => {
-    // White man at 28, black man at 33 — single forced capture that wins
+    // White regular piece at 28, black regular piece at 33 — single forced capture that wins
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.Black },

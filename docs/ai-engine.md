@@ -21,10 +21,10 @@
 
 The position evaluation considers:
 
-- **Material balance**: Men (100 evaluation units) vs. Kings (300 evaluation units)
+- **Material balance**: Regular pieces (100 evaluation units) vs. Kings (300 evaluation units)
 - **Center control**: Bonus for pieces on central squares
-- **Advancement**: Bonus for men closer to promotion
-- **Back row defense**: Bonus for men on the back row
+- **Advancement**: Bonus for regular pieces closer to promotion
+- **Back row defense**: Bonus for regular pieces on the back row
 - **King centralization**: Bonus for kings near the center
 
 ### Difficulty Tuning
@@ -68,7 +68,7 @@ The expert evaluator (`Evaluator.cs`) includes all client-side features plus:
 - **Left/Right balance**: Penalty for unbalanced piece distribution
 - **Piece structure**: Connected pieces and formation evaluation
 - **Locked position penalty**: Penalty for blocked pieces
-- **Runaway man detection**: Bonus for men with a clear path to promotion
+- **Runaway regular piece detection**: Bonus for regular pieces with a clear path to promotion
 - **Endgame king advantage**: Enhanced king value in endgame positions
 - **Quick evaluation**: Lightweight eval for move ordering (avoids full computation)
 

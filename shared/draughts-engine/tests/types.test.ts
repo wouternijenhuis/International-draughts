@@ -25,13 +25,13 @@ import {
 } from '../src';
 
 describe('Piece', () => {
-  it('should create a white man', () => {
+  it('should create a white regular piece', () => {
     const piece = createWhiteMan();
     expect(piece.type).toBe(PieceType.Man);
     expect(piece.color).toBe(PlayerColor.White);
   });
 
-  it('should create a black man', () => {
+  it('should create a black regular piece', () => {
     const piece = createBlackMan();
     expect(piece.type).toBe(PieceType.Man);
     expect(piece.color).toBe(PlayerColor.Black);
@@ -144,7 +144,7 @@ describe('Board - Empty board', () => {
 });
 
 describe('Initial position', () => {
-  it('should place 20 white men on squares 1-20', () => {
+  it('should place 20 white regular pieces on squares 1-20', () => {
     const board = createInitialBoard();
     for (let i = 1; i <= 20; i++) {
       expect(board[i]).not.toBeNull();
@@ -160,7 +160,7 @@ describe('Initial position', () => {
     }
   });
 
-  it('should place 20 black men on squares 31-50', () => {
+  it('should place 20 black regular pieces on squares 31-50', () => {
     const board = createInitialBoard();
     for (let i = 31; i <= 50; i++) {
       expect(board[i]).not.toBeNull();

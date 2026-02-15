@@ -1,7 +1,7 @@
 # Task 017: Piece Interaction (Drag-and-Drop, Tap-to-Move)
 
 **Feature:** UI & Board Experience  
-**Dependencies:** 016-task-board-rendering, 006-task-man-movement-capture, 007-task-king-movement-capture  
+**Dependencies:** 016-task-board-rendering, 006-task-regular-piece-movement-capture, 007-task-king-movement-capture  
 **FRD Reference:** [ui-board-experience.md](../features/ui-board-experience.md)
 
 ---
@@ -43,7 +43,7 @@ Implement player input for moving pieces: drag-and-drop (mouse and touch) and ta
 - Piece movement from origin to destination is animated
 - Animation speed follows the setting: Instant (0ms), Fast (~100ms), Normal (~250ms), Slow (~500ms)
 - Capture animation: captured piece fades out or is removed after the sequence completes
-- Promotion animation: visual celebration when a man promotes (when Promotion Animation setting is enabled)
+- Promotion animation: visual celebration when a regular piece promotes (when Promotion Animation setting is enabled)
 
 ### Confirm Move
 - When "Confirm Move" is enabled: after the player selects their move, show a confirmation UI element (e.g., "Confirm" / "Cancel" buttons near the board)
@@ -75,7 +75,7 @@ Implement player input for moving pieces: drag-and-drop (mouse and touch) and ta
 9. Animation speed matches the setting for all piece movements
 10. Sound effects play at correct moments and respect the toggle/volume
 11. Both mouse and touch input work for drag-and-drop
-12. Promotion animation plays when a man reaches the back row (when enabled)
+12. Promotion animation plays when a regular piece reaches the back row (when enabled)
 
 ---
 

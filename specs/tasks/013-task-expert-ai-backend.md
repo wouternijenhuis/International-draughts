@@ -35,7 +35,7 @@ This is the v1 Expert AI: deep alpha-beta search with a hand-tuned evaluation fu
 - All factors from the client-side evaluation, plus:
   - Left/right balance (pieces distributed across the board)
   - Locked positions (chains that restrict opponent mobility)
-  - Runaway men (men that cannot be stopped from promoting)
+  - Runaway regular pieces (regular pieces that cannot be stopped from promoting)
   - King centralization
   - Tempo advantage
 - Evaluation weights tuned by hand, stored in configuration

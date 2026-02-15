@@ -8,7 +8,7 @@ public interface IAiService
 /// <summary>
 /// Request for the Expert AI move endpoint.
 /// Board is encoded as int[]: index 0 unused, indices 1-50 for FMJD squares.
-/// Piece encoding: 0=empty, 1=white man, 2=black man, 3=white king, 4=black king.
+/// Piece encoding: 0=empty, 1=white piece, 2=black piece, 3=white king, 4=black king.
 /// </summary>
 public record AiMoveRequest(
     int[] Board,

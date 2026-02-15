@@ -14,7 +14,7 @@ public readonly record struct DraughtsPiece(DraughtsPieceType Type, PieceColor C
     public bool IsMan => Type == DraughtsPieceType.Man;
 
     /// <summary>
-    /// Returns a promoted version of this piece (Man → King).
+    /// Returns a promoted version of this piece (regular piece → king).
     /// </summary>
     public DraughtsPiece Promote() => new(DraughtsPieceType.King, Color);
 }

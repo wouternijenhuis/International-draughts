@@ -45,7 +45,7 @@ public class BasicMoveGenerator : IMoveGenerator
         Bitboard defenderPieces = position.GetPieces(defender);
         Bitboard emptySquares = position.EmptySquares;
         
-        // Generate man captures
+        // Generate regular piece captures
         AddManCaptures(list, position, defenderPieces, emptySquares, position.GetMen(attacker));
         
         // Generate king captures
@@ -64,7 +64,7 @@ public class BasicMoveGenerator : IMoveGenerator
         
         Side attacker = position.Turn;
         
-        // Generate man moves
+        // Generate regular piece moves
         AddManMoves(list, position, position.GetMen(attacker));
         
         // Generate king moves
@@ -75,7 +75,7 @@ public class BasicMoveGenerator : IMoveGenerator
     }
     
     /// <summary>
-    /// Add man moves (forward diagonal moves).
+    /// Add regular piece moves (forward diagonal moves).
     /// </summary>
     private void AddManMoves(MoveList list, Position position, Bitboard men)
     {
@@ -84,13 +84,13 @@ public class BasicMoveGenerator : IMoveGenerator
         
         if (attacker == Side.White)
         {
-            // White men move up-left and up-right
+            // White regular pieces move up-left and up-right
             AddMovesFrom(list, new Bitboard(men.Value & (empty.Value << BitOps.I1)), -BitOps.I1);
             AddMovesFrom(list, new Bitboard(men.Value & (empty.Value << BitOps.J1)), -BitOps.J1);
         }
         else
         {
-            // Black men move down-left and down-right
+            // Black regular pieces move down-left and down-right
             AddMovesFrom(list, new Bitboard(men.Value & (empty.Value >> BitOps.I1)), BitOps.I1);
             AddMovesFrom(list, new Bitboard(men.Value & (empty.Value >> BitOps.J1)), BitOps.J1);
         }
@@ -137,7 +137,7 @@ public class BasicMoveGenerator : IMoveGenerator
     }
     
     /// <summary>
-    /// Add man capture moves (includes multi-jump sequences).
+    /// Add regular piece capture moves (includes multi-jump sequences).
     /// </summary>
     private void AddManCaptures(MoveList list, Position position, Bitboard defenderPieces, Bitboard empty, Bitboard men)
     {
@@ -149,7 +149,7 @@ public class BasicMoveGenerator : IMoveGenerator
     }
     
     /// <summary>
-    /// Check for man captures in a specific direction.
+    /// Check for regular piece captures in a specific direction.
     /// </summary>
     private void AddManCapturesDirection(MoveList list, Position position, Bitboard defender, Bitboard empty, Bitboard men, int inc)
     {
@@ -157,7 +157,7 @@ public class BasicMoveGenerator : IMoveGenerator
         Bitboard shifted1 = BitOps.Shift(defender, inc);
         Bitboard shifted2 = BitOps.Shift(empty, inc * 2);
         
-        // Find men that can capture
+        // Find regular pieces that can capture
         ulong canCapture = men.Value & shifted1.Value & shifted2.Value;
         
         foreach (var from in BitOps.Squares(new Bitboard(canCapture)))
@@ -182,7 +182,7 @@ public class BasicMoveGenerator : IMoveGenerator
     }
     
     /// <summary>
-    /// Recursively generate multi-jump man captures.
+    /// Recursively generate multi-jump regular piece captures.
     /// </summary>
     private void AddManCapturesRecursive(MoveList list, Position position, Bitboard defender, Bitboard empty, 
         Square start, Square jumped, Square current, Bitboard captured)
@@ -356,7 +356,7 @@ public class BasicMoveGenerator : IMoveGenerator
             }
             else
             {
-                // Man move
+                // Regular piece move
                 newWhiteMen = BitOps.Remove(newWhiteMen, from);
                 newWhiteMen = BitOps.Add(newWhiteMen, to);
             }
@@ -386,7 +386,7 @@ public class BasicMoveGenerator : IMoveGenerator
             }
             else
             {
-                // Man move
+                // Regular piece move
                 newBlackMen = BitOps.Remove(newBlackMen, from);
                 newBlackMen = BitOps.Add(newBlackMen, to);
             }

@@ -25,17 +25,17 @@ Implement win/loss detection and all three draw rules specified by FMJD: threefo
 - The position history must be part of the game state
 
 ### Draw: 25-Move King-Only Rule (REQ-12)
-- Track consecutive moves where both sides have only kings (no men) and no captures occur
+- Track consecutive moves where both sides have only kings (no regular pieces) and no captures occur
 - If 25 such consecutive moves pass (25 by each side = 50 half-moves) without a capture, the game is drawn
-- The counter resets when a capture is made or when a man is still on the board
+- The counter resets when a capture is made or when a regular piece is still on the board
 - This counter must be part of the game state
 
 ### Draw: 16-Move Endgame Rule (REQ-12)
 - In specific endgame material configurations, if the game lasts 16 moves per player (32 half-moves) without resolution, the game is drawn
 - Material configurations triggering this rule:
   - 3 kings vs. 1 king
-  - 2 kings + 1 man vs. 1 king
-  - 1 king + 2 men vs. 1 king
+  - 2 kings + 1 regular piece vs. 1 king
+  - 1 king + 2 regular pieces vs. 1 king
   - (Other standard FMJD endgame configurations as defined in the rules)
 - The 16-move counter resets if a capture occurs or if the material configuration changes
 - This counter must be part of the game state
@@ -66,7 +66,7 @@ Implement win/loss detection and all three draw rules specified by FMJD: threefo
   - Win detection: position with no legal moves for one side
   - Loss by elimination: all pieces captured
   - Threefold repetition with exact 3-occurrence detection (not 2 or 4)
-  - 25-move rule counter increments, resets on capture, resets when men exist
+  - 25-move rule counter increments, resets on capture, resets when regular pieces exist
   - 16-move rule for each qualifying material configuration
   - Counter reset on capture during endgame
   - Game phase becomes terminal and rejects further moves

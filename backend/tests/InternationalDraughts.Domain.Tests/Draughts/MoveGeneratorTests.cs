@@ -11,7 +11,7 @@ public class MoveGeneratorTests
     public void GenerateLegalMoves_InitialPosition_WhiteHas9Moves()
     {
         // In the initial position, White has 9 legal quiet moves
-        // (men on row 3 can move to empty squares on row 4)
+        // (regular pieces on row 3 can move to empty squares on row 4)
         var board = BoardPosition.Initial();
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
 
@@ -31,12 +31,12 @@ public class MoveGeneratorTests
 
     #endregion
 
-    #region Man Quiet Moves
+    #region Regular Piece Quiet Moves
 
     [Fact]
     public void GenerateLegalMoves_WhiteManInCenter_TwoForwardMoves()
     {
-        // White man at square 23 should move forward (north) to 18 and 19
+        // White regular piece at square 23 should move forward (north) to 18 and 19
         var board = BoardPosition.Empty().SetPiece(23, DraughtsPiece.WhiteMan);
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
 
@@ -48,7 +48,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_BlackManInCenter_TwoForwardMoves()
     {
-        // Black man moves south
+        // Black regular piece moves south
         var board = BoardPosition.Empty().SetPiece(28, DraughtsPiece.BlackMan);
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.Black);
 
@@ -59,7 +59,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_ManOnLeftEdge_OnlyOneForwardMove()
     {
-        // White man on left edge: square 6 (row 1, col 0)
+        // White regular piece on left edge: square 6 (row 1, col 0)
         var board = BoardPosition.Empty().SetPiece(6, DraughtsPiece.WhiteMan);
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
 
@@ -70,7 +70,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_ManBlocked_NoMoves()
     {
-        // White man at 28, blocked by friendly pieces at 22 and 23 (NE and NW)
+        // White regular piece at 28, blocked by friendly pieces at 22 and 23 (NE and NW)
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteMan)
             .SetPiece(22, DraughtsPiece.WhiteMan)
@@ -87,7 +87,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_ManCannotMoveBackward()
     {
-        // White man at 28 should NOT move backward (south)
+        // White regular piece at 28 should NOT move backward (south)
         var board = BoardPosition.Empty().SetPiece(28, DraughtsPiece.WhiteMan);
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
 
@@ -133,12 +133,12 @@ public class MoveGeneratorTests
 
     #endregion
 
-    #region Man Captures
+    #region Regular Piece Captures
 
     [Fact]
     public void GenerateLegalMoves_ManCapture_OnlyCaptureMoves()
     {
-        // White man at 28 (5,4), black piece at 23 (4,5) — adjacent NE.
+        // White regular piece at 28 (5,4), black piece at 23 (4,5) — adjacent NE.
         // Capture 28→19 over 23. Sq 19 = (3,6).
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteMan)
@@ -156,8 +156,8 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_ManCapture_InAllDirections()
     {
-        // Man captures backward too (FMJD rule)
-        // White man at 23 (4,5), black piece at 28 (5,4) to the SW.
+        // Regular piece captures backward too (FMJD rule)
+        // White regular piece at 23 (4,5), black piece at 28 (5,4) to the SW.
         // Capture lands at 32 (6,3).
         var board = BoardPosition.Empty()
             .SetPiece(23, DraughtsPiece.WhiteMan)
@@ -165,7 +165,7 @@ public class MoveGeneratorTests
 
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
 
-        // Man should be able to capture backward
+        // Regular piece should be able to capture backward
         moves.Should().OnlyContain(m => m.IsCapture);
         moves.Should().HaveCountGreaterThanOrEqualTo(1);
     }
@@ -173,7 +173,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_ManMultiCapture_ReturnsLongestSequence()
     {
-        // White man at 34 (6,7), black at 29 (5,6) and 18 (3,4).
+        // White regular piece at 34 (6,7), black at 29 (5,6) and 18 (3,4).
         // Capture path: 34→23 over 29, then 23→12 over 18 (NW direction).
         var board = BoardPosition.Empty()
             .SetPiece(34, DraughtsPiece.WhiteMan)
@@ -191,7 +191,7 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_MandatoryCapture_QuietMovesNotReturned()
     {
-        // White man at 28 can capture (black at 23), and White man at 38 could make a quiet move
+        // White regular piece at 28 can capture (black at 23), and White regular piece at 38 could make a quiet move
         // But since captures exist, only captures should be returned
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteMan)
@@ -279,12 +279,12 @@ public class MoveGeneratorTests
     [Fact]
     public void GenerateLegalMoves_AllPiecesBlocked_ReturnsEmpty()
     {
-        // White man on promotion row (row 0) has nowhere to go forward
+        // White regular piece on promotion row (row 0) has nowhere to go forward
         // And no captures available
         var board = BoardPosition.Empty().SetPiece(1, DraughtsPiece.WhiteMan);
         var moves = MoveGenerator.GenerateLegalMoves(board, PieceColor.White);
-        // A man on the promotion row can't move forward — but it should have been promoted
-        // Let's use a genuinely blocked man: White at 23 blocked by friendly pieces at 18 and 19
+        // A regular piece on the promotion row can't move forward — but it should have been promoted
+        // Let's use a genuinely blocked regular piece: White at 23 blocked by friendly pieces at 18 and 19
         var blocked = BoardPosition.Empty()
             .SetPiece(23, DraughtsPiece.WhiteMan)
             .SetPiece(18, DraughtsPiece.WhiteMan)

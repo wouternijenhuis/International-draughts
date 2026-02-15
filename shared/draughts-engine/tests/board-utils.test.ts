@@ -89,7 +89,7 @@ describe('Board utilities', () => {
   });
 
   describe('promotePiece', () => {
-    it('promotes man to king', () => {
+    it('promotes regular piece to king', () => {
       const board = createEmptyBoard();
       board[46] = createPiece(PieceType.Man, PlayerColor.White);
       const newBoard = promotePiece(board, 46);
@@ -116,7 +116,7 @@ describe('Board utilities', () => {
   });
 
   describe('countPieces', () => {
-    it('counts men and kings separately', () => {
+    it('counts regular pieces and kings separately', () => {
       const board = createEmptyBoard();
       board[1] = createPiece(PieceType.Man, PlayerColor.White);
       board[5] = createPiece(PieceType.King, PlayerColor.White);

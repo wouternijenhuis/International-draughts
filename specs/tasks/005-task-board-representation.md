@@ -8,7 +8,7 @@
 
 ## Description
 
-Implement the board data structure representing a 10×10 international draughts board using only the 50 dark (playable) squares, with FMJD standard numbering (1–50). Implement the initial position setup with 20 white pieces on squares 1–20 and 20 black pieces on squares 31–50. Define all core game types: piece (Man/King × White/Black), square (Empty/Occupied), board position, and game state container.
+Implement the board data structure representing a 10×10 international draughts board using only the 50 dark (playable) squares, with FMJD standard numbering (1–50). Implement the initial position setup with 20 white pieces on squares 1–20 and 20 black pieces on squares 31–50. Define all core game types: piece (regular piece/King × White/Black), square (Empty/Occupied), board position, and game state container.
 
 This is the foundational data model that all other rules engine work builds upon.
 
@@ -23,7 +23,7 @@ This is the foundational data model that all other rules engine work builds upon
 - Coordinate conversion between FMJD square numbers and internal (row, column) positions
 
 ### Piece Model
-- Two piece types: Man and King
+- Two piece types: regular piece and King
 - Two colors: White and Black
 - A square can be: Empty, or occupied by one piece of a specific type and color
 
@@ -39,7 +39,7 @@ This is the foundational data model that all other rules engine work builds upon
 
 ## Acceptance Criteria
 
-1. A new game creates a board with 20 white men on squares 1–20, 20 black men on squares 31–50, and squares 21–30 empty
+1. A new game creates a board with 20 white regular pieces on squares 1–20, 20 black regular pieces on squares 31–50, and squares 21–30 empty
 2. Every FMJD square number (1–50) maps to a unique (row, column) position and back
 3. The game state includes all required fields: board position, current player (White moves first), empty move history, game phase (InProgress), zero captured counts
 4. The draw-rule state is initialized correctly: empty position history, king-move counter at 0, starting piece counts (20 per side)

@@ -20,8 +20,8 @@ Implement the complete, FMJD-compliant international draughts rules engine. This
 | REQ-1 | 10×10 board, 50 dark squares, dark lower-left corner | Board representation |
 | REQ-2 | 20 pieces per player, first four rows | Initial position setup |
 | REQ-3 | White moves first, turns alternate | Turn management |
-| REQ-4 | Men move one square diagonally forward | Man movement rules |
-| REQ-5 | Mandatory captures, men capture forward and backward | Capture generation |
+| REQ-4 | Regular pieces move one square diagonally forward | Regular piece movement rules |
+| REQ-5 | Mandatory captures, regular pieces capture forward and backward | Capture generation |
 | REQ-6 | Maximum capture rule — must take the most pieces | Capture validation |
 | REQ-7 | Jumped pieces removed after complete sequence; no re-jumping | Multi-capture logic |
 | REQ-8 | Promotion to king on opponent's back row | Promotion logic |
@@ -69,11 +69,11 @@ Implement the complete, FMJD-compliant international draughts rules engine. This
 ## 6. Acceptance Criteria
 
 1. **Board initialisation:** A new game creates a 10×10 board with 20 white pieces on squares 1–20 and 20 black pieces on squares 31–50 (FMJD numbering), with squares 21–30 empty.
-2. **Man movement:** A man can only move to one diagonally adjacent forward square that is unoccupied. No backward non-capture moves.
-3. **Man capture:** A man can capture forward or backward by jumping over an adjacent enemy piece to the empty square beyond. Captures are mandatory when available.
+2. **Regular piece movement:** A regular piece can only move to one diagonally adjacent forward square that is unoccupied. No backward non-capture moves.
+3. **Regular piece capture:** A regular piece can capture forward or backward by jumping over an adjacent enemy piece to the empty square beyond. Captures are mandatory when available.
 4. **Maximum capture enforcement:** When multiple capture sequences exist, only those capturing the maximum number of pieces are legal. The player must choose from among these.
 5. **Multi-jump removal:** During a multi-capture sequence, jumped pieces remain on the board until the entire sequence completes. A piece cannot be jumped twice in the same sequence.
-6. **Promotion:** A man that ends its turn on the opponent's back row is promoted to a king. A man passing through the back row mid-capture sequence is NOT promoted during that sequence (FMJD rule).
+6. **Promotion:** A regular piece that ends its turn on the opponent's back row is promoted to a king. A regular piece passing through the back row mid-capture sequence is NOT promoted during that sequence (FMJD rule).
 7. **Flying king movement:** A king can move any number of unoccupied squares along any diagonal.
 8. **Flying king capture:** A king can capture an enemy piece at any diagonal distance, landing on any unoccupied square beyond it, and must continue capturing if more captures are available.
 9. **Win detection:** The engine correctly identifies a win when a player has no legal moves (no pieces left, or all pieces blocked).

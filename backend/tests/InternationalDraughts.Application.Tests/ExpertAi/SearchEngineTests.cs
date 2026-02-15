@@ -101,7 +101,7 @@ public class SearchEngineTests
     [Fact]
     public void FindBestMove_ForcedCapture_SelectsCaptureMove()
     {
-        // White man at 28 (5,4), black man at 23 (4,5), landing at 19 (3,6)
+        // White regular piece at 28 (5,4), black regular piece at 23 (4,5), landing at 19 (3,6)
         // Only legal move is a capture
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteMan)
@@ -140,7 +140,7 @@ public class SearchEngineTests
     [Fact]
     public void FindBestMove_MaterialAdvantage_FindsWinningScore()
     {
-        // White king + white man vs lone black man — strong material advantage
+        // White king + white regular piece vs lone black regular piece — strong material advantage
         // No captures available, so multiple quiet moves → engine searches
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteKing) // Flying king with many moves

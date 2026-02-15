@@ -42,7 +42,7 @@ public sealed class BoardPosition
     }
 
     /// <summary>Creates a board from a raw integer array (used by API deserialization).
-    /// Encoding: 0=empty, 1=white man, 2=black man, 3=white king, 4=black king.
+    /// Encoding: 0=empty, 1=white piece, 2=black piece, 3=white king, 4=black king.
     /// </summary>
     public static BoardPosition FromIntArray(int[] board)
     {

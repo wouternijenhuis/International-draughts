@@ -16,7 +16,7 @@ Implement the first-time user onboarding flow: a brief, skippable walkthrough th
 
 ### Onboarding Content
 - Step 1: Introduction — "Welcome to International Draughts" with a brief overview
-- Step 2: How men move — illustrated explanation of diagonal forward movement
+- Step 2: How regular pieces move — illustrated explanation of diagonal forward movement
 - Step 3: Captures are mandatory — explanation with visual example of mandatory capture
 - Step 4: Flying kings — explanation of king promotion and flying movement
 - Step 5: Controls — drag-and-drop vs. tap-to-move, and key UI elements (undo, resign, settings)

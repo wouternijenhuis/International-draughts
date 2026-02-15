@@ -32,8 +32,8 @@ This is the most complex rules task and must handle all edge cases of the FMJD c
 - During the sequence, jumped pieces remain on the board (they occupy their squares and block movement) but are marked as "to be removed"
 
 ### Promotion During Capture
-- A man passing through the opponent's back row mid-capture is NOT promoted during that sequence (FMJD rule — REQ-8)
-- Promotion only occurs if the man ends its turn (after the complete sequence) on the back row
+- A regular piece passing through the opponent's back row mid-capture is NOT promoted during that sequence (FMJD rule — REQ-8)
+- Promotion only occurs if the regular piece ends its turn (after the complete sequence) on the back row
 
 ### Move Output
 - Complete capture sequences are output in FMJD notation (e.g., `19x10x3` for a double capture via squares 10 and 3)
@@ -50,8 +50,8 @@ This is the most complex rules task and must handle all edge cases of the FMJD c
 5. Jumped pieces remain on the board during the sequence and block movement through their squares
 6. A piece cannot jump the same enemy piece twice in one sequence
 7. Jumped pieces are removed from the board only after the complete sequence
-8. A man passing through the back row mid-capture is NOT promoted; it continues as a man
-9. A man ending its complete capture sequence on the back row IS promoted to king
+8. A regular piece passing through the back row mid-capture is NOT promoted; it continues as a regular piece
+9. A regular piece ending its complete capture sequence on the back row IS promoted to king
 10. Multi-jump notation is correctly formatted (e.g., `19x10x3`)
 11. King multi-jumps with flying captures: the king can change direction between captures, each landing any distance beyond the captured piece
 
@@ -60,13 +60,13 @@ This is the most complex rules task and must handle all edge cases of the FMJD c
 ## Testing Requirements
 
 - **Unit tests:**
-  - Simple double and triple captures (man and king)
+  - Simple double and triple captures (regular piece and king)
   - Maximum capture: multiple pieces have capture options, only the maximum-count sequence is legal
   - Jumped piece blocking: piece cannot pass through a jumped-but-not-yet-removed piece
   - No double-jumping the same piece
   - Piece removal timing: verify board state mid-sequence vs. post-sequence
-  - Promotion mid-capture: man passes through back row but does not promote
-  - Promotion end-of-capture: man ends on back row and promotes
+  - Promotion mid-capture: regular piece passes through back row but does not promote
+  - Promotion end-of-capture: regular piece ends on back row and promotes
   - King multi-directional captures (flying king changes diagonal between jumps)
 - **Position tests:** Classic draughts problems with known maximum-capture solutions
 - **Edge case tests:** All pieces can capture resulting in complex trees; cycles that would violate the no-double-jump rule

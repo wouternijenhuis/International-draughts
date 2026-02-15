@@ -27,8 +27,8 @@ const STEPS: TutorialStep[] = [
     board: createInitialBoard(),
   },
   {
-    title: 'How Men Move',
-    description: 'Men (regular pieces) move diagonally forward one square. White moves towards the black side (down the board), and black moves towards the white side.',
+    title: 'How Regular Pieces Move',
+    description: 'Regular pieces move diagonally forward one square. White moves towards the black side (down the board), and black moves towards the white side.',
     board: createTutorialBoard([
       { sq: 28, type: PieceType.Man, color: PlayerColor.White },
     ]),
@@ -36,7 +36,7 @@ const STEPS: TutorialStep[] = [
   },
   {
     title: 'Capturing',
-    description: 'Men can capture enemy pieces by jumping over them diagonally (both forward and backward). Captures are mandatory — you must capture if you can!',
+    description: 'Regular pieces can capture enemy pieces by jumping over them diagonally (both forward and backward). Captures are mandatory — you must capture if you can!',
     board: createTutorialBoard([
       { sq: 28, type: PieceType.Man, color: PlayerColor.White },
       { sq: 33, type: PieceType.Man, color: PlayerColor.Black },
@@ -55,7 +55,7 @@ const STEPS: TutorialStep[] = [
   },
   {
     title: 'Promotion to King',
-    description: 'When a man reaches the opposite back row, it becomes a King (crowned piece). Kings can move and capture diagonally in any direction and along the entire diagonal.',
+    description: 'When a regular piece reaches the opposite back row, it becomes a King (crowned piece). Kings can move and capture diagonally in any direction and along the entire diagonal.',
     board: createTutorialBoard([
       { sq: 25, type: PieceType.King, color: PlayerColor.White },
     ]),
@@ -63,7 +63,7 @@ const STEPS: TutorialStep[] = [
   },
   {
     title: 'Winning the Game',
-    description: 'You win by capturing all opponent\'s pieces or blocking them so they cannot move. A draw can occur by agreement, or when the position repeats three times, or after 25 moves without a capture or man move.',
+    description: 'You win by capturing all opponent\'s pieces or blocking them so they cannot move. A draw can occur by agreement, or when the position repeats three times, or after 25 moves without a capture or regular piece move.',
     board: createTutorialBoard([
       { sq: 28, type: PieceType.King, color: PlayerColor.White },
       { sq: 22, type: PieceType.Man, color: PlayerColor.White },

@@ -125,7 +125,7 @@ public class Bitbase : IBitbase
         
         var parts = name.Substring(3); // Remove "bb_"
         
-        // Try simple format: "WvB" (W white pieces vs B black pieces, all men)
+        // Try simple format: "WvB" (W white pieces vs B black pieces, all regular pieces)
         if (parts.Contains('v'))
         {
             var split = parts.Split('v');
@@ -136,8 +136,8 @@ public class Bitbase : IBitbase
             }
         }
         
-        // Try detailed format: "WmMmWkKk" where W white men, M black men, W white kings, K black kings
-        // Example: "1m0m1k0k" means 1 white man, 0 black men, 1 white king, 0 black kings
+        // Try detailed format: "WmMmWkKk" where W white regular pieces, M black regular pieces, W white kings, K black kings
+        // Example: "1m0m1k0k" means 1 white regular piece, 0 black regular pieces, 1 white king, 0 black kings
         int wm = 0, bm = 0, wk = 0, bk = 0;
         
         // Split by 'm' and 'k' and parse alternately

@@ -234,7 +234,7 @@ The game implements FMJD International Draughts rules:
 - 20 pieces per player on first four rows.
 - Mandatory captures; maximum capture rule.
 - Flying kings (move/capture any distance diagonally).
-- Man promotes only when stopping on the back row at end of turn.
+- Regular piece promotes only when stopping on the back row at end of turn.
 - Draw rules: threefold repetition, 25-move king-only rule, 16-move endgame rule.
 
 All move generation and game outcome detection must be 100% FMJD-compliant.

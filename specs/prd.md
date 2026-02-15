@@ -89,15 +89,15 @@ There is no modern, polished international draughts (10×10) game app that combi
 - **[REQ-1]** The game is played on a 10×10 board using only the 50 dark squares, with the lower-left corner being a dark square.
 - **[REQ-2]** Each player starts with 20 pieces placed on the first four rows closest to them, leaving two central rows empty.
 - **[REQ-3]** The player with the light (white) pieces moves first; turns alternate.
-- **[REQ-4]** Ordinary pieces (men) move one square diagonally forward to an unoccupied square when not capturing.
-- **[REQ-5]** Captures are mandatory. Men can capture forward or backward by jumping over an enemy piece to an unoccupied square immediately beyond.
+- **[REQ-4]** Ordinary pieces (regular pieces) move one square diagonally forward to an unoccupied square when not capturing.
+- **[REQ-5]** Captures are mandatory. Regular pieces can capture forward or backward by jumping over an enemy piece to an unoccupied square immediately beyond.
 - **[REQ-6]** When multiple captures are possible, the player must execute the capture sequence that takes the maximum number of opponent pieces.
 - **[REQ-7]** In a multi-jump sequence, jumped pieces are removed only after the entire sequence is complete. The same piece cannot be jumped more than once in a single sequence.
-- **[REQ-8]** A man is promoted to a king when it stops on the opponent's back row at the end of its turn.
+- **[REQ-8]** A regular piece is promoted to a king when it stops on the opponent's back row at the end of its turn.
 - **[REQ-9]** Kings ("flying kings") can move any number of squares diagonally in any direction to an unoccupied square when not capturing.
 - **[REQ-10]** Kings can capture by jumping over an opponent's piece at any distance, landing on any unoccupied square beyond it, and must still capture the maximum number of pieces possible.
 - **[REQ-11]** A player loses when they have no valid moves (no pieces remaining, or all pieces blocked).
-- **[REQ-12]** A draw occurs when: the same position with the same player to move occurs for the third time; OR only kings remain for both sides; OR 25 consecutive moves pass with only king moves and no captures; OR three kings (or two kings + one man, or one king + two men) vs. one king endgame lasts 16 moves per player without resolution.
+- **[REQ-12]** A draw occurs when: the same position with the same player to move occurs for the third time; OR only kings remain for both sides; OR 25 consecutive moves pass with only king moves and no captures; OR three kings (or two kings + one regular piece, or one king + two regular pieces) vs. one king endgame lasts 16 moves per player without resolution.
 - **[REQ-13]** The game must use the standard FMJD board notation system (squares numbered 1–50).
 - **[REQ-14]** All legal moves must be visually highlighted when a player selects a piece to move, including mandatory capture paths.
 
@@ -157,7 +157,7 @@ There is no modern, polished international draughts (10×10) game app that combi
 - **[REQ-40]** **Show Move History:** Toggle display of the move list panel using standard notation.
 - **[REQ-41]** **Timed Mode:** Enable/disable; configure time control format and duration.
 - **[REQ-42]** **Confirm Move:** Toggle a confirmation step before committing a move (helpful for beginners).
-- **[REQ-43]** **Promotion Animation:** Toggle a visual celebration animation when a man is promoted to king.
+- **[REQ-43]** **Promotion Animation:** Toggle a visual celebration animation when a regular piece is promoted to king.
 
 ### 4.7 User Interface & Experience
 

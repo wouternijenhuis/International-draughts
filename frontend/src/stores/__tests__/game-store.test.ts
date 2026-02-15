@@ -51,13 +51,13 @@ describe('Game Store', () => {
   describe('selectSquare', () => {
     it('selects own piece', () => {
       useGameStore.getState().startGame();
-      useGameStore.getState().selectSquare(20); // White man
+      useGameStore.getState().selectSquare(20); // White piece
       expect(useGameStore.getState().selectedSquare).toBe(20);
     });
 
     it('does not select opponent piece', () => {
       useGameStore.getState().startGame();
-      useGameStore.getState().selectSquare(31); // Black man
+      useGameStore.getState().selectSquare(31); // Black piece
       expect(useGameStore.getState().selectedSquare).toBeNull();
     });
 
@@ -130,7 +130,7 @@ describe('Game Store', () => {
       expect(position[29]).not.toBeNull(); // Piece arrived
     });
 
-    it('promotes man to king on back rank', () => {
+    it('promotes regular piece to king on back rank', () => {
       // Set up a near-promotion position manually
       const state = useGameStore.getState();
       const pos = [...state.position] as Square[];

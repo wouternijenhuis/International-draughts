@@ -36,7 +36,7 @@ Implement the responsive application layout that adapts between mobile (portrait
 - Skip-to-content link for bypassing navigation
 
 ### Screen Reader Support (REQ-48)
-- Board: each square has an ARIA label (e.g., "Square 32, White man", "Square 28, empty")
+- Board: each square has an ARIA label (e.g., "Square 32, White regular piece", "Square 28, empty")
 - Game events announced via ARIA live regions: "White's turn", "Black captures on square 19", "Game over, White wins"
 - Selected piece and legal moves announced
 - Move history readable by screen reader

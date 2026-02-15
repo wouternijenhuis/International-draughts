@@ -17,7 +17,7 @@ describe('TutorialPage', () => {
   it('navigates to next step', () => {
     render(<TutorialPage />);
     fireEvent.click(screen.getByText('Next →'));
-    expect(screen.getByText('How Men Move')).toBeDefined();
+    expect(screen.getByText('How Regular Pieces Move')).toBeDefined();
   });
 
   it('navigates back to previous step', () => {

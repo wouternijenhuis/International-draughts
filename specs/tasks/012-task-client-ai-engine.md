@@ -1,7 +1,7 @@
 # Task 012: Client-Side AI Engine (Easy, Medium, Hard)
 
 **Feature:** AI Computer Opponent  
-**Dependencies:** 005-task-board-representation, 006-task-man-movement-capture, 007-task-king-movement-capture, 008-task-multi-jump-maximum-capture, 009-task-game-outcome-draw-rules  
+**Dependencies:** 005-task-board-representation, 006-task-regular-piece-movement-capture, 007-task-king-movement-capture, 008-task-multi-jump-maximum-capture, 009-task-game-outcome-draw-rules  
 **FRD Reference:** [ai-computer-opponent.md](../features/ai-computer-opponent.md)
 
 ---
@@ -24,10 +24,10 @@ This AI runs entirely in the browser and must respond within 2 seconds per move 
 
 ### Evaluation Function
 - Evaluate non-terminal positions based on positional concepts:
-  - Material count (men and kings, with kings worth more)
+  - Material count (regular pieces and kings, with kings worth more)
   - Centre control (pieces on central squares are better)
   - Piece mobility (number of available moves)
-  - Advancement (men closer to promotion are better)
+  - Advancement (regular pieces closer to promotion are better)
   - King safety (kings in favorable positions)
   - Piece structure (connected pieces, avoiding isolated pieces)
 - Terminal positions: return extreme scores for wins/losses, 0 for draws

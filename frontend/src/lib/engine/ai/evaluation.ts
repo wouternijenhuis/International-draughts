@@ -56,7 +56,7 @@ const countKingMoves = (board: BoardPosition, square: number): number => {
 };
 
 /**
- * Counts available forward quiet moves for a man from a given square.
+ * Counts available forward quiet moves for a regular piece from a given square.
  */
 const countManMoves = (board: BoardPosition, square: number, color: PlayerColor): number => {
   let count = 0;
@@ -85,7 +85,7 @@ const hasAdjacentFriendly = (board: BoardPosition, square: number, color: Player
 };
 
 /**
- * Checks if a man has a clear path to promotion and is likely unstoppable.
+ * Checks if a regular piece has a clear path to promotion and is likely unstoppable.
  * Simplified runaway detection: checks that diagonal squares ahead are free of enemies.
  */
 const isRunawayMan = (board: BoardPosition, square: number, color: PlayerColor): boolean => {
@@ -160,7 +160,7 @@ export const evaluate = (board: BoardPosition, player: PlayerColor, featureScale
   score += (playerPieces.men - opponentPieces.men) * WEIGHTS.man;
   score += (playerPieces.kings - opponentPieces.kings) * WEIGHTS.king;
 
-  // First king bonus
+  // First king advantage bonus
   if (playerPieces.kings > 0 && opponentPieces.kings === 0) score += WEIGHTS.firstKingBonus;
   if (opponentPieces.kings > 0 && playerPieces.kings === 0) score -= WEIGHTS.firstKingBonus;
 
@@ -195,25 +195,25 @@ export const evaluate = (board: BoardPosition, player: PlayerColor, featureScale
       }
     }
 
-    // Advancement (men only — closer to promotion is better)
+    // Advancement (regular pieces only — closer to promotion is better)
     if (piece.type === PieceType.Man) {
       const advancement = piece.color === PlayerColor.White
         ? coord.row // White advances by increasing row
         : (9 - coord.row); // Black advances by decreasing row
       score += multiplier * advancement * WEIGHTS.advancement * featureScale;
 
-      // Back row bonus for men (defensive)
+      // Back row bonus for regular pieces (defensive)
       const colorKey = piece.color === PlayerColor.White ? 'white' : 'black';
       if (BACK_ROW[colorKey]!.has(sq)) {
         score += multiplier * WEIGHTS.backRow * featureScale;
       }
 
-      // Runaway man detection
+      // Runaway regular piece detection
       if (isRunawayMan(board, sq, piece.color)) {
         score += multiplier * WEIGHTS.runawayManBonus * featureScale;
       }
 
-      // Man mobility
+      // Regular piece mobility
       const manMoves = countManMoves(board, sq, piece.color);
       if (isPlayer) playerMobility += manMoves;
       else opponentMobility += manMoves;
@@ -255,7 +255,7 @@ export const evaluate = (board: BoardPosition, player: PlayerColor, featureScale
     }
   }
 
-  // --- Mobility (man mobility at lower weight, king mobility at higher weight) ---
+  // --- Mobility (regular piece mobility at lower weight, king mobility at higher weight) ---
   const manMobilityDiff = (playerMobility - playerKingMobility) - (opponentMobility - opponentKingMobility);
   score += manMobilityDiff * WEIGHTS.manMobility * featureScale;
   score += (playerKingMobility - opponentKingMobility) * WEIGHTS.kingMobility * featureScale;

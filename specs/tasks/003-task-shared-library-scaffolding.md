@@ -24,7 +24,7 @@ The library must be written in a language/format that supports both execution en
 
 ### Type Definitions
 - Board representation types (10×10 grid, 50 playable squares, FMJD numbering 1–50)
-- Piece types (Man, King) and color types (White, Black)
+- Piece types (regular piece, King) and color types (White, Black)
 - Game state type (board position, current player, move history, game phase, draw-rule counters)
 - Move types (regular move, capture sequence, multi-jump)
 - Game result types (InProgress, WhiteWins, BlackWins, Draw with reason)

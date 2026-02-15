@@ -459,7 +459,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Move piece
     newPosition[from] = null;
     
-    // Check for promotion (man reaching opposite back rank)
+    // Check for promotion (regular piece reaching opposite back rank)
     const isPromotion = piece.type === PieceType.Man && (
       (piece.color === PlayerColor.White && to >= 46) ||
       (piece.color === PlayerColor.Black && to <= 5)
@@ -913,7 +913,7 @@ function rotateSquare(square: number): number {
 /**
  * Converts a frontend board position to the backend's FMJD-standard int[] encoding.
  * Applies 180-degree rotation so White appears on squares 31-50.
- * Piece encoding: 0=empty, 1=white man, 2=black man, 3=white king, 4=black king.
+ * Piece encoding: 0=empty, 1=white piece, 2=black piece, 3=white king, 4=black king.
  */
 function boardToApiFormat(position: BoardPosition): number[] {
   const board = new Array(51).fill(0);

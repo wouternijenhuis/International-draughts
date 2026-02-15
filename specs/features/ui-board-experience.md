@@ -80,7 +80,7 @@ Deliver a visually elegant, responsive, and accessible game interface that makes
 ### Piece Rendering
 
 - Pieces are rendered according to the selected Piece Style.
-- Men and kings must be visually distinct (kings have a crown or marking).
+- Regular pieces and kings must be visually distinct (kings have a crown or marking).
 - White and black pieces must be clearly distinguishable.
 - Pieces must be clearly legible at all board sizes, from small mobile screens to large desktop monitors.
 
@@ -96,7 +96,7 @@ Deliver a visually elegant, responsive, and accessible game interface that makes
 - **Legal move highlights:** When a piece is selected, all legal destination squares are highlighted (when Show Legal Moves is enabled).
 - **Mandatory capture indicator:** When captures are mandatory, the UI provides a visual cue (e.g., pulsing highlight on pieces that must capture) and optionally audio feedback.
 - **Last-move indicator:** The squares involved in the most recent move are highlighted with a distinct color/opacity.
-- **Promotion animation:** When a man reaches the back row and is promoted to king, a celebration animation plays (when Promotion Animation setting is enabled).
+- **Promotion animation:** When a regular piece reaches the back row and is promoted to king, a celebration animation plays (when Promotion Animation setting is enabled).
 
 ### Audio Feedback
 

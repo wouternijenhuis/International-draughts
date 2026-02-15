@@ -107,8 +107,8 @@ public class AiServiceTests
     {
         // Set up a position with mandatory capture
         var board = new int[51];
-        board[28] = 1; // White man
-        board[23] = 2; // Black man (capturable)
+        board[28] = 1; // White regular piece
+        board[23] = 2; // Black regular piece (capturable)
 
         var request = new AiMoveRequest(board, "white", "expert");
         var response = await _service.GetBestMoveAsync(request);
@@ -149,7 +149,7 @@ public class AiServiceTests
     {
         // Board with only black pieces, asking for white's move
         var board = new int[51];
-        board[40] = 2; // Only black man
+        board[40] = 2; // Only black regular piece
 
         var request = new AiMoveRequest(board, "white", "expert");
 
@@ -178,13 +178,13 @@ public class AiServiceTests
     {
         // Two completely different positions should return independent results
         var board1 = new int[51];
-        board1[28] = 1; // White man
-        board1[23] = 2; // Black man
-        board1[1] = 1;  // Another white man
+        board1[28] = 1; // White regular piece
+        board1[23] = 2; // Black regular piece
+        board1[1] = 1;  // Another white regular piece
 
         var board2 = new int[51];
-        board2[10] = 1; // White man in different position
-        board2[15] = 2; // Black man
+        board2[10] = 1; // White regular piece in different position
+        board2[15] = 2; // Black regular piece
         board2[1] = 1;
 
         var request1 = new AiMoveRequest(board1, "white", "expert");
@@ -241,8 +241,8 @@ public class AiServiceTests
     private static int[] CreateInitialBoardArray()
     {
         var board = new int[51];
-        for (int i = 1; i <= 20; i++) board[i] = 2;   // Black men
-        for (int i = 31; i <= 50; i++) board[i] = 1;   // White men
+        for (int i = 1; i <= 20; i++) board[i] = 2;   // Black regular pieces
+        for (int i = 31; i <= 50; i++) board[i] = 1;   // White regular pieces
         return board;
     }
 }

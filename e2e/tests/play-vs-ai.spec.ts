@@ -21,12 +21,12 @@ test.describe('Play vs AI', () => {
     await page.getByRole('button', { name: /new game/i }).click();
 
     // Should have white pieces (squares 1-20)
-    const whitePieces = page.locator('[aria-label*="white man"]');
+    const whitePieces = page.locator('[aria-label*="white piece"]');
     await expect(whitePieces.first()).toBeVisible();
     expect(await whitePieces.count()).toBe(20);
 
     // Should have black pieces (squares 31-50)
-    const blackPieces = page.locator('[aria-label*="black man"]');
+    const blackPieces = page.locator('[aria-label*="black piece"]');
     await expect(blackPieces.first()).toBeVisible();
     expect(await blackPieces.count()).toBe(20);
   });
@@ -34,7 +34,7 @@ test.describe('Play vs AI', () => {
   test('can select a piece and see legal moves', async ({ page }) => {
     await page.getByRole('button', { name: /new game/i }).click();
 
-    // Click on square 17 (a white man that can move to 21 or 22)
+    // Click on square 17 (a white piece that can move to 21 or 22)
     await page.locator('[data-square="17"]').click();
 
     // Square should show selection indicator (ring)
@@ -52,7 +52,7 @@ test.describe('Play vs AI', () => {
     await page.locator('[data-square="21"]').click();
 
     // Piece should have moved
-    await expect(page.locator('[data-square="21"][aria-label*="white man"]')).toBeVisible();
+    await expect(page.locator('[data-square="21"][aria-label*="white piece"]')).toBeVisible();
     await expect(page.locator('[data-square="17"][aria-label*="empty"]')).toBeVisible();
   });
 
@@ -60,7 +60,7 @@ test.describe('Play vs AI', () => {
     await page.getByRole('button', { name: /new game/i }).click();
 
     // Count initial black pieces
-    const initialBlackCount = await page.locator('[aria-label*="black man"]').count();
+    const initialBlackCount = await page.locator('[aria-label*="black piece"]').count();
     expect(initialBlackCount).toBe(20);
 
     // Make a move: 20 -> 25
@@ -90,7 +90,7 @@ test.describe('Play vs AI', () => {
     await page.getByRole('button', { name: /undo/i }).click();
 
     // Piece should be back at square 20
-    await expect(page.locator('[data-square="20"][aria-label*="white man"]')).toBeVisible();
+    await expect(page.locator('[data-square="20"][aria-label*="white piece"]')).toBeVisible();
   });
 
   test('can pause and resume', async ({ page }) => {
@@ -164,7 +164,7 @@ test.describe('Play vs AI', () => {
 
     // After AI responds, it should be player's turn again
     // Make another move
-    const selectableSquares = page.locator('[aria-label*="white man"]');
+    const selectableSquares = page.locator('[aria-label*="white piece"]');
     const firstPiece = selectableSquares.first();
     await firstPiece.click();
 

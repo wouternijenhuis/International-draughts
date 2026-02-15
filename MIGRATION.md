@@ -124,7 +124,7 @@ International.Draughts.Console/
 The engine is now fully functional with the following ported from C++:
 
 1. **Move Generation** (gen.hpp/cpp, ~800 lines) ✅ COMPLETE
-   - ✅ Legal move generation for men
+   - ✅ Legal move generation for regular pieces
    - ✅ Legal move generation for kings  
    - ✅ Capture logic with multi-jumps
    - ✅ Promotion detection

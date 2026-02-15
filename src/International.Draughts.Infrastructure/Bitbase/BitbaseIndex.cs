@@ -33,14 +33,14 @@ public static class BitbaseIndex
         ulong index = 0;
         ulong multiplier = 1;
         
-        // Index white men
+        // Index white regular pieces
         if (whiteMen.Count > 0)
         {
             index += IndexSquareList(whiteMen) * multiplier;
             multiplier *= Choose(MaxSquares, whiteMen.Count);
         }
         
-        // Index black men
+        // Index black regular pieces
         if (blackMen.Count > 0)
         {
             index += IndexSquareList(blackMen) * multiplier;

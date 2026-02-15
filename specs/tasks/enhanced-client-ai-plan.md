@@ -31,19 +31,19 @@ Port 9 positional evaluation features from the C# Expert `Evaluator` to the Type
 
 | # | Feature | Weight (eu) | Source method in `Evaluator.cs` | Implementation notes |
 |---|---------|-------------|--------------------------------|---------------------|
-| 1 | Man mobility | 1 eu/move | `CountManMoves()` — counts forward quiet moves per man | Use `getSquareTopology()` from `topology.ts`; check forward directions for each man, count empty adjacent squares |
+| 1 | Regular piece mobility | 1 eu/move | `CountManMoves()` — counts forward quiet moves per regular piece | Use `getSquareTopology()` from `topology.ts`; check forward directions for each regular piece, count empty adjacent squares |
 | 2 | King mobility | 2 eu/move | `CountKingMoves()` — counts all quiet moves per king (flying king rays) | Iterate all 4 diagonal rays from `topology.ts`; count empty squares until blocked |
 | 3 | Piece structure | 4 eu/piece | `HasAdjacentFriendly()` — bonus for each piece with ≥1 adjacent friendly piece | Check all 4 diagonal adjacent squares via `getSquareTopology().adjacent` |
-| 4 | First king bonus | 50 eu | Lines 44–45 — bonus when player has king(s) and opponent has none | Simple count comparison: `pKings > 0 && oKings === 0` |
+| 4 | First king advantage bonus | 50 eu | Lines 44–45 — bonus when player has king(s) and opponent has none | Simple count comparison: `pKings > 0 && oKings === 0` |
 | 5 | Locked position penalty | 10 eu | Lines 152–155 — penalty when a side has ≤2 moves but >2 pieces | Check accumulated mobility count against piece total |
-| 6 | Runaway man bonus | 30 eu | `IsRunawayMan()` — man with clear diagonal path to promotion | Port the C# logic: check distance ≤4, verify at least one diagonal path has no enemy pieces blocking |
+| 6 | Runaway regular piece bonus | 30 eu | `IsRunawayMan()` — regular piece with clear diagonal path to promotion | Port the C# logic: check distance ≤4, verify at least one diagonal path has no enemy pieces blocking |
 | 7 | Tempo diagonal | 2 eu/piece | Line 100 — bonus for pieces on main diagonals (`row === col` or `row + col === 9`) | Simple coordinate check using `squareToCoordinate()` |
 | 8 | Endgame king advantage | 20 eu/king diff | Lines 157–160 — amplified king value when total pieces ≤10 | Multiply king count difference by weight when `pTotal + oTotal <= 10` |
 | 9 | Left/right balance | 3 eu/imbalance | Lines 142–146 — penalty for imbalanced piece distribution across left/right halves | Track `col < 5` vs `col >= 5`; penalize `abs(left - right)` |
 
 #### Existing features retained unchanged
 
-The current material weights (`man = 100`, `king = 300`) and existing positional features (centerControl, advancement, backRow, kingCentralization) remain. The 9 new features are **added** to the existing evaluation — they do not replace the material or existing positional terms.
+The current material weights (`regularPiece = 100`, `king = 300`) and existing positional features (centerControl, advancement, backRow, kingCentralization) remain. The 9 new features are **added** to the existing evaluation — they do not replace the material or existing positional terms.
 
 #### `featureScale` parameter
 
@@ -56,7 +56,7 @@ export const evaluate = (
   featureScale: number = 1.0,
 ): number => {
   // Material — always at 100% strength
-  let materialScore = (playerPieces.men - opponentPieces.men) * WEIGHTS.man;
+  let materialScore = (playerPieces.regularPieces - opponentPieces.regularPieces) * WEIGHTS.regularPiece;
   materialScore += (playerPieces.kings - opponentPieces.kings) * WEIGHTS.king;
 
   // Positional features — scaled by featureScale
@@ -299,12 +299,12 @@ This is a **between-depth** check, not mid-search cancellation. Per ADR-006 Deci
 
 ```
 describe('Evaluation — new positional features')
-  ✓ man mobility: more mobile side gets higher score
+  ✓ regular piece mobility: more mobile side gets higher score
   ✓ king mobility: king with open diagonals scores higher
   ✓ piece structure: connected pieces score higher than isolated
-  ✓ first king bonus: only king on board gives bonus
+  ✓ first king advantage bonus: only king on board gives bonus
   ✓ locked position penalty: side with ≤2 moves and >2 pieces penalized
-  ✓ runaway man: man with clear path to promotion gets bonus
+  ✓ runaway regular piece: regular piece with clear path to promotion gets bonus
   ✓ tempo diagonal: pieces on main diagonals score higher
   ✓ endgame king advantage: king diff amplified when ≤10 total pieces
   ✓ left/right balance: imbalanced distribution penalized
@@ -443,8 +443,8 @@ const ZOBRIST_TABLE: readonly number[] = []; // 201 entries of random 32-bit int
 
 // Piece type indices
 const PIECE_INDEX = {
-  [PlayerColor.White]: { [PieceType.Man]: 0, [PieceType.King]: 1 },
-  [PlayerColor.Black]: { [PieceType.Man]: 2, [PieceType.King]: 3 },
+  [PlayerColor.White]: { [PieceType.RegularPiece]: 0, [PieceType.King]: 1 },
+  [PlayerColor.Black]: { [PieceType.RegularPiece]: 2, [PieceType.King]: 3 },
 };
 const SIDE_TO_MOVE_INDEX = 200;
 ```

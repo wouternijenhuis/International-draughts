@@ -120,7 +120,7 @@ public class ImprovedEvaluator
                 score += _weights.CenterControlBonus;
             }
             
-            // Advancement bonus for men
+            // Advancement bonus for regular pieces
             if (!isKing)
             {
                 int advancementRank = side == Side.White ? rank : (9 - rank);

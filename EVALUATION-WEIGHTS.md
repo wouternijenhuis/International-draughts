@@ -23,7 +23,7 @@ The engine loads weights from `data/weights.dat` at startup. If the file doesn't
 ### Material Values
 
 ```
-man_value=100              # Value of a man (regular piece)
+man_value=100              # Value of a regular piece
 king_value=300             # Value of a king
 first_king_bonus=50        # Bonus for having the first king in the game
 ```
@@ -32,8 +32,8 @@ first_king_bonus=50        # Bonus for having the first king in the game
 
 ```
 center_control=5           # Bonus for pieces in central files (4-8)
-advancement=3              # Bonus per rank advanced (for men)
-back_rank_penalty=10       # Penalty for men stuck on back rank
+advancement=3              # Bonus per rank advanced (for regular pieces)
+back_rank_penalty=10       # Penalty for regular pieces stuck on back rank
 ```
 
 ### Mobility Weights
@@ -197,7 +197,7 @@ If no weight file is provided, the engine uses these default hand-tuned values:
 
 | Parameter | Default Value | Description |
 |-----------|---------------|-------------|
-| `man_value` | 100 | Man piece value |
+| `man_value` | 100 | Regular piece value |
 | `king_value` | 300 | King piece value |
 | `first_king_bonus` | 50 | First king advantage |
 | `center_control` | 5 | Central file bonus |

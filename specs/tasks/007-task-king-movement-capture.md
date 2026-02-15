@@ -1,7 +1,7 @@
 # Task 007: King Movement & Capture Generation (Flying Kings)
 
 **Feature:** Game Rules Engine  
-**Dependencies:** 006-task-man-movement-capture  
+**Dependencies:** 006-task-regular-piece-movement-capture  
 **FRD Reference:** [game-rules-engine.md](../features/game-rules-engine.md)
 
 ---
@@ -28,8 +28,8 @@ Implement legal move generation for kings ("flying kings"). Kings can move any n
 
 ### Integration with Existing Move Generator
 - The legal move generator from task 006 must be extended, not replaced
-- For a given position, the generator produces moves for all pieces of the current player (both men and kings)
-- Mandatory capture still applies: if any piece (man or king) can capture, all non-capture moves are excluded
+- For a given position, the generator produces moves for all pieces of the current player (both regular pieces and kings)
+- Mandatory capture still applies: if any piece (regular piece or king) can capture, all non-capture moves are excluded
 
 ---
 
@@ -40,9 +40,9 @@ Implement legal move generation for kings ("flying kings"). Kings can move any n
 3. A king can capture an enemy piece two or more squares away (flying capture)
 4. After a king capture, all empty squares beyond the captured piece (until the next piece or board edge) are valid landing squares
 5. A king capture where there is no empty square beyond the captured piece is not a valid capture
-6. King captures and man captures coexist correctly in the legal move list
+6. King captures and regular piece captures coexist correctly in the legal move list
 7. Mandatory capture applies to kings: if a king can capture, non-capture king moves are excluded
-8. Mixed situations: if a man can capture but a king cannot, the king's non-capture moves are still excluded (mandatory capture is global)
+8. Mixed situations: if a regular piece can capture but a king cannot, the king's non-capture moves are still excluded (mandatory capture is global)
 
 ---
 
@@ -53,7 +53,7 @@ Implement legal move generation for kings ("flying kings"). Kings can move any n
   - King movement blocked by friendly and enemy pieces
   - King capture at distance 1, 2, 3+ squares
   - King capture with multiple possible landing squares
-  - Mixed board: man and king moves combined
-  - Mandatory capture with kings and men
+  - Mixed board: regular piece and king moves combined
+  - Mandatory capture with kings and regular pieces
 - **Position tests:** Known king positions from draughts puzzles with expected move counts
 - **Minimum coverage:** ≥ 85%

@@ -7,7 +7,7 @@ namespace InternationalDraughts.Application.ExpertAi;
 /// Evaluates from the perspective of the given player (positive = good for player).
 /// Includes all positional features specified in the Expert AI v1 spec:
 /// material, center control, advancement, king centralization, mobility,
-/// left/right balance, locked positions, runaway men, and tempo.
+/// left/right balance, locked positions, runaway regular pieces, and tempo.
 /// </summary>
 public sealed class Evaluator
 {
@@ -38,7 +38,7 @@ public sealed class Evaluator
         score += (pMen - oMen) * _w.ManValue;
         score += (pKings - oKings) * _w.KingValue;
 
-        // First king bonus: having the only king on the board is valuable
+        // First king advantage bonus: having the only king on the board is valuable
         if (pKings > 0 && oKings == 0) score += _w.FirstKingBonus;
         if (oKings > 0 && pKings == 0) score -= _w.FirstKingBonus;
 
@@ -65,7 +65,7 @@ public sealed class Evaluator
                     score += multiplier * _w.InnerCenterBonus;
             }
 
-            // Advancement (men only — closer to promotion is better)
+            // Advancement (regular pieces only — closer to promotion is better)
             if (piece.Value.IsMan)
             {
                 int advancement = piece.Value.Color == PieceColor.White ? (9 - row) : row;
@@ -78,7 +78,7 @@ public sealed class Evaluator
                 if (isBackRow)
                     score += multiplier * _w.BackRowBonus;
 
-                // Runaway man detection: a man that cannot be stopped from promoting
+                // Runaway regular piece detection: a regular piece that cannot be stopped from promoting
                 if (IsRunawayMan(board, sq, piece.Value.Color))
                     score += multiplier * _w.RunawayManBonus;
             }
@@ -133,7 +133,7 @@ public sealed class Evaluator
 
         // --- King mobility bonus ---
         // Already included via per-square king moves above, but add differential
-        // (king mobility is worth more than man mobility)
+        // (king mobility is worth more than regular piece mobility)
 
         // --- Left/right balance ---
         int playerImbalance = Math.Abs(playerLeftPieces - playerRightPieces);
@@ -174,7 +174,7 @@ public sealed class Evaluator
     }
 
     /// <summary>
-    /// Checks if a man is a "runaway" — it has a clear path to promotion
+    /// Checks if a regular piece is "runaway" — it has a clear path to promotion
     /// and the opponent cannot catch it.
     /// </summary>
     private static bool IsRunawayMan(BoardPosition board, int square, PieceColor color)
@@ -183,7 +183,7 @@ public sealed class Evaluator
         int promotionRow = BoardTopology.PromotionRow(color);
         int distance = Math.Abs(promotionRow - row);
 
-        if (distance == 0) return false; // Already on promotion row (shouldn't be a man)
+        if (distance == 0) return false; // Already on promotion row (shouldn't be a regular piece)
         if (distance > 4) return false; // Too far to be considered runaway
 
         // Check if path ahead is clear (simplified: check diagonal squares toward promotion)
@@ -244,7 +244,7 @@ public sealed class Evaluator
         return count;
     }
 
-    /// <summary>Counts available forward quiet moves for a man.</summary>
+    /// <summary>Counts available forward quiet moves for a regular piece.</summary>
     private static int CountManMoves(BoardPosition board, int square, PieceColor color)
     {
         int count = 0;

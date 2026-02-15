@@ -43,11 +43,11 @@ Main bitbase class that manages loading and probing.
 Bitbase files should be named according to their piece configuration:
 
 - **Simple format**: `bb_WvB.gz`
-  - Example: `bb_2v1.gz` (2 white men vs 1 black man)
-  - All pieces are men (no kings)
+  - Example: `bb_2v1.gz` (2 white regular pieces vs 1 black regular piece)
+  - All pieces are regular pieces (no kings)
 
 - **Detailed format**: `bb_WmMmWkKbBkK.gz`
-  - Example: `bb_1m0m1k0k.gz` (1 white man, 0 black men, 1 white king, 0 black kings)
+  - Example: `bb_1m0m1k0k.gz` (1 white regular piece, 0 black regular pieces, 1 white king, 0 black kings)
   - Explicit piece type specification
 
 ### Storage Format
@@ -120,7 +120,7 @@ The engine supports bitbases for any piece configuration, but common useful endg
 - **3 vs 1**: Always winning
 - **2 vs 2**: Complex, many draws
 - **3 vs 2**: Complex, many wins
-- **1 king vs 1 man**: Winning for king
+- **1 king vs 1 regular piece**: Winning for king
 - **2 kings vs 1 king**: Winning for side with 2 kings
 
 ## Memory Requirements

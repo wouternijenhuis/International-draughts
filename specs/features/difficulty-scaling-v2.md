@@ -107,12 +107,12 @@ TypeScript evaluation function:
 
 | Feature | Weight (eu) | Description | Expert Source |
 |---------|-------------|-------------|---------------|
-| Man mobility | 1 eu/move | Count of available moves for each man | `ManMobility` |
+| Regular piece mobility | 1 eu/move | Count of available moves for each regular piece | `ManMobility` |
 | King mobility | 2 eu/move | Count of available moves for each king | `KingMobility` |
 | Piece structure | 4 eu | Bonus for each piece with an adjacent friendly piece | `PieceStructure` |
-| First king bonus | 50 eu | Bonus when you have the only king(s) on the board | `FirstKingBonus` |
+| First king advantage bonus | 50 eu | Bonus when you have the only king(s) on the board | `FirstKingBonus` |
 | Locked position penalty | 10 eu | Penalty when a side has ≤2 moves but >2 pieces | `LockedPositionPenalty` |
-| Runaway man bonus | 30 eu | Bonus for a man that cannot be stopped from promoting | `RunawayManBonus` |
+| Runaway regular piece bonus | 30 eu | Bonus for a regular piece that cannot be stopped from promoting | `RunawayManBonus` |
 | Tempo diagonal | 2 eu | Bonus for pieces on the main diagonals (row == col or row + col == 9) | `TempoDiagonal` |
 | Endgame king advantage | 20 eu | Additional king value when total pieces ≤10 | `EndgameKingAdvantage` |
 | Left/right balance | 3 eu | Penalty for imbalanced piece distribution across left/right halves | `LeftRightBalance` |
@@ -169,8 +169,8 @@ Redesign the noise mechanism to apply during search rather than only after:
 - The noise is stateless — no seed or determinism required (randomness is desirable).
 - At `noiseAmplitude = 0`, behavior is identical to no noise (Expert-compatible).
 - High noise (Easy: 200 eu) causes the AI to frequently misjudge positions by the
-  equivalent of ~2 men, producing beginner-level errors organically.
-- Low noise (Hard: 15 eu) causes occasional minor misjudgments (~0.15 men) without
+  equivalent of ~2 regular pieces, producing beginner-level errors organically.
+- Low noise (Hard: 15 eu) causes occasional minor misjudgments (~0.15 regular pieces) without
   producing obviously bad moves.
 
 ### FR-4: Search Enhancements for Hard

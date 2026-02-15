@@ -13,7 +13,7 @@ Accepted
 The client-side AI (Easy, Medium, Hard) plays too weakly relative to its target ratings due to several design flaws identified during a Dev Lead review of the shared engine. Specifically:
 
 1. **Ineffective noise**: `noiseAmplitude` only perturbs the *reported* score after search completes — it never influences move selection. The best move from a clean search is always played unless a blunder triggers.
-2. **Minimal evaluation**: The evaluation function uses only material, center control, advancement, back row, and king centralization — 5 basic features. The C# Expert backend uses 9 richer positional features (mobility, structure, runaway men, tempo, endgame patterns). This limits the AI's positional understanding at all client-side levels.
+2. **Minimal evaluation**: The evaluation function uses only material, center control, advancement, back row, and king centralization — 5 basic features. The C# Expert backend uses 9 richer positional features (mobility, structure, runaway regular pieces, tempo, endgame patterns). This limits the AI's positional understanding at all client-side levels.
 3. **No feature scaling**: All difficulty levels use the same evaluator at full strength. There is no mechanism to make lower levels "see" less positional nuance.
 4. **Inconsistent search formulation**: `searchRoot()` uses NegaMax-style score negation (`-result.score`), but `alphaBeta()` uses a classic min-max formulation with `isMaximizing` branches. This inconsistency makes transposition table integration incorrect — TT entries store scores relative to the maximizing player, but NegaMax expects scores relative to the current player.
 5. **Unused time limit**: `timeLimitMs` exists in `DifficultyConfig` but is never checked during iterative deepening.
@@ -87,7 +87,7 @@ The Zobrist table will contain pre-generated random 32-bit integers for each (sq
 
 ```
 evaluate(board, player, featureScale = 1.0): number
-  materialScore = (men diff × 100) + (kings diff × 300)       // always full strength
+  materialScore = (regular pieces diff × 100) + (kings diff × 300)       // always full strength
   positionalScore = Σ(feature_i × weight_i) × featureScale    // scaled by difficulty
   return materialScore + positionalScore
 ```
@@ -150,15 +150,15 @@ This is a **complete-depth** time control, not mid-search cancellation. The rati
 - Complete-depth control is simple, deterministic for testing, and sufficient for client-side time budgets (1–2 seconds).
 - The primary depth constraint is `maxDepth`; the time limit is a safety net for positions where a given depth takes unexpectedly long (e.g., positions with many captures creating deep forced sequences).
 
-### Decision 7: King Mobility Weight — Separate from Man Mobility
+### Decision 7: King Mobility Weight — Separate from regular piece Mobility
 
-**Implement king mobility with weight 2 (distinct from man mobility weight 1), matching the intended C# `EvaluationWeights` design.**
+**Implement king mobility with weight 2 (distinct from regular piece mobility weight 1), matching the intended C# `EvaluationWeights` design.**
 
 The C# `EvaluationWeights` record defines `ManMobility = 1` and `KingMobility = 2`, but the C# evaluation code applies `ManMobility` to all pieces. The TypeScript port will implement the *intended* design:
 
 | Feature | Weight |
 |---------|--------|
-| Man mobility (available non-capture moves per man) | 1 |
+| Regular piece mobility (available non-capture moves per regular piece) | 1 |
 | King mobility (available non-capture moves per king) | 2 |
 
 Kings are inherently more mobile due to flying king rules, so a higher weight correctly values the positional advantage of king mobility. The C# implementation will be fixed separately to match.
@@ -169,12 +169,12 @@ Kings are inherently more mobile due to flying king rules, so a higher weight co
 
 | # | Feature | Weight | Description |
 |---|---------|--------|-------------|
-| 1 | ManMobility | 1 | Number of non-capture moves available per man |
+| 1 | ManMobility | 1 | Number of non-capture moves available per regular piece |
 | 2 | KingMobility | 2 | Number of non-capture moves available per king |
 | 3 | PieceStructure | 3 | Pieces protected by friendly pieces behind them |
 | 4 | FirstKingBonus | 30 | Bonus for first player to promote a king |
 | 5 | LockedPiecePenalty | -5 | Penalty for pieces with no legal moves |
-| 6 | RunawayMan | 15 | Bonus for men with a clear path to promotion |
+| 6 | RunawayMan | 15 | Bonus for regular pieces with a clear path to promotion |
 | 7 | TempoDiagonal | 2 | Control of the long diagonal (squares 5–46) |
 | 8 | EndgameKingAdvantage | 20 | King advantage amplified in endgames (< 6 pieces) |
 | 9 | LeftRightBalance | -3 | Penalty for imbalanced piece distribution |
@@ -216,7 +216,7 @@ Phase 2 improves search efficiency, primarily benefiting Hard difficulty (depth 
 ### Negative
 
 - **NegaMax refactoring is a non-trivial rewrite.** The entire `alphaBeta()` function must be restructured, and all search tests must be updated. Risk mitigation: extensive unit tests on known positions before and after, verifying identical move selection.
-- **Evaluation is slower.** 9 features (especially mobility, which requires move generation per piece) are more expensive than the current 5 simple features. Mitigation: `featureScale = 0.0` at Easy level skips all positional features entirely; king/man mobility can use a cached move count or approximate calculation.
+- **Evaluation is slower.** 9 features (especially mobility, which requires move generation per piece) are more expensive than the current 5 simple features. Mitigation: `featureScale = 0.0` at Easy level skips all positional features entirely; king/regular piece mobility can use a cached move count or approximate calculation.
 - **Zobrist hash collisions (~1.5%).** A small fraction of TT lookups will return incorrect entries, causing occasional suboptimal play. Mitigation: this is standard practice in game engines; incorrect entries affect only one node's score, not move legality.
 - **Increased code complexity.** The shared engine gains ~400 lines of new code (Zobrist table, TT, evaluation features). Mitigation: each component is independently testable and has clear module boundaries.
 - **Behavioral change across all difficulty levels.** Players accustomed to current AI behavior will notice different play patterns. Mitigation: this is the intended outcome — the current behavior is broken (noise is ineffective). The new behavior will more accurately match the target Elo ratings established in ADR-005.

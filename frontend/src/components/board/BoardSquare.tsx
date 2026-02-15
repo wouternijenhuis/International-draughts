@@ -29,9 +29,10 @@ export const BoardSquare: React.FC<BoardSquareProps> = ({
   const bgColor = isDark ? 'var(--board-dark)' : 'var(--board-light)';
 
   const displaySquare = squareNumber ? toFmjdSquare(squareNumber) : null;
+  const pieceTypeLabel = piece?.type === 'man' ? 'piece' : piece?.type;
   const ariaLabel = displaySquare
     ? piece
-      ? `Square ${displaySquare}, ${piece.color} ${piece.type}`
+      ? `Square ${displaySquare}, ${piece.color} ${pieceTypeLabel}`
       : `Square ${displaySquare}, empty`
     : undefined;
 

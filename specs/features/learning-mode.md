@@ -119,20 +119,20 @@ The tutorial covers the following topics in order:
 
 ##### a. Board Setup
 - **Title:** "The Board"
-- **Content:** International Draughts is played on a 10×10 board. Only the dark squares are used. Each side starts with 20 pieces (men) placed on the dark squares of the first four rows.
+- **Content:** International Draughts is played on a 10×10 board. Only the dark squares are used. Each side starts with 20 pieces (regular pieces) placed on the dark squares of the first four rows.
 - **Board state:** Standard starting position is shown.
 - **Goal:** Informational — player reads and clicks "Next" to continue.
 
-##### b. How Men Move
+##### b. How Regular Pieces Move
 - **Title:** "Moving Your Pieces"
-- **Content:** Men move diagonally forward by one square onto an empty dark square. White moves first.
-- **Board state:** A simplified position with a few white men and no immediate captures.
-- **Goal:** The player makes a valid forward diagonal move with a man.
+- **Content:** Regular pieces move diagonally forward by one square onto an empty dark square. White moves first.
+- **Board state:** A simplified position with a few white regular pieces and no immediate captures.
+- **Goal:** The player makes a valid forward diagonal move with a regular piece.
 
-##### c. How Men Capture
+##### c. How Regular Pieces Capture
 - **Title:** "Capturing"
-- **Content:** Men capture by jumping diagonally over an adjacent enemy piece, landing on the empty square beyond it. Unlike some other variants, men in International Draughts can capture both **forward and backward**.
-- **Board state:** A position where a white man has one available capture (forward or backward).
+- **Content:** Regular pieces capture by jumping diagonally over an adjacent enemy piece, landing on the empty square beyond it. Unlike some other variants, regular pieces in International Draughts can capture both **forward and backward**.
+- **Board state:** A position where a white regular piece has one available capture (forward or backward).
 - **Goal:** The player performs the capture.
 
 ##### d. Mandatory Capture Rule
@@ -150,18 +150,18 @@ The tutorial covers the following topics in order:
 ##### f. Multiple/Chain Captures
 - **Title:** "Chain Captures"
 - **Content:** A capture can continue in a single turn if, after landing, another capture is available from the new position. You must keep jumping until no more captures are possible.
-- **Board state:** A position where a white man can chain-capture 2 or 3 enemy pieces in a single turn.
+- **Board state:** A position where a white regular piece can chain-capture 2 or 3 enemy pieces in a single turn.
 - **Goal:** The player completes the full chain capture sequence.
 
 ##### g. Promotion to King
 - **Title:** "Becoming a King"
-- **Content:** When a man reaches the opposite back row (row 10 for white, row 1 for black), it is promoted to a **king**. Kings are visually distinguished (e.g., a crown symbol or double-stacked piece).
-- **Board state:** A position where a white man is one square away from the promotion row.
-- **Goal:** The player moves the man to the back row and observes the promotion.
+- **Content:** When a regular piece reaches the opposite back row (row 10 for white, row 1 for black), it is promoted to a **king**. Kings are visually distinguished (e.g., a crown symbol or double-stacked piece).
+- **Board state:** A position where a white regular piece is one square away from the promotion row.
+- **Goal:** The player moves the regular piece to the back row and observes the promotion.
 
 ##### h. How Kings Move
 - **Title:** "The Flying King"
-- **Content:** Kings are much more powerful than men. A king can move **any number of squares** along a diagonal. This is called the "flying king" rule and is specific to International Draughts.
+- **Content:** Kings are much more powerful than regular pieces. A king can move **any number of squares** along a diagonal. This is called the "flying king" rule and is specific to International Draughts.
 - **Board state:** A position with a white king in the centre and several open diagonals.
 - **Goal:** The player makes a long-range king move (more than one square).
 
@@ -179,7 +179,7 @@ The tutorial covers the following topics in order:
 
 ##### k. Draw Rules
 - **Title:** "Draws"
-- **Content:** A game is drawn when: (1) the same position occurs three times (threefold repetition), (2) 25 consecutive moves are made by both sides without a capture or a man moving (25-move rule), or (3) neither player can theoretically win. In casual play, both players can also agree to a draw.
+- **Content:** A game is drawn when: (1) the same position occurs three times (threefold repetition), (2) 25 consecutive moves are made by both sides without a capture or a regular piece moving (25-move rule), or (3) neither player can theoretically win. In casual play, both players can also agree to a draw.
 - **Board state:** Informational — no board interaction needed.
 - **Goal:** Player reads and clicks "Next."
 
@@ -187,7 +187,7 @@ The tutorial covers the following topics in order:
 - **Title:** "Tips for Beginners"
 - **Content:** A few key strategic principles:
   - **Control the centre:** Pieces in the centre of the board have more mobility and influence.
-  - **Advance together:** Don't rush a single piece forward — support your men with nearby pieces.
+  - **Advance together:** Don't rush a single piece forward — support your regular pieces with nearby pieces.
   - **Race to king:** Getting a king early can be decisive, but don't sacrifice too many pieces for it.
   - **Piece safety:** Keep your pieces protected from capture. Avoid leaving pieces where they can be taken without compensation.
   - **Forced exchanges:** Sometimes trading pieces is good if it leads to a king or a positional advantage.

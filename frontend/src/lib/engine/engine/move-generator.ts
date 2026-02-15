@@ -55,7 +55,7 @@ export const generateAllQuietMoves = (board: BoardPosition, player: PlayerColor)
 };
 
 /**
- * Man quiet moves: one square diagonally forward.
+ * Regular piece quiet moves: one square diagonally forward.
  */
 const generateManQuietMoves = (
   board: BoardPosition,
@@ -114,10 +114,10 @@ export const generateAllCaptures = (board: BoardPosition, player: PlayerColor): 
 };
 
 /**
- * Recursively finds all capture sequences for a man.
- * Men can capture forward AND backward (diagonally, one square jump).
+ * Recursively finds all capture sequences for a regular piece.
+ * Regular pieces can capture forward AND backward (diagonally, one square jump).
  * Jumped pieces remain on the board during the sequence but cannot be jumped twice.
- * A man passing through the promotion row mid-capture is NOT promoted (FMJD rule).
+ * A regular piece passing through the promotion row mid-capture is NOT promoted (FMJD rule).
  */
 const generateManCaptures = (
   board: BoardPosition,
@@ -129,7 +129,7 @@ const generateManCaptures = (
 ): void => {
   let foundContinuation = false;
 
-  // Men capture in ALL four directions (forward and backward)
+  // Regular pieces capture in ALL four directions (forward and backward)
   for (const dir of ALL_DIRECTIONS) {
     const enemySquare = getAdjacentSquare(square, dir);
     if (enemySquare === null) continue;
@@ -149,7 +149,7 @@ const generateManCaptures = (
     newJumped.add(enemySquare);
 
     // Recurse to find continuations from the landing square
-    // Note: Man does NOT promote mid-capture, so it stays a man for further jumps
+    // Note: A regular piece does NOT promote mid-capture, so it stays a regular piece for further jumps
     generateManCaptures(board, landingSquare, color, newSteps, newJumped, result);
   }
 

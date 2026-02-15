@@ -97,8 +97,8 @@ public class BoardPositionTests
     public void FromIntArray_DecodesCorrectly()
     {
         var arr = new int[51];
-        arr[1] = 1;  // White man
-        arr[10] = 2; // Black man
+        arr[1] = 1;  // White regular piece
+        arr[10] = 2; // Black regular piece
         arr[25] = 3; // White king
         arr[40] = 4; // Black king
 
@@ -188,7 +188,7 @@ public class BoardPositionTests
     [Fact]
     public void ApplyMove_QuietMove_PromotesWhiteOnRow0()
     {
-        // White man on square 6 (row 1), moving to square 1 (row 0) — promotion
+        // White regular piece on square 6 (row 1), moving to square 1 (row 0) — promotion
         var board = BoardPosition.Empty().SetPiece(6, DraughtsPiece.WhiteMan);
         var move = DraughtsMove.Quiet(6, 1);
 
@@ -200,7 +200,7 @@ public class BoardPositionTests
     [Fact]
     public void ApplyMove_QuietMove_PromotesBlackOnRow9()
     {
-        // Black man on square 41 (row 8), moving to square 46 (row 9) — promotion
+        // Black regular piece on square 41 (row 8), moving to square 46 (row 9) — promotion
         var board = BoardPosition.Empty().SetPiece(41, DraughtsPiece.BlackMan);
         var move = DraughtsMove.Quiet(41, 46);
 
@@ -216,7 +216,7 @@ public class BoardPositionTests
     [Fact]
     public void ApplyMove_SingleCapture_RemovesCapturedPiece()
     {
-        // White man at 28 (5,4), Black man at 23 (4,5), landing on 19 (3,6)
+        // White regular piece at 28 (5,4), Black regular piece at 23 (4,5), landing on 19 (3,6)
         var board = BoardPosition.Empty()
             .SetPiece(28, DraughtsPiece.WhiteMan)
             .SetPiece(23, DraughtsPiece.BlackMan);
@@ -232,7 +232,7 @@ public class BoardPositionTests
     [Fact]
     public void ApplyMove_MultiCapture_RemovesAllCaptured()
     {
-        // White man at 34 (6,7), jumps 29 (5,6) to 23 (4,5), then jumps 18 (3,4) to 12 (2,3)
+        // White regular piece at 34 (6,7), jumps 29 (5,6) to 23 (4,5), then jumps 18 (3,4) to 12 (2,3)
         var board = BoardPosition.Empty()
             .SetPiece(34, DraughtsPiece.WhiteMan)
             .SetPiece(29, DraughtsPiece.BlackMan)
@@ -256,7 +256,7 @@ public class BoardPositionTests
     [Fact]
     public void ApplyMove_Capture_PromotesAtDestination()
     {
-        // White man at 12 (row 2, col 3), jump black at 8 (row 1, col 4), land at 3 (row 0, col 5)
+        // White regular piece at 12 (row 2, col 3), jump black at 8 (row 1, col 4), land at 3 (row 0, col 5)
         var board = BoardPosition.Empty()
             .SetPiece(12, DraughtsPiece.WhiteMan)
             .SetPiece(8, DraughtsPiece.BlackMan);

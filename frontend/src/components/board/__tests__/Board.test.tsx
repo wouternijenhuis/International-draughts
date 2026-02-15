@@ -86,7 +86,7 @@ describe('Board Component', () => {
     expect(classicStyle).not.toBe(darkStyle);
   });
 
-  it('king is visually distinct from man', () => {
+  it('king is visually distinct from regular piece', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.King, color: PlayerColor.White },
       { square: 33, type: PieceType.Man, color: PlayerColor.White },
@@ -109,7 +109,7 @@ describe('Board Component', () => {
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
     ]);
     render(<Board position={board} />);
-    const square = screen.getByLabelText('Square 23, white man');
+    const square = screen.getByLabelText('Square 23, white piece');
     expect(square).toBeDefined();
   });
 });

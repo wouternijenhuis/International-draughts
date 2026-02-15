@@ -52,7 +52,7 @@ Core type definitions:
 |-----------|-------|----------|
 | `types.test.ts` | 37 | Type factories, enums, notation |
 | `clock.test.ts` | 27 | Clock formats, presets, edge cases |
-| `move-generator.test.ts` | 25 | Man/king moves, captures, edge cases |
+| `move-generator.test.ts` | 25 | regular piece/king moves, captures, edge cases |
 | `glicko2.test.ts` | 25 | Rating calculations, convergence |
 | `game-engine.test.ts` | 23 | Game flow, outcomes, draw rules |
 | `topology.test.ts` | 20 | Board geometry, coordinates |

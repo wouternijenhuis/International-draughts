@@ -76,7 +76,7 @@ describe('LearnPage', () => {
   it('advances to next step when Next is clicked', () => {
     render(<LearnPage />);
     fireEvent.click(screen.getByText('Next →'));
-    expect(screen.getByRole('heading', { name: '2. How Men Move', level: 2 })).toBeDefined();
+    expect(screen.getByRole('heading', { name: '2. How Regular Pieces Move', level: 2 })).toBeDefined();
   });
 
   it('shows practice tab when clicked', () => {

@@ -122,7 +122,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: '1. The Board & Setup',
     description:
-      'International Draughts is played on a 10×10 board with alternating light and dark squares. Only the dark (brown) squares are used. Each player starts with 20 pieces — called "men" — placed on the first four rows of their side.',
+      'International Draughts is played on a 10×10 board with alternating light and dark squares. Only the dark (brown) squares are used. Each player starts with 20 pieces — regular pieces — placed on the first four rows of their side.',
     board: createInitialBoard(),
     goalAction: { type: 'info' },
     details: [
@@ -132,27 +132,27 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       'White always moves first.',
     ],
   },
-  /* 2 — How Men Move */
+  /* 2 — How Regular Pieces Move */
   {
-    title: '2. How Men Move',
+    title: '2. How Regular Pieces Move',
     description:
-      'Men move diagonally forward by exactly one square onto an empty dark square. White moves towards the top of the board (ascending square numbers), and Black moves towards the bottom.',
+      'Regular pieces move diagonally forward by exactly one square onto an empty dark square. White moves towards the top of the board (ascending square numbers), and Black moves towards the bottom.',
     board: createTutorialBoard([
       { sq: 33, type: PieceType.Man, color: PlayerColor.White },
     ]),
     highlights: [28, 29],
     goalAction: { type: 'move', goalFrom: 33, goalTo: [28, 29] },
     details: [
-      'A man can only move forward — never backward (except when capturing).',
+      'A regular piece can only move forward — never backward (except when capturing).',
       'Each move goes diagonally to an adjacent empty square.',
-      'If a man has no legal moves and cannot capture, it is stuck.',
+      'If a regular piece has no legal moves and cannot capture, it is stuck.',
     ],
   },
-  /* 3 — Capturing with Men */
+  /* 3 — Capturing with Regular Pieces */
   {
-    title: '3. Capturing with Men',
+    title: '3. Capturing with Regular Pieces',
     description:
-      'Men capture by jumping diagonally over an adjacent enemy piece to the empty square beyond it. Unlike regular moves, men can capture both forward AND backward.',
+      'Regular pieces capture by jumping diagonally over an adjacent enemy piece to the empty square beyond it. Unlike regular moves, regular pieces can capture both forward AND backward.',
     board: createTutorialBoard([
       { sq: 33, type: PieceType.Man, color: PlayerColor.White },
       { sq: 28, type: PieceType.Man, color: PlayerColor.Black },
@@ -162,7 +162,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     details: [
       'The square behind the enemy piece must be empty.',
       'The captured piece is removed from the board.',
-      'Men can capture backward — this is a key rule of International Draughts!',
+      'Regular pieces can capture backward — this is a key rule of International Draughts!',
     ],
   },
   /* 4 — Mandatory Capture */
@@ -180,7 +180,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     details: [
       'If any of your pieces can capture, you must make a capture move.',
       'You cannot choose to move a different piece that cannot capture.',
-      'This rule applies to both men and kings.',
+      'This rule applies to both regular pieces and kings.',
     ],
   },
   /* 5 — Maximum Capture Rule */
@@ -200,7 +200,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       'Count the total pieces captured in each possible sequence.',
       'You must pick the sequence with the highest total captures.',
       'If two sequences capture the same number of pieces, you may choose either.',
-      'A king capture and a man capture count equally.',
+      'A king capture and a regular piece capture count equally.',
     ],
   },
   /* 6 — Chain Captures */
@@ -216,7 +216,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     highlights: [28, 17],
     goalAction: { type: 'move', goalFrom: 39, goalTo: 17 },
     details: [
-      'A man continues jumping as long as captures are available.',
+      'A regular piece continues jumping as long as captures are available.',
       'You may not stop in the middle of a chain capture.',
       'Captured pieces are removed only after the entire chain is complete.',
       'A piece cannot jump over the same enemy piece twice in one chain.',
@@ -226,7 +226,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: '7. Promotion to King',
     description:
-      'When a man reaches the opposite back row (the opponent\'s first row), it is promoted to a King. Kings are marked with a crown symbol. Promotion happens at the end of a move — if a man reaches the back row during a chain capture, it does NOT promote until the chain is finished.',
+      'When a regular piece reaches the opposite back row (the opponent\'s first row), it is promoted to a King. Kings are marked with a crown symbol. Promotion happens at the end of a move — if a regular piece reaches the back row during a chain capture, it does NOT promote until the chain is finished.',
     board: createTutorialBoard([
       { sq: 4, type: PieceType.Man, color: PlayerColor.White },
       { sq: 47, type: PieceType.Man, color: PlayerColor.Black },
@@ -236,7 +236,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     details: [
       'White promotes on squares 1–5 (top row).',
       'Black promotes on squares 46–50 (bottom row).',
-      'Kings are much more powerful than men — protect yours and try to promote!',
+      'Kings are much more powerful than regular pieces — protect yours and try to promote!',
     ],
   },
   /* 8 — Flying Kings — Movement */
@@ -304,7 +304,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     details: [
       'Mutual agreement — both players agree to a draw.',
       'Threefold repetition — the same position occurs three times with the same player to move.',
-      '25-move rule — if 25 consecutive moves are made by each side without a capture or man move, the game is drawn.',
+      '25-move rule — if 25 consecutive moves are made by each side without a capture or regular piece move, the game is drawn.',
       '16-move endgame rule — in a king-vs-king endgame (with limited material), the stronger side must win within 16 moves.',
       'In this app, draw rules are enforced automatically!',
     ],
@@ -321,7 +321,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       'Keep your back row filled — this prevents your opponent from promoting.',
       'Build formations — pieces supporting each other are stronger.',
       'Think ahead — look for forced capture sequences that win material.',
-      'Race to promote — a king is worth much more than a man.',
+      'Race to promote — a king is worth much more than a regular piece.',
       'Don\'t overextend — lone pieces pushed too far forward are easy targets.',
       'Use the mandatory capture rule — sometimes you can force your opponent into bad captures.',
       'Practice tactics — multiple captures and sacrifices are the heart of the game!',

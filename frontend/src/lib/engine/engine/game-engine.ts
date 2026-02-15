@@ -184,7 +184,7 @@ export const updateDrawRuleState = (
   const isCapture = move.type === 'capture';
   const isManMove = movingPiece.type === PieceType.Man;
 
-  // King-only move count: reset on capture or man move, else increment
+  // King-only move count: reset on capture or regular piece move, else increment
   const kingOnlyMoveCount =
     isCapture || isManMove ? 0 : prevState.kingOnlyMoveCount + 1;
 

@@ -148,7 +148,7 @@ Request an Expert AI move computation.
 }
 ```
 
-Board is a 50-element array where: `0` = empty, `1` = white man, `2` = white king, `3` = black man, `4` = black king.
+Board is a 50-element array where: `0` = empty, `1` = white regular piece, `2` = white king, `3` = black regular piece, `4` = black king.
 
 **Response:** `200 OK`
 ```json

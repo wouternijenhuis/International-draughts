@@ -93,7 +93,7 @@ describe('applyMoveToBoard', () => {
     });
   });
 
-  it('promotes man on quiet move to promotion row', () => {
+  it('promotes regular piece on quiet move to promotion row', () => {
     // White promotes on row 9 (squares 46-50)
     const board = setupBoard([
       { square: 41, type: PieceType.Man, color: PlayerColor.White },
@@ -124,7 +124,7 @@ describe('applyMoveToBoard', () => {
     }); // Piece at destination
   });
 
-  it('promotes man on capture ending on promotion row', () => {
+  it('promotes regular piece on capture ending on promotion row', () => {
     const board = setupBoard([
       { square: 39, type: PieceType.Man, color: PlayerColor.White },
       { square: 44, type: PieceType.Man, color: PlayerColor.Black },
@@ -173,7 +173,7 @@ describe('applyMove', () => {
       { square: 40, type: PieceType.Man, color: PlayerColor.Black },
     ]);
     const state = createGameState(board, PlayerColor.White);
-    const move = createQuietMove(28, 22); // Backward — illegal for man quiet move
+    const move = createQuietMove(28, 22); // Backward — illegal for regular piece quiet move
 
     const result = applyMove(state, move);
     expect(result.isValid).toBe(false);
@@ -267,7 +267,7 @@ describe('checkDrawCondition', () => {
     expect(result).toBe(DrawReason.TwentyFiveMoveRule);
   });
 
-  it('does not trigger 25-move rule if men remain', () => {
+  it('does not trigger 25-move rule if regular pieces remain', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
       { square: 50, type: PieceType.King, color: PlayerColor.Black },

@@ -15,7 +15,7 @@ test.describe('Tutorial', () => {
     
     // Navigate to next step (use exact button text to avoid Next.js DevTools conflict)
     await page.getByRole('button', { name: /Next →/i }).click();
-    await expect(page.getByText(/How Men Move/i)).toBeVisible();
+    await expect(page.getByText(/How Regular Pieces Move/i)).toBeVisible();
     await expect(page.getByText(/Step 2 of/)).toBeVisible();
   });
 

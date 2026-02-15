@@ -13,7 +13,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_MaterialAdvantage_ReturnsPositiveScore()
     {
-        // White has more men than Black → positive score from White's perspective
+        // White has more regular pieces than Black → positive score from White's perspective
         var board = BoardPosition.Empty()
             .SetPiece(25, DraughtsPiece.WhiteMan)
             .SetPiece(26, DraughtsPiece.WhiteMan)
@@ -26,7 +26,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_MaterialDisadvantage_ReturnsNegativeScore()
     {
-        // White has fewer men than Black → negative score from White's perspective
+        // White has fewer regular pieces than Black → negative score from White's perspective
         var board = BoardPosition.Empty()
             .SetPiece(25, DraughtsPiece.WhiteMan)
             .SetPiece(40, DraughtsPiece.BlackMan)
@@ -39,7 +39,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_KingWorthMoreThanMan()
     {
-        // One white king vs one black man — king is worth more
+        // One white king vs one black regular piece — king is worth more
         var boardWithKing = BoardPosition.Empty()
             .SetPiece(25, DraughtsPiece.WhiteKing)
             .SetPiece(40, DraughtsPiece.BlackMan);
@@ -115,7 +115,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_Advancement_FurtherForwardIsBetter()
     {
-        // White man further advanced (closer to row 0 = promotion) should score better
+        // White regular piece further advanced (closer to row 0 = promotion) should score better
         var boardAdvanced = BoardPosition.Empty()
             .SetPiece(13, DraughtsPiece.WhiteMan) // row 2 — close to promotion (row 0)
             .SetPiece(40, DraughtsPiece.BlackMan);  // row 7
@@ -133,7 +133,7 @@ public class EvaluatorTests
     [Fact]
     public void Evaluate_FirstKingBonus_WhenOnlyOnePlayerHasKings()
     {
-        // White has a king, Black has none → first king bonus
+        // White has a king, Black has none → first king advantage bonus
         var boardWithKing = BoardPosition.Empty()
             .SetPiece(25, DraughtsPiece.WhiteKing)
             .SetPiece(40, DraughtsPiece.BlackMan)
@@ -147,7 +147,7 @@ public class EvaluatorTests
         var scoreWithKing = _evaluator.Evaluate(boardWithKing, PieceColor.White);
         var scoreWithoutKing = _evaluator.Evaluate(boardWithoutKing, PieceColor.White);
 
-        // The king version should be significantly higher due to king value + first king bonus
+        // The king version should be significantly higher due to king value + first king advantage bonus
         (scoreWithKing - scoreWithoutKing).Should().BeGreaterThan(200);
     }
 
@@ -164,7 +164,7 @@ public class EvaluatorTests
             .SetPiece(40, DraughtsPiece.BlackMan);
 
         var score = _evaluator.QuickEvaluate(board, PieceColor.White);
-        // 2 white men - 1 black man = +1 man value = +100
+        // 2 white regular pieces - 1 black regular piece = +1 regular piece value = +100
         score.Should().Be(100);
     }
 
@@ -176,7 +176,7 @@ public class EvaluatorTests
             .SetPiece(40, DraughtsPiece.BlackMan);
 
         var score = _evaluator.QuickEvaluate(board, PieceColor.White);
-        // 1 white king (300) - 1 black man (100) = +200
+        // 1 white king (300) - 1 black regular piece (100) = +200
         score.Should().Be(200);
     }
 

@@ -69,7 +69,7 @@ export interface GameConfig {
   readonly boardTheme: 'classic-wood' | 'dark' | 'ocean' | 'tournament-green';
   readonly confirmMoves: boolean;
   readonly showLegalMoves: boolean;
-  readonly animationSpeed: 'fast' | 'normal' | 'slow';
+  readonly animationSpeed: 'instant' | 'fast' | 'normal' | 'slow';
 }
 
 /** Game state managed by the store */

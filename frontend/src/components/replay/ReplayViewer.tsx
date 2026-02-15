@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { Board } from '@/components/board';
-import { BoardPosition, createInitialBoard } from '@/lib/draughts-types';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Board, AnimatedPieceOverlay } from '@/components/board';
+import { BoardPosition, createInitialBoard, PlayerColor } from '@/lib/draughts-types';
 import { toFmjdNotation } from '@/lib/notation-display';
+import { useMoveAnimation } from '@/hooks/useMoveAnimation';
+import type { MoveRecord } from '@/stores/game-store';
 
 interface ReplayMove {
   notation: string;
@@ -29,8 +31,28 @@ export const ReplayViewer: React.FC<ReplayViewerProps> = ({
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   const currentPosition = currentIndex >= 0 && currentIndex < moves.length
-    ? moves[currentIndex].positionAfter
+    ? moves[currentIndex]!.positionAfter
     : createInitialBoard();
+
+  // Convert replay moves to MoveRecord format for animation hook
+  const moveRecords: MoveRecord[] = useMemo(() =>
+    moves.map((m) => ({
+      notation: m.notation,
+      player: m.player === 'white' ? PlayerColor.White : PlayerColor.Black,
+      positionAfter: m.positionAfter,
+      timestamp: 0,
+    })),
+    [moves],
+  );
+
+  // Animation system for smooth piece transitions during replay
+  const { displayPosition, overlay, onTransitionEnd } = useMoveAnimation(
+    currentPosition,
+    moveRecords,
+    currentIndex,
+    'normal',
+    PlayerColor.White,
+  );
 
   const goToStart = useCallback(() => setCurrentIndex(-1), []);
   const goToEnd = useCallback(() => setCurrentIndex(moves.length - 1), [moves.length]);
@@ -50,8 +72,16 @@ export const ReplayViewer: React.FC<ReplayViewerProps> = ({
   return (
     <div className="flex flex-col lg:flex-row gap-6 max-w-5xl mx-auto">
       {/* Board */}
-      <div className="flex-1">
-        <Board position={currentPosition} showNotation={true} />
+      <div className="flex-1 relative">
+        <Board position={displayPosition} showNotation={true} />
+        {/* Move animation overlay */}
+        {overlay && (
+          <AnimatedPieceOverlay
+            overlay={overlay}
+            orientation={PlayerColor.White}
+            onTransitionEnd={onTransitionEnd}
+          />
+        )}
         
         {/* Playback controls */}
         <div className="flex justify-center gap-2 mt-4" role="toolbar" aria-label="Replay controls">

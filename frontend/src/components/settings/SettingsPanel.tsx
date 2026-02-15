@@ -258,7 +258,7 @@ export const SettingsPanel: React.FC = () => {
       <fieldset>
         <legend className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Animation Speed</legend>
         <div className="flex gap-2">
-          {(['fast', 'normal', 'slow'] as const).map((speed) => (
+          {(['instant', 'fast', 'normal', 'slow'] as const).map((speed) => (
             <button
               key={speed}
               onClick={() => setConfig({ animationSpeed: speed })}

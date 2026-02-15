@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useCallback, useRef, useState } from 'react';
-import { Board } from '@/components/board';
+import { Board, AnimatedPieceOverlay } from '@/components/board';
 import { useGameStore } from '@/stores/game-store';
 import { PlayerColor } from '@/lib/draughts-types';
+import { useMoveAnimation } from '@/hooks/useMoveAnimation';
+import type { AnimationSpeed } from '@/hooks/useMoveAnimation';
 
 /**
  * Interactive game board wrapper that handles piece selection, move execution,
- * and drag-and-drop. Connects the Board visual component to the game store.
+ * drag-and-drop, and move animations. Connects the Board visual component
+ * to the game store and the animation system.
  */
 export const GameBoard: React.FC = () => {
   const {
@@ -22,6 +25,8 @@ export const GameBoard: React.FC = () => {
     isAiThinking,
     currentTurn,
     selectSquare,
+    moveHistory,
+    moveIndex,
   } = useGameStore();
 
   // Drag state
@@ -101,6 +106,15 @@ export const GameBoard: React.FC = () => {
     ? PlayerColor.Black 
     : PlayerColor.White;
 
+  // Animation system
+  const { displayPosition, overlay, onTransitionEnd } = useMoveAnimation(
+    position,
+    moveHistory,
+    moveIndex,
+    config.animationSpeed as AnimationSpeed,
+    orientation,
+  );
+
   // Combine last move and hint squares for display
   const displayLastMoveSquares = hintSquares.length > 0 ? hintSquares : lastMoveSquares;
 
@@ -114,7 +128,7 @@ export const GameBoard: React.FC = () => {
       onTouchEnd={handleDragEnd}
     >
       <Board
-        position={position}
+        position={displayPosition}
         showNotation={config.showNotation}
         theme={config.boardTheme}
         selectedSquare={selectedSquare}
@@ -124,6 +138,14 @@ export const GameBoard: React.FC = () => {
         onSquareDragStart={handleDragStart}
         orientation={orientation}
       />
+      {/* Move animation overlay */}
+      {overlay && (
+        <AnimatedPieceOverlay
+          overlay={overlay}
+          orientation={orientation}
+          onTransitionEnd={onTransitionEnd}
+        />
+      )}
       {/* AI thinking overlay */}
       {isAiThinking && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg pointer-events-none z-20">

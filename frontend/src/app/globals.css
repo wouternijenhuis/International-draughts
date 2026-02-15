@@ -39,3 +39,10 @@
 :focus-visible {
   @apply outline-2 outline-offset-2 outline-primary-500;
 }
+
+/* Animation for captured pieces fading out during move animation */
+@keyframes capturedFade {
+  0% { opacity: 1; }
+  40% { opacity: 0.7; }
+  100% { opacity: 0; }
+}

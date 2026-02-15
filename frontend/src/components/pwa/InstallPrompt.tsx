@@ -11,14 +11,16 @@ interface BeforeInstallPromptEvent extends Event {
 export const InstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(display-mode: standalone)').matches;
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-      return;
-    }
+    // Already installed
+    if (isInstalled) return;
 
     // Check if user dismissed recently
     const dismissed = localStorage.getItem('pwa-install-dismissed');
@@ -37,7 +39,7 @@ export const InstallPrompt: React.FC = () => {
     window.addEventListener('beforeinstallprompt', handler);
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  }, [isInstalled]);
 
   const handleInstall = useCallback(async () => {
     if (!deferredPrompt) return;

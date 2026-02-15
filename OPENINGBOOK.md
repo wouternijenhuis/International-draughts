@@ -84,7 +84,7 @@ When an opening book is loaded:
 You can configure opening book behavior:
 
 ```csharp
-// Margin for move selection (in centipawns)
+// Margin for move selection (in evaluation units)
 // Moves within this margin of the best move are candidates
 int margin = 50;
 

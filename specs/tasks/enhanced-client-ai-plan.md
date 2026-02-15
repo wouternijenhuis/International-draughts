@@ -29,17 +29,17 @@ Port 9 positional evaluation features from the C# Expert `Evaluator` to the Type
 
 #### Features to port
 
-| # | Feature | Weight (cp) | Source method in `Evaluator.cs` | Implementation notes |
+| # | Feature | Weight (eu) | Source method in `Evaluator.cs` | Implementation notes |
 |---|---------|-------------|--------------------------------|---------------------|
-| 1 | Man mobility | 1 cp/move | `CountManMoves()` — counts forward quiet moves per man | Use `getSquareTopology()` from `topology.ts`; check forward directions for each man, count empty adjacent squares |
-| 2 | King mobility | 2 cp/move | `CountKingMoves()` — counts all quiet moves per king (flying king rays) | Iterate all 4 diagonal rays from `topology.ts`; count empty squares until blocked |
-| 3 | Piece structure | 4 cp/piece | `HasAdjacentFriendly()` — bonus for each piece with ≥1 adjacent friendly piece | Check all 4 diagonal adjacent squares via `getSquareTopology().adjacent` |
-| 4 | First king bonus | 50 cp | Lines 44–45 — bonus when player has king(s) and opponent has none | Simple count comparison: `pKings > 0 && oKings === 0` |
-| 5 | Locked position penalty | 10 cp | Lines 152–155 — penalty when a side has ≤2 moves but >2 pieces | Check accumulated mobility count against piece total |
-| 6 | Runaway man bonus | 30 cp | `IsRunawayMan()` — man with clear diagonal path to promotion | Port the C# logic: check distance ≤4, verify at least one diagonal path has no enemy pieces blocking |
-| 7 | Tempo diagonal | 2 cp/piece | Line 100 — bonus for pieces on main diagonals (`row === col` or `row + col === 9`) | Simple coordinate check using `squareToCoordinate()` |
-| 8 | Endgame king advantage | 20 cp/king diff | Lines 157–160 — amplified king value when total pieces ≤10 | Multiply king count difference by weight when `pTotal + oTotal <= 10` |
-| 9 | Left/right balance | 3 cp/imbalance | Lines 142–146 — penalty for imbalanced piece distribution across left/right halves | Track `col < 5` vs `col >= 5`; penalize `abs(left - right)` |
+| 1 | Man mobility | 1 eu/move | `CountManMoves()` — counts forward quiet moves per man | Use `getSquareTopology()` from `topology.ts`; check forward directions for each man, count empty adjacent squares |
+| 2 | King mobility | 2 eu/move | `CountKingMoves()` — counts all quiet moves per king (flying king rays) | Iterate all 4 diagonal rays from `topology.ts`; count empty squares until blocked |
+| 3 | Piece structure | 4 eu/piece | `HasAdjacentFriendly()` — bonus for each piece with ≥1 adjacent friendly piece | Check all 4 diagonal adjacent squares via `getSquareTopology().adjacent` |
+| 4 | First king bonus | 50 eu | Lines 44–45 — bonus when player has king(s) and opponent has none | Simple count comparison: `pKings > 0 && oKings === 0` |
+| 5 | Locked position penalty | 10 eu | Lines 152–155 — penalty when a side has ≤2 moves but >2 pieces | Check accumulated mobility count against piece total |
+| 6 | Runaway man bonus | 30 eu | `IsRunawayMan()` — man with clear diagonal path to promotion | Port the C# logic: check distance ≤4, verify at least one diagonal path has no enemy pieces blocking |
+| 7 | Tempo diagonal | 2 eu/piece | Line 100 — bonus for pieces on main diagonals (`row === col` or `row + col === 9`) | Simple coordinate check using `squareToCoordinate()` |
+| 8 | Endgame king advantage | 20 eu/king diff | Lines 157–160 — amplified king value when total pieces ≤10 | Multiply king count difference by weight when `pTotal + oTotal <= 10` |
+| 9 | Left/right balance | 3 eu/imbalance | Lines 142–146 — penalty for imbalanced piece distribution across left/right halves | Track `col < 5` vs `col >= 5`; penalize `abs(left - right)` |
 
 #### Existing features retained unchanged
 
@@ -165,11 +165,11 @@ export interface DifficultyConfig {
   readonly maxDepth: number;
   /** Time limit per move in milliseconds */
   readonly timeLimitMs: number;
-  /** Evaluation noise amplitude applied to every leaf-node evaluation (centipawns) */
+  /** Evaluation noise amplitude applied to every leaf-node evaluation (evaluation units) */
   readonly noiseAmplitude: number;
   /** Probability of making a deliberate blunder (0-1) */
   readonly blunderProbability: number;
-  /** Score margin for blunder selection (centipawns) */
+  /** Score margin for blunder selection (evaluation units) */
   readonly blunderMargin: number;
   /** Positional evaluation feature scale (0.0 = material only, 1.0 = full) */
   readonly evalFeatureScale: number;

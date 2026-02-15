@@ -243,7 +243,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: '8. Flying Kings — Movement',
     description:
-      'Kings in International Draughts are "flying kings" — they can move any number of squares along a diagonal, like a bishop in chess. This makes kings extremely powerful pieces.',
+      'Kings in International Draughts are "flying kings" — they can move any number of squares along a diagonal. This makes kings extremely powerful pieces.',
     board: createTutorialBoard([
       { sq: 28, type: PieceType.King, color: PlayerColor.White },
     ]),

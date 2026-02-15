@@ -10,7 +10,7 @@ export interface DifficultyConfig {
   readonly noiseAmplitude: number;
   /** Probability of making a deliberate blunder (0-1) */
   readonly blunderProbability: number;
-  /** Score margin for blunder selection (centipawns) */
+  /** Score margin for blunder selection (evaluation units) */
   readonly blunderMargin: number;
   /** Scale factor for positional evaluation features (0.0 = material only, 1.0 = full positional) */
   readonly evalFeatureScale: number;

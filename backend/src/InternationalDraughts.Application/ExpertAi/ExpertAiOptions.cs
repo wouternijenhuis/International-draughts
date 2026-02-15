@@ -26,7 +26,7 @@ public sealed class ExpertAiOptions
     /// <summary>Enable aspiration windows.</summary>
     public bool EnableAspirationWindows { get; set; } = true;
 
-    /// <summary>Aspiration window initial half-width in centipawns.</summary>
+    /// <summary>Aspiration window initial half-width in evaluation units.</summary>
     public int AspirationWindowSize { get; set; } = 50;
 
     /// <summary>Minimum depth for LMR to kick in.</summary>

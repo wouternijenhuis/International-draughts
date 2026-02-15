@@ -161,7 +161,7 @@ The tutorial covers the following topics in order:
 
 ##### h. How Kings Move
 - **Title:** "The Flying King"
-- **Content:** Kings are much more powerful than men. A king can move **any number of squares** along a diagonal (like a bishop in chess). This is called the "flying king" rule and is specific to International Draughts.
+- **Content:** Kings are much more powerful than men. A king can move **any number of squares** along a diagonal. This is called the "flying king" rule and is specific to International Draughts.
 - **Board state:** A position with a white king in the centre and several open diagonals.
 - **Goal:** The player makes a long-range king move (more than one square).
 

@@ -188,27 +188,27 @@ export const DIFFICULTY_CONFIGS: Record<string, DifficultyConfig> = {
 | Parameter | Value | Effect |
 |-----------|-------|--------|
 | `maxDepth: 1` | Single-ply search | AI sees only immediate captures and moves; cannot plan ahead |
-| `noiseAmplitude: 300` | ±300 centipawn score noise | Heavily distorts position evaluation, making move selection nearly random among close alternatives |
+| `noiseAmplitude: 300` | ±300 evaluation-unit score noise | Heavily distorts position evaluation, making move selection nearly random among close alternatives |
 | `blunderProbability: 0.50` | 50% chance per move | Half the time, AI deliberately picks a suboptimal move from the candidate list |
-| `blunderMargin: 350` | Up to 350cp worse move | When blundering, AI may select moves that are significantly inferior, simulating a beginner missing key captures |
+| `blunderMargin: 350` | Up to 350 eu worse move | When blundering, AI may select moves that are significantly inferior, simulating a beginner missing key captures |
 
 #### FR-2.2: Medium (~750 Elo) Parameter Rationale
 
 | Parameter | Value | Effect |
 |-----------|-------|--------|
 | `maxDepth: 3` | Three-ply search | AI sees simple two-move tactics but misses deeper combinations |
-| `noiseAmplitude: 120` | ±120 centipawn score noise | Moderate evaluation imprecision; AI sometimes misjudges positions |
+| `noiseAmplitude: 120` | ±120 evaluation-unit score noise | Moderate evaluation imprecision; AI sometimes misjudges positions |
 | `blunderProbability: 0.20` | 20% chance per move | One in five moves is deliberately suboptimal, simulating a casual player's occasional oversight |
-| `blunderMargin: 200` | Up to 200cp worse move | Blunders are noticeable but not catastrophic, mimicking a player who overlooks a tactic |
+| `blunderMargin: 200` | Up to 200 eu worse move | Blunders are noticeable but not catastrophic, mimicking a player who overlooks a tactic |
 
 #### FR-2.3: Hard (~1250 Elo) Parameter Rationale
 
 | Parameter | Value | Effect |
 |-----------|-------|--------|
 | `maxDepth: 5` | Five-ply search | AI calculates short tactical sequences; strong but not exhaustive |
-| `noiseAmplitude: 30` | ±30 centipawn score noise | Slight positional imprecision; AI occasionally misjudges close positions |
+| `noiseAmplitude: 30` | ±30 evaluation-unit score noise | Slight positional imprecision; AI occasionally misjudges close positions |
 | `blunderProbability: 0.05` | 5% chance per move | Rare blunders (~1 per 20 moves), simulating an experienced player's occasional lapse |
-| `blunderMargin: 75` | Up to 75cp worse move | Blunders are subtle — a slightly inferior positional choice rather than a tactical miss |
+| `blunderMargin: 75` | Up to 75 eu worse move | Blunders are subtle — a slightly inferior positional choice rather than a tactical miss |
 
 #### FR-2.4: Expert (~2200 Elo) — No Changes
 

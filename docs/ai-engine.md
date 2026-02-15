@@ -21,7 +21,7 @@
 
 The position evaluation considers:
 
-- **Material balance**: Men (100 centipawns) vs. Kings (300 centipawns)
+- **Material balance**: Men (100 evaluation units) vs. Kings (300 evaluation units)
 - **Center control**: Bonus for pieces on central squares
 - **Advancement**: Bonus for men closer to promotion
 - **Back row defense**: Bonus for men on the back row
@@ -31,7 +31,7 @@ The position evaluation considers:
 
 Lower difficulties achieve human-like play through:
 
-- **Evaluation noise**: Random value added to scores (±300cp for Easy, ±120cp for Medium, ±30cp for Hard)
+- **Evaluation noise**: Random value added to scores (±300 eu for Easy, ±120 eu for Medium, ±30 eu for Hard)
 - **Blunder probability**: Chance of selecting a suboptimal move
 - **Blunder margin**: How bad the selected blunder can be
 

@@ -5,7 +5,7 @@ import { countPieces } from '../engine/board-utils';
 import { getSquareTopology, ALL_DIRECTIONS, FORWARD_DIRECTIONS } from '../board/topology';
 
 /**
- * Evaluation weights (centipawn-like units).
+ * Evaluation weights (evaluation units).
  * Material weights are always applied; positional weights are scaled by `featureScale`.
  */
 const WEIGHTS = {
@@ -138,7 +138,7 @@ const isRunawayMan = (board: BoardPosition, square: number, color: PlayerColor):
 /**
  * Evaluate a board position from the perspective of the given player.
  * Positive = good for player, negative = bad.
- * Returns a score in centipawn-like units.
+ * Returns a score in evaluation units.
  *
  * @param board - The current board state
  * @param player - The player to evaluate for

@@ -195,7 +195,7 @@ Update the difficulty levels table:
 
 Also update the "Difficulty Tuning" section (line 33):
 ```markdown
-- **Evaluation noise**: Random value added to scores (±300cp for Easy, ±120cp for Medium)
+- **Evaluation noise**: Random value added to scores (±300 eu for Easy, ±120 eu for Medium)
 ```
 
 ---

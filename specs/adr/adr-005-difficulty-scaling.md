@@ -17,9 +17,9 @@ Each client-side difficulty is controlled by four parameters:
 | Parameter | Purpose |
 |-----------|---------|
 | `maxDepth` | Maximum search depth in ply — controls tactical horizon |
-| `noiseAmplitude` | Random perturbation added to evaluation scores (centipawns) — degrades positional judgment |
+| `noiseAmplitude` | Random perturbation added to evaluation scores (evaluation units) — degrades positional judgment |
 | `blunderProbability` | Probability (0–1) of deliberately choosing a suboptimal move — simulates human mistakes |
-| `blunderMargin` | Maximum score deficit (centipawns) allowed when selecting a blunder candidate — controls mistake severity |
+| `blunderMargin` | Maximum score deficit (evaluation units) allowed when selecting a blunder candidate — controls mistake severity |
 
 ### Problem
 
@@ -135,7 +135,7 @@ Define a mathematical function that computes `maxDepth`, `noiseAmplitude`, `blun
 
 - **Existing player ratings are invalidated.** Players whose Glicko-2 ratings were calibrated against the old AI anchors (800/1200/1800) will have inflated ratings relative to the new scale. Mitigation: reset all player ratings to defaults (1500 ± 350 RD) on deployment, or accept temporary inaccuracy and let ratings self-correct over 10–20 games.
 - **950-point gap between Hard and Expert.** There is no client-side level serving the 1500–2200 range. Players who master Hard but are not ready for Expert have no intermediate step. Mitigation: this is a known and accepted trade-off (see Decision §3); an intermediate level can be added later.
-- **Hard behavior change.** Players accustomed to Hard playing "perfectly within its depth" will notice occasional suboptimal moves. Mitigation: the blunder frequency is very low (5%) and the margin is small (75cp), so the behavior change is subtle and produces more realistic-feeling play.
+- **Hard behavior change.** Players accustomed to Hard playing "perfectly within its depth" will notice occasional suboptimal moves. Mitigation: the blunder frequency is very low (5%) and the margin is small (75 eu), so the behavior change is subtle and produces more realistic-feeling play.
 - **Blunder logic uses static eval, not search eval.** Blunder candidate scoring uses the static evaluation function rather than the result of the deep search. In positions where the static eval significantly disagrees with the search eval, the blunder selection may not accurately reflect the true quality hierarchy of moves. Mitigation: this inaccuracy is acceptable for lower difficulties and actually contributes to the "human-like mistakes" goal (REQ-72), since human blunders are often based on superficial position assessment.
 
 ## Related

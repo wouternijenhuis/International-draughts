@@ -20,7 +20,7 @@ public sealed class Evaluator
 
     /// <summary>
     /// Full evaluation of a board position from the perspective of the given player.
-    /// Returns a score in centipawn-like units.
+    /// Returns a score in evaluation units.
     /// </summary>
     public int Evaluate(BoardPosition board, PieceColor player)
     {

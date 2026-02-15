@@ -157,7 +157,7 @@ There is no modern, polished international draughts (10×10) game app that combi
 - **[REQ-40]** **Show Move History:** Toggle display of the move list panel using standard notation.
 - **[REQ-41]** **Timed Mode:** Enable/disable; configure time control format and duration.
 - **[REQ-42]** **Confirm Move:** Toggle a confirmation step before committing a move (helpful for beginners).
-- **[REQ-43]** **Auto-Queen/Promotion Animation:** Toggle a visual celebration animation when a man is promoted to king.
+- **[REQ-43]** **Promotion Animation:** Toggle a visual celebration animation when a man is promoted to king.
 
 ### 4.7 User Interface & Experience
 

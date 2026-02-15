@@ -105,17 +105,17 @@ Port the following 8 evaluation features from the Expert engine
 (`backend/src/InternationalDraughts.Application/ExpertAi/Evaluator.cs`) to the shared
 TypeScript evaluation function:
 
-| Feature | Weight (cp) | Description | Expert Source |
+| Feature | Weight (eu) | Description | Expert Source |
 |---------|-------------|-------------|---------------|
-| Man mobility | 1 cp/move | Count of available moves for each man | `ManMobility` |
-| King mobility | 2 cp/move | Count of available moves for each king | `KingMobility` |
-| Piece structure | 4 cp | Bonus for each piece with an adjacent friendly piece | `PieceStructure` |
-| First king bonus | 50 cp | Bonus when you have the only king(s) on the board | `FirstKingBonus` |
-| Locked position penalty | 10 cp | Penalty when a side has ≤2 moves but >2 pieces | `LockedPositionPenalty` |
-| Runaway man bonus | 30 cp | Bonus for a man that cannot be stopped from promoting | `RunawayManBonus` |
-| Tempo diagonal | 2 cp | Bonus for pieces on the main diagonals (row == col or row + col == 9) | `TempoDiagonal` |
-| Endgame king advantage | 20 cp | Additional king value when total pieces ≤10 | `EndgameKingAdvantage` |
-| Left/right balance | 3 cp | Penalty for imbalanced piece distribution across left/right halves | `LeftRightBalance` |
+| Man mobility | 1 eu/move | Count of available moves for each man | `ManMobility` |
+| King mobility | 2 eu/move | Count of available moves for each king | `KingMobility` |
+| Piece structure | 4 eu | Bonus for each piece with an adjacent friendly piece | `PieceStructure` |
+| First king bonus | 50 eu | Bonus when you have the only king(s) on the board | `FirstKingBonus` |
+| Locked position penalty | 10 eu | Penalty when a side has ≤2 moves but >2 pieces | `LockedPositionPenalty` |
+| Runaway man bonus | 30 eu | Bonus for a man that cannot be stopped from promoting | `RunawayManBonus` |
+| Tempo diagonal | 2 eu | Bonus for pieces on the main diagonals (row == col or row + col == 9) | `TempoDiagonal` |
+| Endgame king advantage | 20 eu | Additional king value when total pieces ≤10 | `EndgameKingAdvantage` |
+| Left/right balance | 3 eu | Penalty for imbalanced piece distribution across left/right halves | `LeftRightBalance` |
 
 **Acceptance criteria:**
 - Each feature uses the same logic and weight as the Expert C# implementation.
@@ -168,9 +168,9 @@ Redesign the noise mechanism to apply during search rather than only after:
   selection.
 - The noise is stateless — no seed or determinism required (randomness is desirable).
 - At `noiseAmplitude = 0`, behavior is identical to no noise (Expert-compatible).
-- High noise (Easy: 200 cp) causes the AI to frequently misjudge positions by the
+- High noise (Easy: 200 eu) causes the AI to frequently misjudge positions by the
   equivalent of ~2 men, producing beginner-level errors organically.
-- Low noise (Hard: 15 cp) causes occasional minor misjudgments (~0.15 men) without
+- Low noise (Hard: 15 eu) causes occasional minor misjudgments (~0.15 men) without
   producing obviously bad moves.
 
 ### FR-4: Search Enhancements for Hard
@@ -255,11 +255,11 @@ export interface DifficultyConfig {
   readonly maxDepth: number;
   /** Time limit per move in milliseconds */
   readonly timeLimitMs: number;
-  /** Evaluation noise amplitude applied to every leaf-node evaluation (centipawns) */
+  /** Evaluation noise amplitude applied to every leaf-node evaluation (evaluation units) */
   readonly noiseAmplitude: number;
   /** Probability of making a deliberate blunder (0-1) */
   readonly blunderProbability: number;
-  /** Score margin for blunder selection (centipawns) */
+  /** Score margin for blunder selection (evaluation units) */
   readonly blunderMargin: number;
   /** Positional evaluation feature scale (0.0 = material only, 1.0 = full) */
   readonly evalFeatureScale: number;
@@ -349,7 +349,7 @@ export interface DifficultyConfig {
 ### AC-4: Evaluation Feature Parity
 
 - For 20 test positions, the TypeScript `evaluate()` with `featureScale = 1.0`
-  produces scores within ±5 cp of the C# Expert `Evaluator.Evaluate()` (accounting
+  produces scores within ±5 eu of the C# Expert `Evaluator.Evaluate()` (accounting
   for rounding differences).
 
 ### AC-5: Search Enhancement Effectiveness

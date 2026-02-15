@@ -109,7 +109,7 @@ describe('Board Component', () => {
       { square: 28, type: PieceType.Man, color: PlayerColor.White },
     ]);
     render(<Board position={board} />);
-    const square = screen.getByLabelText('Square 28, white man');
+    const square = screen.getByLabelText('Square 23, white man');
     expect(square).toBeDefined();
   });
 });

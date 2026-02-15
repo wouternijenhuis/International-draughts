@@ -74,8 +74,8 @@ export const GameBoard: React.FC = () => {
     let col = Math.floor((clientX - boardRect.left) / squareSize);
     let row = Math.floor((clientY - boardRect.top) / squareSize);
 
-    // Adjust for board orientation
-    if (config.playerColor === PlayerColor.Black) {
+    // Adjust for board orientation (grid is reversed for White)
+    if (config.playerColor !== PlayerColor.Black) {
       col = 9 - col;
       row = 9 - row;
     }

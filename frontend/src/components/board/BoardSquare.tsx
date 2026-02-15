@@ -1,6 +1,7 @@
 import React from 'react';
 import { Piece } from '@/lib/draughts-types';
 import { BoardPiece } from './BoardPiece';
+import { toFmjdSquare } from '@/lib/notation-display';
 
 export interface BoardSquareProps {
   isDark: boolean;
@@ -27,10 +28,11 @@ export const BoardSquare: React.FC<BoardSquareProps> = ({
 }) => {
   const bgColor = isDark ? 'var(--board-dark)' : 'var(--board-light)';
 
-  const ariaLabel = squareNumber
+  const displaySquare = squareNumber ? toFmjdSquare(squareNumber) : null;
+  const ariaLabel = displaySquare
     ? piece
-      ? `Square ${squareNumber}, ${piece.color} ${piece.type}`
-      : `Square ${squareNumber}, empty`
+      ? `Square ${displaySquare}, ${piece.color} ${piece.type}`
+      : `Square ${displaySquare}, empty`
     : undefined;
 
   return (
@@ -61,7 +63,7 @@ export const BoardSquare: React.FC<BoardSquareProps> = ({
       {/* Notation number */}
       {showNotation && squareNumber && (
         <span className="absolute top-0.5 left-1 text-[0.5rem] text-white/60 font-mono select-none z-20">
-          {squareNumber}
+          {toFmjdSquare(squareNumber)}
         </span>
       )}
 

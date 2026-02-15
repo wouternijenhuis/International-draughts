@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useGameStore } from '@/stores/game-store';
+import { toFmjdNotation } from '@/lib/notation-display';
 
 /**
  * Displays the move history in notation format.
@@ -30,8 +31,8 @@ export const MoveHistory: React.FC = () => {
   for (let i = 0; i < moveHistory.length; i += 2) {
     movePairs.push({
       number: Math.floor(i / 2) + 1,
-      white: moveHistory[i].notation,
-      black: moveHistory[i + 1]?.notation,
+      white: toFmjdNotation(moveHistory[i].notation),
+      black: moveHistory[i + 1] ? toFmjdNotation(moveHistory[i + 1].notation) : undefined,
     });
   }
 

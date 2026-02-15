@@ -68,9 +68,9 @@ export const Board: React.FC<BoardProps> = ({
   const legalSet = useMemo(() => new Set(legalMoveSquares), [legalMoveSquares]);
   const lastMoveSet = useMemo(() => new Set(lastMoveSquares), [lastMoveSquares]);
 
-  // Flip the grid for black orientation
+  // Flip the grid for white orientation (FMJD: white at bottom)
   const orientedGrid = useMemo(() => {
-    if (orientation === PlayerColor.Black) {
+    if (orientation === PlayerColor.White) {
       return [...GRID].reverse();
     }
     return GRID;

@@ -48,15 +48,15 @@ describe('ReplayViewer', () => {
       <ReplayViewer moves={sampleMoves} whitePlayer="A" blackPlayer="B" result="Draw" date="" />
     );
     fireEvent.click(screen.getByLabelText('Next move'));
-    // Should show move 1 highlighted
-    expect(screen.getByText('20-25')).toBeDefined();
+    // Should show move 1 highlighted (FMJD notation: 20-25 → 31-26)
+    expect(screen.getByText('31-26')).toBeDefined();
   });
 
   it('renders move notation list', () => {
     render(
       <ReplayViewer moves={sampleMoves} whitePlayer="A" blackPlayer="B" result="Draw" date="" />
     );
-    expect(screen.getByText('20-25')).toBeDefined();
-    expect(screen.getByText('35-30')).toBeDefined();
+    expect(screen.getByText('31-26')).toBeDefined();
+    expect(screen.getByText('16-21')).toBeDefined();
   });
 });

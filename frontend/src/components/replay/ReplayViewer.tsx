@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Board } from '@/components/board';
 import { BoardPosition, createInitialBoard } from '@/lib/draughts-types';
+import { toFmjdNotation } from '@/lib/notation-display';
 
 interface ReplayMove {
   notation: string;
@@ -41,8 +42,8 @@ export const ReplayViewer: React.FC<ReplayViewerProps> = ({
   for (let i = 0; i < moves.length; i += 2) {
     movePairs.push({
       number: Math.floor(i / 2) + 1,
-      white: moves[i].notation,
-      black: moves[i + 1]?.notation,
+      white: toFmjdNotation(moves[i].notation),
+      black: moves[i + 1] ? toFmjdNotation(moves[i + 1].notation) : undefined,
     });
   }
 

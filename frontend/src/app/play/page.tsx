@@ -7,6 +7,7 @@ import { GameControls } from '@/components/game/GameControls';
 import { GameStatus } from '@/components/game/GameStatus';
 import { MoveHistory } from '@/components/game/MoveHistory';
 import { PauseOverlay } from '@/components/game/PauseOverlay';
+import { VictoryAnimation } from '@/components/game/VictoryAnimation';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { ChessClock } from '@/components/clock/ChessClock';
 import { ResumePrompt } from '@/components/game/ResumePrompt';
@@ -166,6 +167,9 @@ export default function PlayPage() {
 
       {/* Pause overlay */}
       <PauseOverlay />
+
+      {/* Victory animation — Solitaire-style piece cascade */}
+      <VictoryAnimation />
 
       {/* Resume prompt for saved games */}
       {showResumePrompt && savedGame && (

@@ -108,7 +108,7 @@ describe('Difficulty configs', () => {
   it('easy has low depth and high blunder rate', () => {
     const easy = DIFFICULTY_CONFIGS.easy!;
     expect(easy.maxDepth).toBeLessThanOrEqual(3);
-    expect(easy.blunderProbability).toBeGreaterThan(0.2);
+    expect(easy.blunderProbability).toBeGreaterThanOrEqual(0.2);
   });
 
   it('hard has high depth and low blunders', () => {

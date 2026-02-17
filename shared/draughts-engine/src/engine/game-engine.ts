@@ -136,20 +136,21 @@ export const checkDrawCondition = (
   }
 
   // 2. 25-move rule: if only kings remain on both sides
-  //    and 25 consecutive king-only moves without a capture
+  //    and 50 consecutive half-moves (25 per side) without a capture
   const whitePieces = countPieces(board, PlayerColor.White);
   const blackPieces = countPieces(board, PlayerColor.Black);
   const onlyKings = whitePieces.men === 0 && blackPieces.men === 0;
 
-  if (onlyKings && drawRuleState.kingOnlyMoveCount >= 25) {
+  if (onlyKings && drawRuleState.kingOnlyMoveCount >= 50) {
     return DrawReason.TwentyFiveMoveRule;
   }
 
   // 3. 16-move endgame rule: special endgame positions
-  //    (e.g., 3 kings vs 1 king, or similar small king-only positions)
+  //    (e.g., 3 kings vs 1 king, 2K+1M vs 1K, 1K+2M vs 1K)
+  //    Requires 32 half-moves (16 per side) without a capture
   if (
     drawRuleState.isEndgameRuleActive &&
-    drawRuleState.endgameMoveCount >= 16
+    drawRuleState.endgameMoveCount >= 32
   ) {
     return DrawReason.SixteenMoveRule;
   }
@@ -159,16 +160,42 @@ export const checkDrawCondition = (
 
 /**
  * Determines whether the 16-move endgame rule should be active.
- * Active when total pieces <= 4 and all are kings.
+ * Active for specific FMJD endgame configurations:
+ * - 3 kings vs 1 king (either side)
+ * - 2 kings + 1 man vs 1 king (stronger side has the 2K+1M)
+ * - 1 king + 2 men vs 1 king (stronger side has the 1K+2M)
  */
 const shouldActivateEndgameRule = (board: BoardPosition): boolean => {
   const white = countPieces(board, PlayerColor.White);
   const black = countPieces(board, PlayerColor.Black);
-  return (
-    white.men === 0 &&
-    black.men === 0 &&
-    white.total + black.total <= 4
-  );
+
+  // Check if one side has exactly 1 king and 0 men (the weaker side)
+  const whiteIsWeaker = white.kings === 1 && white.men === 0 && white.total === 1;
+  const blackIsWeaker = black.kings === 1 && black.men === 0 && black.total === 1;
+
+  if (!whiteIsWeaker && !blackIsWeaker) {
+    return false;
+  }
+
+  // Determine the stronger side's piece counts
+  const stronger = whiteIsWeaker ? black : white;
+
+  // 3 kings vs 1 king
+  if (stronger.kings === 3 && stronger.men === 0) {
+    return true;
+  }
+
+  // 2 kings + 1 man vs 1 king
+  if (stronger.kings === 2 && stronger.men === 1) {
+    return true;
+  }
+
+  // 1 king + 2 men vs 1 king
+  if (stronger.kings === 1 && stronger.men === 2) {
+    return true;
+  }
+
+  return false;
 };
 
 /**
@@ -178,15 +205,17 @@ export const updateDrawRuleState = (
   prevState: DrawRuleState,
   move: Move,
   board: BoardPosition,
-  movingPiece: Piece,
+  _movingPiece: Piece,
   nextPlayer: PlayerColor,
 ): DrawRuleState => {
   const isCapture = move.type === 'capture';
-  const isManMove = movingPiece.type === PieceType.Man;
 
-  // King-only move count: reset on capture or regular piece move, else increment
+  // King-only move count: reset when any man exists on the board or on capture, else increment
+  const whitePieces = countPieces(board, PlayerColor.White);
+  const blackPieces = countPieces(board, PlayerColor.Black);
+  const anyMenOnBoard = whitePieces.men > 0 || blackPieces.men > 0;
   const kingOnlyMoveCount =
-    isCapture || isManMove ? 0 : prevState.kingOnlyMoveCount + 1;
+    isCapture || anyMenOnBoard ? 0 : prevState.kingOnlyMoveCount + 1;
 
   // Endgame rule tracking
   const endgameActive = shouldActivateEndgameRule(board);

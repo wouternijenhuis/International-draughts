@@ -24,7 +24,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <Link
-            href="/play"
+            href="/play?setup=true"
             className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 
                        focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
                        transition-colors font-medium text-lg inline-flex items-center justify-center shadow-md"

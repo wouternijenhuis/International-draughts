@@ -30,27 +30,24 @@ describe('SettingsPanel', () => {
     expect(useGameStore.getState().config.showNotation).toBe(!initial);
   });
 
-  it('changes AI difficulty', () => {
+  it('renders heading as Display & Preferences', () => {
     render(<SettingsPanel />);
-    fireEvent.click(screen.getByText('Hard'));
-    expect(useGameStore.getState().config.aiDifficulty).toBe('hard');
+    expect(screen.getByText('Display & Preferences')).toBeDefined();
   });
 
-  it('renders Expert difficulty option', () => {
+  it('does not render game-critical options', () => {
     render(<SettingsPanel />);
-    expect(screen.getByText('Expert')).toBeDefined();
-    expect(screen.getByTitle('Server-side AI \u2014 strongest')).toBeDefined();
+    expect(screen.queryByText('AI Difficulty')).toBeNull();
+    expect(screen.queryByText('Play As')).toBeNull();
+    expect(screen.queryByText('Opponent')).toBeNull();
+    expect(screen.queryByText('Timed Mode')).toBeNull();
   });
 
-  it('sets expert difficulty when clicked', () => {
+  it('renders animation speed options', () => {
     render(<SettingsPanel />);
-    fireEvent.click(screen.getByText('Expert'));
-    expect(useGameStore.getState().config.aiDifficulty).toBe('expert');
-  });
-
-  it('disables difficulty change during active game', () => {
-    useGameStore.getState().startGame();
-    render(<SettingsPanel />);
-    expect(screen.getByText(/Cannot change during active game/)).toBeDefined();
+    expect(screen.getByText('instant')).toBeDefined();
+    expect(screen.getByText('fast')).toBeDefined();
+    expect(screen.getByText('normal')).toBeDefined();
+    expect(screen.getByText('slow')).toBeDefined();
   });
 });

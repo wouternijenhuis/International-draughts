@@ -12,7 +12,7 @@ describe('HomePage', () => {
     render(<HomePage />);
     const playNowLink = screen.getByRole('link', { name: /start a new game/i });
     expect(playNowLink).toBeInTheDocument();
-    expect(playNowLink).toHaveAttribute('href', '/play');
+    expect(playNowLink).toHaveAttribute('href', '/play?setup=true');
   });
 
   it('should render How to Play button', () => {

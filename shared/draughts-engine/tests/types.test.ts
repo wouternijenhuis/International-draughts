@@ -183,7 +183,7 @@ describe('Game state', () => {
 
   it('should have correct draw rule state', () => {
     const state = createInitialGameState();
-    expect(state.drawRuleState.positionHistory).toEqual([]);
+    expect(state.drawRuleState.positionHistory).toHaveLength(1);
     expect(state.drawRuleState.kingOnlyMoveCount).toBe(0);
     expect(state.drawRuleState.endgameMoveCount).toBe(0);
     expect(state.drawRuleState.isEndgameRuleActive).toBe(false);

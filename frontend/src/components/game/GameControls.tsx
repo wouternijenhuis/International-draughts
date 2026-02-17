@@ -3,10 +3,16 @@
 import React from 'react';
 import { useGameStore } from '@/stores/game-store';
 
+/** Props for the GameControls component. */
+export interface GameControlsProps {
+  /** Callback to open the game setup dialog for a new game */
+  readonly onNewGame?: () => void;
+}
+
 /**
- * Game control buttons: New Game, Resign, Undo, Redo (learning only), Hint (learning only), Draw, Pause.
+ * Game control buttons: New Game, Rematch, Resign, Undo, Redo (learning only), Hint (learning only), Draw, Pause.
  */
-export const GameControls: React.FC = () => {
+export const GameControls: React.FC<GameControlsProps> = ({ onNewGame }) => {
   const {
     phase,
     isPaused,
@@ -31,12 +37,26 @@ export const GameControls: React.FC = () => {
   const canRedo = isInProgress && moveIndex < moveHistory.length - 1 && !isAiThinking;
   const canInteract = isInProgress && !isAiThinking;
   const isLearning = config.gameMode === 'learning';
+  const isGameOver = phase === 'white-wins' || phase === 'black-wins' || phase === 'draw';
+
+  /** Start a rematch with the same configuration. */
+  const handleRematch = () => {
+    startGame();
+  };
+
+  /** Open the setup dialog for a new game with different settings. */
+  const handleNewGame = () => {
+    if (isGameOver) {
+      resetGame();
+    }
+    onNewGame?.();
+  };
 
   return (
     <div className="flex flex-wrap gap-2 justify-center mt-4" role="toolbar" aria-label="Game controls">
       {phase === 'not-started' && (
         <button
-          onClick={() => startGame()}
+          onClick={onNewGame ? handleNewGame : () => startGame()}
           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
           aria-label="Start new game"
         >
@@ -112,14 +132,23 @@ export const GameControls: React.FC = () => {
         </>
       )}
       
-      {(phase === 'white-wins' || phase === 'black-wins' || phase === 'draw') && (
-        <button
-          onClick={resetGame}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
-          aria-label="Start new game"
-        >
-          New Game
-        </button>
+      {isGameOver && (
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto justify-center">
+          <button
+            onClick={handleRematch}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+            aria-label="Rematch with same settings"
+          >
+            🔄 Rematch
+          </button>
+          <button
+            onClick={handleNewGame}
+            className="px-4 py-2 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+            aria-label="Start new game with different settings"
+          >
+            New Game
+          </button>
+        </div>
       )}
     </div>
   );

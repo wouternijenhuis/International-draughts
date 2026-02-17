@@ -251,14 +251,14 @@ describe('checkDrawCondition', () => {
     expect(result).toBe(DrawReason.ThreefoldRepetition);
   });
 
-  it('detects 25-move king-only rule', () => {
+  it('detects 25-move king-only rule at 50 half-moves', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.King, color: PlayerColor.White },
       { square: 50, type: PieceType.King, color: PlayerColor.Black },
     ]);
     const drawState: DrawRuleState = {
       positionHistory: [],
-      kingOnlyMoveCount: 25,
+      kingOnlyMoveCount: 50,
       endgameMoveCount: 0,
       isEndgameRuleActive: false,
     };
@@ -267,9 +267,9 @@ describe('checkDrawCondition', () => {
     expect(result).toBe(DrawReason.TwentyFiveMoveRule);
   });
 
-  it('does not trigger 25-move rule if regular pieces remain', () => {
+  it('does not trigger 25-move rule at 25 half-moves (needs 50)', () => {
     const board = setupBoard([
-      { square: 28, type: PieceType.Man, color: PlayerColor.White },
+      { square: 28, type: PieceType.King, color: PlayerColor.White },
       { square: 50, type: PieceType.King, color: PlayerColor.Black },
     ]);
     const drawState: DrawRuleState = {
@@ -283,10 +283,45 @@ describe('checkDrawCondition', () => {
     expect(result).toBeNull();
   });
 
-  it('detects 16-move endgame rule for small king-only positions', () => {
+  it('does not trigger 25-move rule if regular pieces remain', () => {
+    const board = setupBoard([
+      { square: 28, type: PieceType.Man, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const drawState: DrawRuleState = {
+      positionHistory: [],
+      kingOnlyMoveCount: 50,
+      endgameMoveCount: 0,
+      isEndgameRuleActive: false,
+    };
+
+    const result = checkDrawCondition(board, drawState, PlayerColor.White);
+    expect(result).toBeNull();
+  });
+
+  it('detects 16-move endgame rule at 32 half-moves', () => {
     const board = setupBoard([
       { square: 28, type: PieceType.King, color: PlayerColor.White },
       { square: 33, type: PieceType.King, color: PlayerColor.White },
+      { square: 39, type: PieceType.King, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const drawState: DrawRuleState = {
+      positionHistory: [],
+      kingOnlyMoveCount: 32,
+      endgameMoveCount: 32,
+      isEndgameRuleActive: true,
+    };
+
+    const result = checkDrawCondition(board, drawState, PlayerColor.White);
+    expect(result).toBe(DrawReason.SixteenMoveRule);
+  });
+
+  it('does not trigger 16-move rule at 16 half-moves (needs 32)', () => {
+    const board = setupBoard([
+      { square: 28, type: PieceType.King, color: PlayerColor.White },
+      { square: 33, type: PieceType.King, color: PlayerColor.White },
+      { square: 39, type: PieceType.King, color: PlayerColor.White },
       { square: 50, type: PieceType.King, color: PlayerColor.Black },
     ]);
     const drawState: DrawRuleState = {
@@ -297,7 +332,7 @@ describe('checkDrawCondition', () => {
     };
 
     const result = checkDrawCondition(board, drawState, PlayerColor.White);
-    expect(result).toBe(DrawReason.SixteenMoveRule);
+    expect(result).toBeNull();
   });
 
   it('returns null when no draw condition met', () => {
@@ -314,6 +349,129 @@ describe('checkDrawCondition', () => {
 
     const result = checkDrawCondition(board, drawState, PlayerColor.White);
     expect(result).toBeNull();
+  });
+});
+
+describe('16-move endgame rule activation', () => {
+  it('activates for 3 kings vs 1 king', () => {
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 6, type: PieceType.King, color: PlayerColor.White },
+      { square: 11, type: PieceType.King, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White);
+    // White king makes a quiet move
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    expect(result.newState.drawRuleState.isEndgameRuleActive).toBe(true);
+  });
+
+  it('activates for 2K+1M vs 1K', () => {
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 6, type: PieceType.King, color: PlayerColor.White },
+      { square: 11, type: PieceType.Man, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White);
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    expect(result.newState.drawRuleState.isEndgameRuleActive).toBe(true);
+  });
+
+  it('activates for 1K+2M vs 1K', () => {
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 11, type: PieceType.Man, color: PlayerColor.White },
+      { square: 16, type: PieceType.Man, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White);
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    expect(result.newState.drawRuleState.isEndgameRuleActive).toBe(true);
+  });
+
+  it('does NOT activate for 2K vs 2K', () => {
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 6, type: PieceType.King, color: PlayerColor.White },
+      { square: 45, type: PieceType.King, color: PlayerColor.Black },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White);
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    expect(result.newState.drawRuleState.isEndgameRuleActive).toBe(false);
+  });
+
+  it('does NOT activate for 2K vs 2K (all kings, 4 pieces)', () => {
+    const board = setupBoard([
+      { square: 28, type: PieceType.King, color: PlayerColor.White },
+      { square: 33, type: PieceType.King, color: PlayerColor.White },
+      { square: 39, type: PieceType.King, color: PlayerColor.Black },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const drawState: DrawRuleState = {
+      positionHistory: [],
+      kingOnlyMoveCount: 32,
+      endgameMoveCount: 32,
+      isEndgameRuleActive: false,
+    };
+    // Even at 32 half-moves, should not trigger because 2K vs 2K is not a valid configuration
+    const result = checkDrawCondition(board, drawState, PlayerColor.White);
+    expect(result).toBeNull();
+  });
+});
+
+describe('initial position in repetition history', () => {
+  it('includes the initial position hash in positionHistory', () => {
+    const state = createInitialGameState();
+    expect(state.drawRuleState.positionHistory).toHaveLength(1);
+  });
+
+  it('initial position hash matches computePositionHash', () => {
+    const state = createInitialGameState();
+    const expectedHash = computePositionHash(state.board, PlayerColor.White);
+    expect(state.drawRuleState.positionHistory[0]).toBe(expectedHash);
+  });
+});
+
+describe('king-only counter reset logic', () => {
+  it('resets king-only counter when men exist on the board', () => {
+    // Board with kings and men — king move should NOT increment counter
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 11, type: PieceType.Man, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White, {
+      kingOnlyMoveCount: 10,
+    });
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    // Counter should reset to 0 because men exist on the board
+    expect(result.newState.drawRuleState.kingOnlyMoveCount).toBe(0);
+  });
+
+  it('increments king-only counter when only kings remain', () => {
+    const board = setupBoard([
+      { square: 1, type: PieceType.King, color: PlayerColor.White },
+      { square: 50, type: PieceType.King, color: PlayerColor.Black },
+    ]);
+    const state = createGameState(board, PlayerColor.White, {
+      kingOnlyMoveCount: 10,
+    });
+    const move = createQuietMove(1, 7);
+    const result = applyMove(state, move);
+    expect(result.isValid).toBe(true);
+    expect(result.newState.drawRuleState.kingOnlyMoveCount).toBe(11);
   });
 });
 

@@ -41,11 +41,12 @@ describe('GameControls', () => {
     expect(useGameStore.getState().phase).toBe('black-wins');
   });
 
-  it('shows New Game after game ends', () => {
+  it('shows Rematch and New Game after game ends', () => {
     useGameStore.getState().startGame();
     useGameStore.getState().resign();
     render(<GameControls />);
-    expect(screen.getByLabelText('Start new game')).toBeDefined();
+    expect(screen.getByLabelText('Rematch with same settings')).toBeDefined();
+    expect(screen.getByLabelText('Start new game with different settings')).toBeDefined();
   });
 
   /* ─── Learning mode tests ─── */

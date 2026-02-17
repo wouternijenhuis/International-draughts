@@ -1,18 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { GameBoard } from '@/components/game/GameBoard';
 import { GameControls } from '@/components/game/GameControls';
 import { GameStatus } from '@/components/game/GameStatus';
 import { MoveHistory } from '@/components/game/MoveHistory';
 import { PauseOverlay } from '@/components/game/PauseOverlay';
 import { VictoryAnimation } from '@/components/game/VictoryAnimation';
+import { GameConfigSummary } from '@/components/game/GameConfigSummary';
 import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { ChessClock } from '@/components/clock/ChessClock';
 import { ResumePrompt } from '@/components/game/ResumePrompt';
+import { GameSetupDialog } from '@/components/game/setup/GameSetupDialog';
 import { useGameStore } from '@/stores/game-store';
 import { useAuthStore } from '@/stores/auth-store';
+import { PlayerColor } from '@/lib/draughts-types';
+import type { LastGameConfig } from '@/lib/game-config-persistence';
 import {
   loadGuestGame,
   loadUserGame,
@@ -30,12 +35,58 @@ function getGameDescription(game: SerializedGameState): string {
   return 'Local PvP';
 }
 
-export default function PlayPage() {
-  const { config, currentTurn, isPaused, clockState, resumeGame, phase } = useGameStore();
+/**
+ * Resolves a LastGameConfig into Partial<GameConfig> for the store,
+ * handling 'random' color assignment.
+ */
+function resolveSetupConfig(setupConfig: LastGameConfig): {
+  opponent: LastGameConfig['opponent'];
+  aiDifficulty: LastGameConfig['difficulty'];
+  playerColor: PlayerColor;
+  timedMode: boolean;
+  clockPreset: string;
+} {
+  let playerColor: PlayerColor;
+  if (setupConfig.playAs === 'random') {
+    playerColor = Math.random() < 0.5 ? PlayerColor.White : PlayerColor.Black;
+  } else {
+    playerColor = setupConfig.playAs === 'white' ? PlayerColor.White : PlayerColor.Black;
+  }
+
+  return {
+    opponent: setupConfig.opponent,
+    aiDifficulty: setupConfig.difficulty,
+    playerColor,
+    timedMode: setupConfig.timedMode,
+    clockPreset: setupConfig.clockPreset,
+  };
+}
+
+/** Inner component that reads searchParams (must be wrapped in Suspense). */
+function PlayPageContent() {
+  const { config, currentTurn, isPaused, clockState, resumeGame, phase, startGame } = useGameStore();
   const { user, isAuthenticated } = useAuthStore();
   const [showSettings, setShowSettings] = useState(false);
+  const [showSetupDialog, setShowSetupDialog] = useState(false);
   const [savedGame, setSavedGame] = useState<SerializedGameState | null>(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Adjusting state during rendering: handle ?setup=true query param from Home page
+  const [setupParamHandled, setSetupParamHandled] = useState(false);
+  const hasSetupParam = searchParams.get('setup') === 'true';
+  if (hasSetupParam && !setupParamHandled) {
+    setSetupParamHandled(true);
+    setShowSetupDialog(true);
+  }
+
+  // Clean up the ?setup=true param from the URL (side effect only, no setState)
+  useEffect(() => {
+    if (searchParams.get('setup') === 'true') {
+      router.replace('/play', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     const checkForSavedGame = async () => {
@@ -50,6 +101,9 @@ export default function PlayPage() {
       if (saved) {
         setSavedGame(saved);
         setShowResumePrompt(true);
+      } else if (phase === 'not-started') {
+        // No saved game — auto-open the setup dialog
+        setShowSetupDialog(true);
       }
     };
 
@@ -74,7 +128,20 @@ export default function PlayPage() {
     if (user?.userId) {
       void clearUserGameBackend(user.userId);
     }
+    // After discarding, open the setup dialog
+    setShowSetupDialog(true);
   };
+
+  /** Called by the setup dialog when the user clicks "Start Game" or "Quick Start". */
+  const handleStartGame = useCallback((setupConfig: LastGameConfig) => {
+    const resolvedConfig = resolveSetupConfig(setupConfig);
+    startGame(resolvedConfig);
+  }, [startGame]);
+
+  /** Called by GameControls when the user clicks "New Game". */
+  const handleNewGame = useCallback(() => {
+    setShowSetupDialog(true);
+  }, []);
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -142,12 +209,17 @@ export default function PlayPage() {
               <GameStatus />
             </div>
 
+            {/* In-game config summary */}
+            <div className="w-full max-w-[600px]">
+              <GameConfigSummary />
+            </div>
+
             {/* Board */}
             <GameBoard />
 
             {/* Controls */}
             <div className="w-full max-w-[600px]">
-              <GameControls />
+              <GameControls onNewGame={handleNewGame} />
             </div>
           </div>
 
@@ -181,6 +253,24 @@ export default function PlayPage() {
           onDiscard={handleDiscard}
         />
       )}
+
+      {/* Game setup dialog */}
+      {!showResumePrompt && (
+        <GameSetupDialog
+          open={showSetupDialog}
+          onClose={() => setShowSetupDialog(false)}
+          onStartGame={handleStartGame}
+        />
+      )}
     </main>
+  );
+}
+
+/** Play page with Suspense boundary for useSearchParams. */
+export default function PlayPage() {
+  return (
+    <Suspense>
+      <PlayPageContent />
+    </Suspense>
   );
 }

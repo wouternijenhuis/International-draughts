@@ -59,21 +59,54 @@ export const createInitialBoard = (): Square[] => {
 };
 
 /** Creates a new game state in the initial position */
-export const createInitialGameState = (): GameState => ({
-  board: createInitialBoard(),
-  currentPlayer: PlayerColor.White,
-  moveHistory: [],
-  phase: GamePhase.InProgress,
-  drawReason: null,
-  whitePieceCount: 20,
-  blackPieceCount: 20,
-  drawRuleState: {
-    positionHistory: [],
-    kingOnlyMoveCount: 0,
-    endgameMoveCount: 0,
-    isEndgameRuleActive: false,
-  },
-});
+export const createInitialGameState = (): GameState => {
+  const board = createInitialBoard();
+  const initialHash = computeInitialPositionHash(board, PlayerColor.White);
+  return {
+    board,
+    currentPlayer: PlayerColor.White,
+    moveHistory: [],
+    phase: GamePhase.InProgress,
+    drawReason: null,
+    whitePieceCount: 20,
+    blackPieceCount: 20,
+    drawRuleState: {
+      positionHistory: [initialHash],
+      kingOnlyMoveCount: 0,
+      endgameMoveCount: 0,
+      isEndgameRuleActive: false,
+    },
+  };
+};
+
+/**
+ * Computes a position hash for the initial position.
+ * Uses the same algorithm as computePositionHash in game-engine
+ * but is self-contained to avoid circular dependencies.
+ */
+const computeInitialPositionHash = (
+  board: BoardPosition,
+  currentPlayer: PlayerColor,
+): bigint => {
+  let hash = BigInt(currentPlayer === PlayerColor.White ? 1 : 2);
+  for (let sq = 1; sq <= 50; sq++) {
+    const piece = board[sq];
+    if (piece) {
+      const pieceValue =
+        piece.color === PlayerColor.White
+          ? piece.type === PieceType.Man
+            ? 1n
+            : 2n
+          : piece.type === PieceType.Man
+            ? 3n
+            : 4n;
+      hash = hash * 67n + BigInt(sq) * 5n + pieceValue;
+    } else {
+      hash = hash * 67n;
+    }
+  }
+  return hash;
+};
 
 /** Checks if two board positions are equal */
 export const positionsEqual = (a: BoardPosition, b: BoardPosition): boolean => {

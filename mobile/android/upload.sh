@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Upload the release AAB to Play Store Internal Testing track.
+# Upload the release AAB to Play Store Internal Testing track (live, not draft).
 # Run this AFTER placing your Google Play service account key at:
 # android/fastlane/play-store-key.json
 

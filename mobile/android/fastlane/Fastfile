@@ -1,7 +1,7 @@
 default_platform(:android)
 
 platform :android do
-  desc "Upload a new build to Play Store Internal Testing track"
+  desc "Upload a new build to Play Store Internal Testing track (live, not draft)"
   lane :internal do
     upload_to_play_store(
       track: "internal",
@@ -10,9 +10,23 @@ platform :android do
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: "draft",
+      release_status: "completed",
     )
-    puts "✅ Uploaded to Play Store Internal Testing track!"
+    puts "✅ Uploaded to Play Store Internal Testing track (live)!"
+  end
+
+  desc "Upload a new build to Play Store Beta (open testing) track"
+  lane :beta do
+    upload_to_play_store(
+      track: "beta",
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: "completed",
+    )
+    puts "✅ Uploaded to Play Store Beta (open testing) track!"
   end
 
   desc "Promote internal build to alpha"
@@ -20,7 +34,9 @@ platform :android do
     upload_to_play_store(
       track: "internal",
       track_promote_to: "alpha",
+      release_status: "completed",
     )
+    puts "✅ Promoted to Alpha track!"
   end
 
   desc "Promote alpha build to production"
@@ -28,6 +44,8 @@ platform :android do
     upload_to_play_store(
       track: "alpha",
       track_promote_to: "production",
+      release_status: "completed",
     )
+    puts "✅ Promoted to Production!"
   end
 end

@@ -18,6 +18,8 @@ on:
         options:
           - internal
           - beta
+          - alpha
+          - production
 
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.platform }}
@@ -154,9 +156,8 @@ jobs:
         working-directory: mobile/android
         env:
           PLAY_STORE_JSON_KEY: ${{ secrets.PLAY_STORE_JSON_KEY }}
-          SUPPLY_TRACK: ${{ inputs.track }}
         run: |
-          bundle exec fastlane android beta
+          bundle exec fastlane android ${{ inputs.track }}
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4

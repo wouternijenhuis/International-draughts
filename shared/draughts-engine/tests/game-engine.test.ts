@@ -231,6 +231,20 @@ describe('computePositionHash', () => {
       computePositionHash(board2, PlayerColor.White),
     );
   });
+
+  it('no collision: WM@12+WK@13 vs WK@12+empty@13 (BUG-002 regression)', () => {
+    // With old base 67 these two positions produced the same hash
+    const boardA = setupBoard([
+      { square: 12, type: PieceType.Man, color: PlayerColor.White },
+      { square: 13, type: PieceType.King, color: PlayerColor.White },
+    ]);
+    const boardB = setupBoard([
+      { square: 12, type: PieceType.King, color: PlayerColor.White },
+    ]);
+    expect(computePositionHash(boardA, PlayerColor.White)).not.toBe(
+      computePositionHash(boardB, PlayerColor.White),
+    );
+  });
 });
 
 describe('checkDrawCondition', () => {

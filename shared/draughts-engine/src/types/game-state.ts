@@ -88,6 +88,8 @@ const computeInitialPositionHash = (
   board: BoardPosition,
   currentPlayer: PlayerColor,
 ): bigint => {
+  // Base must be > max per-square coefficient (50*5 + 4 = 254), so we use 257 (prime).
+  const BASE = 257n;
   let hash = BigInt(currentPlayer === PlayerColor.White ? 1 : 2);
   for (let sq = 1; sq <= 50; sq++) {
     const piece = board[sq];
@@ -100,9 +102,9 @@ const computeInitialPositionHash = (
           : piece.type === PieceType.Man
             ? 3n
             : 4n;
-      hash = hash * 67n + BigInt(sq) * 5n + pieceValue;
+      hash = hash * BASE + BigInt(sq) * 5n + pieceValue;
     } else {
-      hash = hash * 67n;
+      hash = hash * BASE;
     }
   }
   return hash;

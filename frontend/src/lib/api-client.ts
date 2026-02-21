@@ -5,6 +5,29 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
 
+/** Reads the JWT access token from the persisted Zustand auth store in localStorage. */
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem('draughts-auth');
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as { state?: { user?: { token?: string } } };
+    return parsed?.state?.user?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Builds request headers, attaching the Bearer token when available. */
+function buildHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -32,8 +55,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    headers: buildHeaders(),
   });
   return handleResponse<T>(response);
 }
@@ -41,8 +63,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    headers: buildHeaders(),
     body: body ? JSON.stringify(body) : undefined,
   });
   return handleResponse<T>(response);
@@ -51,8 +72,7 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
 export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    headers: buildHeaders(),
     body: JSON.stringify(body),
   });
   return handleResponse<T>(response);
@@ -61,8 +81,7 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
 export async function apiDelete(path: string): Promise<void> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    headers: buildHeaders(),
   });
   if (!response.ok) {
     let body: unknown;

@@ -22,6 +22,8 @@ public static class AuthEndpoints
             }
         })
         .WithName("Register")
+        .AllowAnonymous()
+        .RequireRateLimiting("anonymous")
         .Produces<AuthResponse>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status409Conflict);
 
@@ -38,6 +40,8 @@ public static class AuthEndpoints
             }
         })
         .WithName("Login")
+        .AllowAnonymous()
+        .RequireRateLimiting("anonymous")
         .Produces<AuthResponse>()
         .Produces(StatusCodes.Status401Unauthorized);
 
@@ -47,7 +51,28 @@ public static class AuthEndpoints
             return Results.NoContent();
         })
         .WithName("DeleteAccount")
-        .Produces(StatusCodes.Status204NoContent);
+        .RequireAuthorization()
+        .RequireRateLimiting("authenticated")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/refresh", async (RefreshRequest request, IAuthService authService) =>
+        {
+            try
+            {
+                var response = await authService.RefreshAsync(request);
+                return Results.Ok(response);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Results.Unauthorized();
+            }
+        })
+        .WithName("RefreshToken")
+        .AllowAnonymous()
+        .RequireRateLimiting("anonymous")
+        .Produces<AuthResponse>()
+        .Produces(StatusCodes.Status401Unauthorized);
 
         return app;
     }

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2D6A4F"/>
+      <stop offset="100%" stop-color="#1B4332"/>
+    </linearGradient>
+    <!-- Subtle center glow -->
+    <radialGradient id="bgGlow" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0%" stop-color="#3D8B6A" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1B4332" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Light piece gradient -->
+    <radialGradient id="lightPiece" cx="0.4" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#FFFBF0"/>
+      <stop offset="55%" stop-color="#F0D9B5"/>
+      <stop offset="100%" stop-color="#D4B896"/>
+    </radialGradient>
+    <!-- Dark piece gradient -->
+    <radialGradient id="darkPiece" cx="0.4" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#5C4033"/>
+      <stop offset="55%" stop-color="#3E2723"/>
+      <stop offset="100%" stop-color="#2A1A12"/>
+    </radialGradient>
+    <!-- Gold gradient -->
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE44D"/>
+      <stop offset="35%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </linearGradient>
+    <!-- Jewels -->
+    <radialGradient id="ruby" cx="0.35" cy="0.35" r="0.5">
+      <stop offset="0%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#DC2626"/>
+    </radialGradient>
+    <radialGradient id="sapphire" cx="0.35" cy="0.35" r="0.5">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </radialGradient>
+    <!-- Shadows -->
+    <filter id="pieceShadow" x="-20%" y="-15%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+    <filter id="boardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="20" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="crownGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#FFD700" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bgGrad)"/>
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bgGlow)"/>
+
+  <!-- BOARD DIAMOND (4x4, centered, large) -->
+  <g transform="translate(512, 505) rotate(45)" filter="url(#boardShadow)">
+    <!-- Each cell 140px → total 560px -->
+    <!-- Row 0 -->
+    <rect x="-280" y="-280" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="-140" y="-280" width="140" height="140" fill="#B58863"/>
+    <rect x="0"    y="-280" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="140"  y="-280" width="140" height="140" fill="#B58863"/>
+    <!-- Row 1 -->
+    <rect x="-280" y="-140" width="140" height="140" fill="#B58863"/>
+    <rect x="-140" y="-140" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="0"    y="-140" width="140" height="140" fill="#B58863"/>
+    <rect x="140"  y="-140" width="140" height="140" fill="#F0D9B5"/>
+    <!-- Row 2 -->
+    <rect x="-280" y="0" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="-140" y="0" width="140" height="140" fill="#B58863"/>
+    <rect x="0"    y="0" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="140"  y="0" width="140" height="140" fill="#B58863"/>
+    <!-- Row 3 -->
+    <rect x="-280" y="140" width="140" height="140" fill="#B58863"/>
+    <rect x="-140" y="140" width="140" height="140" fill="#F0D9B5"/>
+    <rect x="0"    y="140" width="140" height="140" fill="#B58863"/>
+    <rect x="140"  y="140" width="140" height="140" fill="#F0D9B5"/>
+    
+    <!-- Board border -->
+    <rect x="-280" y="-280" width="560" height="560" fill="none" stroke="#1B4332" stroke-width="8"/>
+  </g>
+
+  <!-- DARK PIECE (center-left on the board, larger) -->
+  <g filter="url(#pieceShadow)">
+    <!-- Side/thickness -->
+    <ellipse cx="410" cy="608" rx="110" ry="33" fill="#1A0F0A"/>
+    <ellipse cx="410" cy="598" rx="110" ry="33" fill="#2A1A12"/>
+    <!-- Top face -->
+    <ellipse cx="410" cy="584" rx="110" ry="33" fill="url(#darkPiece)"/>
+    <!-- Ring details -->
+    <ellipse cx="410" cy="584" rx="88" ry="26" fill="none" stroke="#6B4226" stroke-width="3" opacity="0.55"/>
+    <ellipse cx="410" cy="584" rx="68" ry="20" fill="none" stroke="#6B4226" stroke-width="2" opacity="0.3"/>
+    <!-- Highlight -->
+    <ellipse cx="395" cy="578" rx="48" ry="14" fill="#FFF" opacity="0.06"/>
+  </g>
+
+  <!-- WHITE KING PIECE (center-right, double-stacked) -->
+  <g filter="url(#pieceShadow)">
+    <!-- Bottom stacked piece -->
+    <ellipse cx="575" cy="490" rx="118" ry="36" fill="#B8986A"/>
+    <ellipse cx="575" cy="480" rx="118" ry="36" fill="#D4B896"/>
+    <ellipse cx="575" cy="466" rx="118" ry="36" fill="url(#lightPiece)"/>
+    <ellipse cx="575" cy="466" rx="94" ry="29" fill="none" stroke="#C4A87A" stroke-width="2.5" opacity="0.5"/>
+    
+    <!-- Top stacked piece -->
+    <ellipse cx="575" cy="444" rx="118" ry="36" fill="#C8A882"/>
+    <ellipse cx="575" cy="434" rx="118" ry="36" fill="#E0CDB0"/>
+    <ellipse cx="575" cy="420" rx="118" ry="36" fill="url(#lightPiece)"/>
+    <ellipse cx="575" cy="420" rx="94" ry="29" fill="none" stroke="#C4A87A" stroke-width="3" opacity="0.5"/>
+    <ellipse cx="575" cy="420" rx="72" ry="22" fill="none" stroke="#C4A87A" stroke-width="2" opacity="0.25"/>
+    <!-- Highlight -->
+    <ellipse cx="556" cy="412" rx="54" ry="16" fill="#FFF" opacity="0.1"/>
+  </g>
+
+  <!-- GOLDEN CROWN (above king, centered better) -->
+  <g transform="translate(575, 310)" filter="url(#crownGlow)">
+    <!-- Crown body -->
+    <path d="M-85,40 L-72,-22 L-36,14 L0,-52 L36,14 L72,-22 L85,40 Z" 
+          fill="url(#goldGrad)" stroke="#8B6914" stroke-width="3.5" stroke-linejoin="round"/>
+    <!-- Base band -->
+    <rect x="-85" y="40" width="170" height="24" rx="5" 
+          fill="url(#goldGrad)" stroke="#8B6914" stroke-width="3"/>
+    <!-- Point tips -->
+    <circle cx="-72" cy="-26" r="9" fill="#FFE44D" stroke="#8B6914" stroke-width="2"/>
+    <circle cx="0" cy="-56" r="10" fill="#FFE44D" stroke="#8B6914" stroke-width="2"/>
+    <circle cx="72" cy="-26" r="9" fill="#FFE44D" stroke="#8B6914" stroke-width="2"/>
+    <!-- Jewels on band -->
+    <circle cx="-42" cy="28" r="10" fill="url(#ruby)" stroke="#8B6914" stroke-width="2"/>
+    <circle cx="0" cy="22" r="11" fill="url(#sapphire)" stroke="#8B6914" stroke-width="2"/>
+    <circle cx="42" cy="28" r="10" fill="url(#ruby)" stroke="#8B6914" stroke-width="2"/>
+    <!-- Shimmer highlight -->
+    <path d="M-65,40 L-55,-10 L-28,16 L0,-38 L28,16 L55,-10 L65,40 Z" 
+          fill="#FFF" opacity="0.14"/>
+  </g>
+</svg>

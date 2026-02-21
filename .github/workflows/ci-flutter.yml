@@ -1,0 +1,162 @@
+name: CI — Flutter & Dart Engine
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+      - 'shared/draughts-engine-dart/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+      - 'shared/draughts-engine-dart/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.x'
+  DART_SDK_VERSION: '3.x'
+  JAVA_VERSION: '17'
+
+jobs:
+  dart-engine:
+    name: Dart Engine
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shared/draughts-engine-dart
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_SDK_VERSION }}
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Run tests with coverage
+        run: dart test --coverage=coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dart-engine-coverage
+          path: shared/draughts-engine-dart/coverage/
+
+  flutter-lint-test:
+    name: Flutter Lint & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Check coverage thresholds
+        run: |
+          if ! command -v lcov &> /dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq lcov
+          fi
+
+          echo "=== Coverage Summary ==="
+          lcov --summary coverage/lcov.info
+
+          # Extract statement (line) coverage percentage
+          LINE_RATE=$(lcov --summary coverage/lcov.info 2>&1 | grep 'lines' | grep -oP '[\d.]+(?=%)')
+          BRANCH_RATE=$(lcov --summary coverage/lcov.info 2>&1 | grep 'branches' | grep -oP '[\d.]+(?=%)') || BRANCH_RATE="0"
+
+          echo "Line coverage: ${LINE_RATE}%"
+          echo "Branch coverage: ${BRANCH_RATE}%"
+
+          # Thresholds: ≥50% statements, ≥40% branches
+          awk "BEGIN { if ($LINE_RATE < 50) { print \"FAIL: Line coverage ${LINE_RATE}% is below 50% threshold\"; exit 1 } }"
+          awk "BEGIN { if ($BRANCH_RATE < 40) { print \"FAIL: Branch coverage ${BRANCH_RATE}% is below 40% threshold\"; exit 1 } }"
+
+          echo "Coverage thresholds passed."
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: mobile/coverage/
+
+  ios-compile:
+    name: iOS Compile Check
+    runs-on: macos-14
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (no codesign)
+        run: flutter build ios --no-codesign
+
+  android-compile:
+    name: Android Compile Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK (debug)
+        run: flutter build apk --debug

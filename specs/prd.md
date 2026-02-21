@@ -101,6 +101,52 @@ There is no modern, polished international draughts (10×10) game app that combi
 - **[REQ-13]** The game must use the standard FMJD board notation system (squares numbered 1–50).
 - **[REQ-14]** All legal moves must be visually highlighted when a player selects a piece to move, including mandatory capture paths.
 
+### 4.1.1 FMJD Rules Compliance
+
+> **Quality Gate:** All FMJD International Draughts rules must be 100% accurately implemented across every platform (web frontend, shared engine, Flutter mobile app, backend C# engine). Rule-compliance verification is a mandatory CI gate — no release may ship with a known rule violation.
+
+#### Confirmed Correct Implementations
+
+The following FMJD rules have been audited and confirmed correct in the shared TypeScript engine and the Flutter mobile Dart engine:
+
+| Rule | Status |
+|------|--------|
+| 10×10 board, 50 dark squares numbered 1–50 | ✅ Correct |
+| 20 pieces per player on first four rows | ✅ Correct |
+| Regular piece forward-only non-capture movement | ✅ Correct |
+| Flying kings (any distance, any diagonal direction) | ✅ Correct |
+| Mandatory captures with maximum capture rule | ✅ Correct |
+| Forward and backward captures for men | ✅ Correct |
+| Pieces removed only after entire capture sequence completes | ✅ Correct |
+| No jumping the same piece twice in one sequence | ✅ Correct |
+| King flying captures (any distance) | ✅ Correct |
+| Promotion only when stopping on back row at end of turn (not mid-capture) | ✅ Correct |
+| Threefold repetition detection (logic correct; see BUG-002 for hash issue) | ✅ Logic correct |
+| 25-move king-only draw rule | ✅ Correct |
+| 16-move endgame draw rule (3K v 1K, 2K+1M v 1K, 1K+2M v 1K) | ✅ Correct |
+| No pieces / no legal moves = loss | ✅ Correct |
+
+#### Critical Known Issues (Flutter Mobile App)
+
+The following bugs were identified during a compliance audit of the Flutter mobile app (`mobile/`) and must be resolved before the mobile app ships:
+
+| Bug ID | Title | Severity | Description |
+|--------|-------|----------|-------------|
+| **BUG-001** | Board widget crash on multi-step captures | **P0 — Crash** | `board_widget.dart` uses a display-format parser to read internal serialization format, causing `FormatException` on any capture sequence with 2+ steps. Multi-step captures are core FMJD gameplay — this makes many legal positions unplayable. |
+| **BUG-002** | Position hash collisions cause false threefold-repetition draws | **P0 — Rule violation** | The Zobrist-style hash function uses base 67 but coefficients go up to 254, causing hash collisions between distinct positions. Games are incorrectly declared drawn when no threefold repetition has occurred. This violates REQ-12 and C5. |
+| **BUG-003** | Game config lost on game over → undo falls back to wrong config | **P1 — Data corruption** | After a game ends, calling `undoMove` falls back to a hardcoded default config (`vsAi`, `medium`, `white`) instead of preserving the actual `GameConfig` from the running game. This corrupts the game state for any post-game undo/review. |
+| **BUG-004** | King capture path ambiguity — wrong captured pieces | **P1 — Rule violation** | When multiple capture paths share the same origin and destination squares but capture different intermediate pieces, the UI silently picks the first match. The player has no way to choose which path to take, potentially resulting in the wrong pieces being captured. This violates FMJD's maximum-capture rules and player agency. |
+
+#### Acceptance Criteria for Rule Compliance
+
+- **[AC-FMJD-1]** Every FMJD rule listed in REQ-1 through REQ-14 must have at least one automated test in every engine implementation (shared TypeScript, Flutter Dart, backend C#).
+- **[AC-FMJD-2]** All four bugs (BUG-001 through BUG-004) must be resolved and verified by automated regression tests before the Flutter mobile app is released.
+- **[AC-FMJD-3]** Multi-step capture sequences of any length (2, 3, 4+ steps) must render correctly and not crash on any platform.
+- **[AC-FMJD-4]** Position hashing must be collision-free for all positions reachable in a standard game (verified by automated test with ≥10,000 distinct positions).
+- **[AC-FMJD-5]** Game configuration must be preserved across all game lifecycle transitions (setup → in-progress → game-over → undo/review).
+- **[AC-FMJD-6]** When multiple capture paths exist with the same origin/destination but different captured pieces, the UI must present an unambiguous disambiguation mechanism allowing the player to choose the intended path.
+- **[AC-FMJD-7]** Cross-platform parity: the shared engine (TypeScript), Dart engine (Flutter), and C# engine (backend) must produce identical legal-move sets and game outcomes for any given board position.
+
 ### 4.2 AI / Computer Opponent
 
 - **[REQ-15]** Four difficulty levels with clearly differentiated playing strength:

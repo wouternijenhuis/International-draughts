@@ -7,7 +7,7 @@ public static class PlayerEndpoints
 {
     public static IEndpointRouteBuilder MapPlayerEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/player").WithTags("Player");
+        var group = app.MapGroup("/api/player").WithTags("Player").RequireAuthorization().RequireRateLimiting("authenticated");
 
         group.MapGet("/{userId:guid}/profile", async (Guid userId, IPlayerService playerService) =>
         {

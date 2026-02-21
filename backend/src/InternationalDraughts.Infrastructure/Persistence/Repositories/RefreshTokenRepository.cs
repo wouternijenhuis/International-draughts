@@ -41,6 +41,28 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task RevokeAllByFamilyAsync(string tokenFamily, CancellationToken cancellationToken = default)
+    {
+        var tokens = await _context.RefreshTokens
+            .Where(r => r.TokenFamily == tokenFamily && !r.IsRevoked)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in tokens)
+        {
+            token.Revoke();
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<RefreshToken?> GetLatestByFamilyAsync(string tokenFamily, CancellationToken cancellationToken = default)
+    {
+        return await _context.RefreshTokens
+            .Where(r => r.TokenFamily == tokenFamily)
+            .OrderByDescending(r => r.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task DeleteExpiredAsync(CancellationToken cancellationToken = default)
     {
         var expired = await _context.RefreshTokens

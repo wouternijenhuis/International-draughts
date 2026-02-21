@@ -15,6 +15,8 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.Property(r => r.UserId).HasColumnName("user_id").IsRequired();
         builder.Property(r => r.ExpiresAt).HasColumnName("expires_at").IsRequired();
         builder.Property(r => r.IsRevoked).HasColumnName("is_revoked").HasDefaultValue(false).IsRequired();
+        builder.Property(r => r.RevokedAt).HasColumnName("revoked_at");
+        builder.Property(r => r.TokenFamily).HasColumnName("token_family").HasMaxLength(128).IsRequired();
         builder.Property(r => r.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(r => r.UpdatedAt).HasColumnName("updated_at");
 
@@ -22,5 +24,6 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.HasIndex(r => r.TokenHash).IsUnique();
         builder.HasIndex(r => r.UserId);
         builder.HasIndex(r => r.ExpiresAt);
+        builder.HasIndex(r => r.TokenFamily);
     }
 }

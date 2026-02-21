@@ -6,7 +6,7 @@ public static class AiEndpoints
 {
     public static IEndpointRouteBuilder MapAiEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/v1/ai").WithTags("AI");
+        var group = app.MapGroup("/api/v1/ai").WithTags("AI").RequireAuthorization().RequireRateLimiting("ai");
 
         group.MapPost("/move", async (AiMoveRequest request, IAiService aiService, CancellationToken cancellationToken) =>
         {

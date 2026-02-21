@@ -6,7 +6,7 @@ public static class GameEndpoints
 {
     public static IEndpointRouteBuilder MapGameEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/v1/games").WithTags("Games");
+        var group = app.MapGroup("/api/v1/games").WithTags("Games").RequireAuthorization().RequireRateLimiting("authenticated");
 
         group.MapGet("/in-progress/{userId:guid}", async (Guid userId, IInProgressGameService service, CancellationToken cancellationToken) =>
         {

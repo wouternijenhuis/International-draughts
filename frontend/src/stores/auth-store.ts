@@ -6,6 +6,7 @@ interface AuthUser {
   userId: string;
   username: string;
   token: string;
+  refreshToken?: string;
   expiresAt: string;
 }
 

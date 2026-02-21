@@ -137,7 +137,8 @@ public sealed class BoardPosition
         return p.HasValue && p.Value.Color != friendlyColor;
     }
 
-    /// <summary>Computes a Zobrist-style hash for the position.</summary>
+    /// <summary>Computes a polynomial hash for the position.</summary>
+    /// <remarks>Base must be > max per-square coefficient (50*5 + 4 = 254), so we use 257 (prime).</remarks>
     public ulong ComputeHash(PieceColor currentPlayer)
     {
         ulong hash = currentPlayer == PieceColor.White ? 1UL : 2UL;
@@ -149,11 +150,11 @@ public sealed class BoardPosition
                 ulong pieceVal = p.Value.Color == PieceColor.White
                     ? (p.Value.IsMan ? 1UL : 2UL)
                     : (p.Value.IsMan ? 3UL : 4UL);
-                hash = hash * 67UL + (ulong)sq * 5UL + pieceVal;
+                hash = hash * 257UL + (ulong)sq * 5UL + pieceVal;
             }
             else
             {
-                hash = hash * 67UL;
+                hash = hash * 257UL;
             }
         }
         return hash;

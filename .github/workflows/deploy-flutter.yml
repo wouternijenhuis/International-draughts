@@ -1,0 +1,172 @@
+name: Deploy — Flutter Beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to deploy'
+        required: true
+        type: choice
+        options:
+          - ios
+          - android
+          - both
+      track:
+        description: 'Release track'
+        required: true
+        type: choice
+        options:
+          - internal
+          - beta
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.platform }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.x'
+  JAVA_VERSION: '17'
+  RUBY_VERSION: '3.2'
+
+jobs:
+  ios-beta:
+    name: iOS Beta — TestFlight
+    if: inputs.platform == 'ios' || inputs.platform == 'both'
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: mobile/ios
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release IPA
+        run: |
+          flutter build ipa \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/symbols/ios \
+            --build-number=${{ github.run_number }}
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug-symbols
+          path: mobile/build/symbols/ios/
+          retention-days: 90
+
+      - name: Upload to TestFlight via Fastlane
+        working-directory: mobile/ios
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: |
+          bundle exec fastlane ios beta
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: mobile/build/ios/ipa/*.ipa
+          retention-days: 30
+
+  android-beta:
+    name: Android Beta — Play Store
+    if: inputs.platform == 'android' || inputs.platform == 'both'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: mobile/android
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.jks
+          cat <<EOF > android/key.properties
+          storeFile=$(pwd)/android/release.jks
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          keyPassword=$ANDROID_KEY_PASSWORD
+          EOF
+
+      - name: Build release App Bundle
+        run: |
+          flutter build appbundle \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/symbols/android \
+            --build-number=${{ github.run_number }}
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-symbols
+          path: mobile/build/symbols/android/
+          retention-days: 90
+
+      - name: Upload to Play Store via Fastlane
+        working-directory: mobile/android
+        env:
+          PLAY_STORE_JSON_KEY: ${{ secrets.PLAY_STORE_JSON_KEY }}
+          SUPPLY_TRACK: ${{ inputs.track }}
+        run: |
+          bundle exec fastlane android beta
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: mobile/build/app/outputs/bundle/release/*.aab
+          retention-days: 30
+
+      - name: Clean up signing key
+        if: always()
+        run: |
+          rm -f android/release.jks
+          rm -f android/key.properties

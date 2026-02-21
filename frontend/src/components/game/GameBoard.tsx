@@ -3,9 +3,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Board, AnimatedPieceOverlay } from '@/components/board';
 import { useGameStore } from '@/stores/game-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { PlayerColor } from '@/lib/draughts-types';
 import { useMoveAnimation } from '@/hooks/useMoveAnimation';
-import type { AnimationSpeed } from '@/hooks/useMoveAnimation';
+import type { AnimationSpeed as AnimationSpeedType } from '@/hooks/useMoveAnimation';
 
 /**
  * Interactive game board wrapper that handles piece selection, move execution,
@@ -28,6 +29,8 @@ export const GameBoard: React.FC = () => {
     moveHistory,
     moveIndex,
   } = useGameStore();
+
+  const { boardTheme, showNotation, showLegalMoves, animationSpeed } = useSettingsStore();
 
   // Drag state
   const [dragFrom, setDragFrom] = useState<number | null>(null);
@@ -111,7 +114,7 @@ export const GameBoard: React.FC = () => {
     position,
     moveHistory,
     moveIndex,
-    config.animationSpeed as AnimationSpeed,
+    animationSpeed as AnimationSpeedType,
     orientation,
   );
 
@@ -129,10 +132,10 @@ export const GameBoard: React.FC = () => {
     >
       <Board
         position={displayPosition}
-        showNotation={config.showNotation}
-        theme={config.boardTheme}
+        showNotation={showNotation}
+        theme={boardTheme}
         selectedSquare={selectedSquare}
-        legalMoveSquares={config.showLegalMoves ? legalMoveSquares : []}
+        legalMoveSquares={showLegalMoves ? legalMoveSquares : []}
         lastMoveSquares={displayLastMoveSquares}
         onSquareClick={handleSquareClick}
         onSquareDragStart={handleDragStart}

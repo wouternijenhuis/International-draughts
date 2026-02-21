@@ -147,6 +147,12 @@ The following bugs were identified during a compliance audit of the Flutter mobi
 - **[AC-FMJD-6]** When multiple capture paths exist with the same origin/destination but different captured pieces, the UI must present an unambiguous disambiguation mechanism allowing the player to choose the intended path.
 - **[AC-FMJD-7]** Cross-platform parity: the shared engine (TypeScript), Dart engine (Flutter), and C# engine (backend) must produce identical legal-move sets and game outcomes for any given board position.
 
+#### Mobile UI/UX Issues (Flutter Mobile App)
+
+A comprehensive UI/UX audit of the Flutter mobile app identified 26 issues (6 High, 9 Medium, 11 Low) covering layout overflow, broken navigation, missing accessibility labels, Material 3 non-compliance, and board theme propagation failures. These must be resolved to meet REQ-44 (elegant design), REQ-45 (legibility), REQ-46 (responsive design), and REQ-48 (accessibility).
+
+> **Full specification:** See [Mobile UI/UX Improvements FRD](features/mobile-ui-improvements.md) for the complete issue catalog, acceptance criteria, and implementation plan.
+
 ### 4.2 AI / Computer Opponent
 
 - **[REQ-15]** Four difficulty levels with clearly differentiated playing strength:

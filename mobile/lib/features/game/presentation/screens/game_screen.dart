@@ -1,7 +1,10 @@
+import 'package:draughts_engine/draughts_engine.dart' show PlayerColor;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:international_draughts/core/theme/design_tokens.dart';
+import 'package:international_draughts/features/settings/presentation/settings_provider.dart';
+import 'package:international_draughts/shared/widgets/settings_action_button.dart';
 import '../../domain/game_phase.dart';
 import '../providers/ai_provider.dart';
 import '../providers/clock_provider.dart';
@@ -76,12 +79,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           // Pause button when timed game is active.
           if (phase is InProgress && phase.config.isTimed)
             _buildPauseResumeButton(),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Open in-game settings.
-            },
-          ),
+          const SettingsActionButton(),
         ],
       ),
       body: SafeArea(
@@ -156,8 +154,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           const SizedBox(height: DesignTokens.spacingXl),
           ElevatedButton.icon(
             onPressed: () {
-              showDialog<void>(
+              showModalBottomSheet<void>(
                 context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
                 builder: (context) => const GameSetupDialog(),
               );
             },
@@ -238,15 +238,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildBoard() {
-    return const BoardWidget();
+    return BoardWidget(
+      boardTheme: ref.watch(
+        settingsProvider.select((s) => s.boardTheme),
+      ),
+    );
   }
 
   Widget _buildClock(ClockState clock) {
+    final phase = ref.read(gameProvider);
+    final isBlack = phase is InProgress &&
+        phase.config.playerColor == PlayerColor.black;
+
     return ChessClock(
       whiteTimeMs: clock.whiteTimeMs,
       blackTimeMs: clock.blackTimeMs,
       activeColor: clock.activeColor,
       isRunning: clock.isRunning,
+      flipped: isBlack,
     );
   }
 
@@ -284,8 +293,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               const SizedBox(width: DesignTokens.spacingMd),
               ElevatedButton.icon(
                 onPressed: () {
-                  showDialog<void>(
+                  showModalBottomSheet<void>(
                     context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
                     builder: (context) => const GameSetupDialog(),
                   );
                 },

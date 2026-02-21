@@ -1,18 +1,19 @@
 import 'package:draughts_engine/draughts_engine.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:international_draughts/core/theme/board_theme.dart';
 import 'package:international_draughts/core/theme/design_tokens.dart';
 import 'package:international_draughts/features/game/presentation/widgets/board/board_painter.dart';
 import 'package:international_draughts/features/game/presentation/widgets/board/piece_widget.dart';
 import 'package:international_draughts/features/profile/domain/player_stats.dart';
+import 'package:international_draughts/features/settings/presentation/settings_provider.dart';
 import 'package:international_draughts/shared/utils/date_formatter.dart';
 
 /// Replay viewer for reviewing completed games.
 ///
 /// Displays a read-only board with playback controls to step through
 /// the game move by move. Supports jump-to-any-position via the move list.
-class ReplayViewer extends StatefulWidget {
+class ReplayViewer extends ConsumerStatefulWidget {
   /// Creates the [ReplayViewer].
   const ReplayViewer({super.key, this.game});
 
@@ -20,10 +21,10 @@ class ReplayViewer extends StatefulWidget {
   final GameHistoryEntry? game;
 
   @override
-  State<ReplayViewer> createState() => _ReplayViewerState();
+  ConsumerState<ReplayViewer> createState() => _ReplayViewerState();
 }
 
-class _ReplayViewerState extends State<ReplayViewer> {
+class _ReplayViewerState extends ConsumerState<ReplayViewer> {
   /// All board states from the initial position through each move.
   final List<GameState> _states = [];
 
@@ -226,6 +227,9 @@ class _ReplayViewerState extends State<ReplayViewer> {
   }
 
   Widget _buildBoard(BuildContext context) {
+    final boardTheme = ref.watch(
+      settingsProvider.select((s) => s.boardTheme),
+    );
     final boardState = _states[_currentIndex];
     final board = boardState.board;
 
@@ -251,7 +255,7 @@ class _ReplayViewerState extends State<ReplayViewer> {
               CustomPaint(
                 size: Size(boardSize, boardSize),
                 painter: BoardPainter(
-                  boardTheme: BoardTheme.classicWood,
+                  boardTheme: boardTheme,
                   lastMoveFrom: lastMoveFrom,
                   lastMoveTo: lastMoveTo,
                 ),

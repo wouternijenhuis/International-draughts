@@ -36,17 +36,17 @@ class GameStatus extends ConsumerWidget {
           statusText = isWhiteTurn ? "White's turn" : "Black's turn";
         }
         dotColor = isWhiteTurn
-            ? const Color(0xFFFFC107)  // Amber for White.
-            : const Color(0xFF616161); // Gray for Black.
+            ? Theme.of(context).colorScheme.tertiary
+            : Theme.of(context).colorScheme.onSurfaceVariant;
         final totalMoves = (gameState.moveHistory.length + 1) ~/ 2;
         moveCountText = 'Move $totalMoves';
       case WhiteWins(:final reason):
         statusText = 'White wins! $reason';
-        dotColor = const Color(0xFFFFC107);
+        dotColor = Theme.of(context).colorScheme.tertiary;
         moveCountText = '';
       case BlackWins(:final reason):
         statusText = 'Black wins! $reason';
-        dotColor = const Color(0xFF616161);
+        dotColor = Theme.of(context).colorScheme.onSurfaceVariant;
         moveCountText = '';
       case DrawResult(:final reason):
         statusText = 'Draw — $reason';

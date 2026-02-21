@@ -30,7 +30,7 @@ class GameControls extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // Resign.
-          IconButton(
+          IconButton.outlined(
             icon: const Icon(Icons.flag),
             tooltip: 'Resign',
             onPressed: isInProgress && !isAiThinking
@@ -38,7 +38,7 @@ class GameControls extends ConsumerWidget {
                 : null,
           ),
           // Draw offer.
-          IconButton(
+          IconButton.outlined(
             icon: const Icon(Icons.handshake),
             tooltip: 'Offer Draw',
             onPressed: isInProgress && !isAiThinking
@@ -46,7 +46,7 @@ class GameControls extends ConsumerWidget {
                 : null,
           ),
           // Undo.
-          IconButton(
+          IconButton.filledTonal(
             icon: const Icon(Icons.undo),
             tooltip: 'Undo',
             onPressed: gameNotifier.canUndo && !isAiThinking
@@ -57,7 +57,7 @@ class GameControls extends ConsumerWidget {
                 : null,
           ),
           // Redo.
-          IconButton(
+          IconButton.filledTonal(
             icon: const Icon(Icons.redo),
             tooltip: 'Redo',
             onPressed: gameNotifier.canRedo && !isAiThinking

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:international_draughts/core/theme/design_tokens.dart';
+import 'package:international_draughts/shared/widgets/settings_action_button.dart';
 
 /// Tutorial screen displaying the rules of International Draughts.
 ///
@@ -16,7 +17,10 @@ class TutorialScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rules & Tutorial')),
+      appBar: AppBar(
+        title: const Text('Rules & Tutorial'),
+        actions: const [SettingsActionButton()],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(DesignTokens.spacingMd),

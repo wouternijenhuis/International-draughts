@@ -153,166 +153,237 @@ class _GameSetupDialogState extends ConsumerState<GameSetupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('New Game'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Opponent selector.
-            Text(
-              'Opponent',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: DesignTokens.spacingSm),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(
-                  value: 'vsAi',
-                  label: Text('AI'),
-                  icon: Icon(Icons.smart_toy, size: 16),
-                ),
-                ButtonSegment(
-                  value: 'vsHuman',
-                  label: Text('Human'),
-                  icon: Icon(Icons.people, size: 16),
-                ),
-              ],
-              selected: {_mode},
-              onSelectionChanged: (selected) {
-                setState(() {
-                  _mode = selected.first;
-                });
-              },
-            ),
-            const SizedBox(height: DesignTokens.spacingMd),
+    final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
-            // Difficulty (only for AI mode).
-            if (_mode == 'vsAi') ...[
-              Text(
-                'Difficulty',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: DesignTokens.spacingSm),
-              SegmentedButton<String>(
-                segments: [
-                  const ButtonSegment(value: 'easy', label: Text('Easy')),
-                  const ButtonSegment(value: 'medium', label: Text('Medium')),
-                  const ButtonSegment(value: 'hard', label: Text('Hard')),
-                  ButtonSegment(
-                    value: 'expert',
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('Expert'),
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'Server',
-                              style: TextStyle(
-                                fontSize: 9,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onTertiary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                selected: {_difficulty},
-                onSelectionChanged: (selected) {
-                  setState(() {
-                    _difficulty = selected.first;
-                  });
-                },
-              ),
-              const SizedBox(height: DesignTokens.spacingMd),
-            ],
-
-            // Player color.
-            Text(
-              'Play as',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: DesignTokens.spacingSm),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'white', label: Text('White')),
-                ButtonSegment(value: 'black', label: Text('Black')),
-                ButtonSegment(
-                  value: 'random',
-                  label: Text('Random'),
-                  icon: Icon(Icons.shuffle, size: 16),
-                ),
-              ],
-              selected: {_playerColor},
-              onSelectionChanged: (selected) {
-                setState(() {
-                  _playerColor = selected.first;
-                });
-              },
-            ),
-            const SizedBox(height: DesignTokens.spacingMd),
-
-            // Time control toggle with animated expand.
-            SwitchListTile(
-              title: const Text('Timed Game'),
-              value: _isTimed,
-              contentPadding: EdgeInsets.zero,
-              onChanged: (value) {
-                setState(() {
-                  _isTimed = value;
-                });
-              },
-            ),
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 200),
-              crossFadeState: _isTimed
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              firstChild: _ClockPresetGrid(
-                selectedIndex: _clockPresetIndex,
-                onSelected: (index) {
-                  setState(() {
-                    _clockPresetIndex = index;
-                  });
-                },
-              ),
-              secondChild: const SizedBox.shrink(),
-            ),
-          ],
+    Widget content = Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(28),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        if (_configLoaded)
-          OutlinedButton(
-            onPressed: _startGame,
-            child: const Text('Quick Start'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle.
+          Center(
+            child: Container(
+              width: 32,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurfaceVariant
+                    .withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           ),
-        FilledButton(
-          onPressed: _startGame,
-          child: const Text('Start Game'),
-        ),
-      ],
+          // Title.
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'New Game',
+              style: theme.textTheme.headlineSmall,
+            ),
+          ),
+          // Scrollable content.
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Opponent selector.
+                  Text(
+                    'Opponent',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: DesignTokens.spacingSm),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                        value: 'vsAi',
+                        label: Text('AI'),
+                        icon: Icon(Icons.smart_toy, size: 16),
+                      ),
+                      ButtonSegment(
+                        value: 'vsHuman',
+                        label: Text('Human'),
+                        icon: Icon(Icons.people, size: 16),
+                      ),
+                    ],
+                    selected: {_mode},
+                    onSelectionChanged: (selected) {
+                      setState(() {
+                        _mode = selected.first;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: DesignTokens.spacingMd),
+
+                  // Difficulty (only for AI mode).
+                  if (_mode == 'vsAi') ...[
+                    Text(
+                      'Difficulty',
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: DesignTokens.spacingSm),
+                    SegmentedButton<String>(
+                      segments: [
+                        const ButtonSegment(
+                          value: 'easy',
+                          label: Text('Easy'),
+                        ),
+                        const ButtonSegment(
+                          value: 'medium',
+                          label: Text('Medium'),
+                        ),
+                        const ButtonSegment(
+                          value: 'hard',
+                          label: Text('Hard'),
+                        ),
+                        ButtonSegment(
+                          value: 'expert',
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Expert'),
+                                const SizedBox(width: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 1,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.tertiary,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'Server',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color:
+                                          theme.colorScheme.onTertiary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      selected: {_difficulty},
+                      onSelectionChanged: (selected) {
+                        setState(() {
+                          _difficulty = selected.first;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: DesignTokens.spacingMd),
+                  ],
+
+                  // Player color.
+                  Text(
+                    'Play as',
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: DesignTokens.spacingSm),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: 'white', label: Text('White')),
+                      ButtonSegment(value: 'black', label: Text('Black')),
+                      ButtonSegment(
+                        value: 'random',
+                        label: Text('Random'),
+                        icon: Icon(Icons.shuffle, size: 16),
+                      ),
+                    ],
+                    selected: {_playerColor},
+                    onSelectionChanged: (selected) {
+                      setState(() {
+                        _playerColor = selected.first;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: DesignTokens.spacingMd),
+
+                  // Time control toggle with animated expand.
+                  SwitchListTile(
+                    title: const Text('Timed Game'),
+                    value: _isTimed,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (value) {
+                      setState(() {
+                        _isTimed = value;
+                      });
+                    },
+                  ),
+                  AnimatedCrossFade(
+                    duration: const Duration(milliseconds: 200),
+                    crossFadeState: _isTimed
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
+                    firstChild: _ClockPresetGrid(
+                      selectedIndex: _clockPresetIndex,
+                      onSelected: (index) {
+                        setState(() {
+                          _clockPresetIndex = index;
+                        });
+                      },
+                    ),
+                    secondChild: const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Bottom action bar (sticky).
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              12,
+              24,
+              MediaQuery.of(context).viewInsets.bottom + 24,
+            ),
+            child: Row(
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                const Spacer(),
+                if (_configLoaded)
+                  OutlinedButton(
+                    onPressed: _startGame,
+                    child: const Text('Quick Start'),
+                  ),
+                if (_configLoaded)
+                  const SizedBox(width: 12),
+                FilledButton(
+                  onPressed: _startGame,
+                  child: const Text('Start Game'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+
+    // Responsive: constrain width on tablets.
+    if (screenWidth > 600) {
+      content = Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
   }
 }
 

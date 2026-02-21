@@ -102,12 +102,12 @@ final List<TutorialStep> tutorialSteps = [
         'Regular pieces move diagonally forward by exactly one square onto '
         'an empty dark square.',
     board: _createTutorialBoard([
-      (sq: 33, type: PieceType.man, color: PlayerColor.white),
+      (sq: 23, type: PieceType.man, color: PlayerColor.white),
     ]),
     highlights: const [28, 29],
     goalAction: const TutorialGoalAction(
       type: TutorialGoalType.move,
-      goalFrom: 33,
+      goalFrom: 23,
       goalTo: [28, 29],
     ),
     details: const [

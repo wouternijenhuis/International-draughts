@@ -6,6 +6,7 @@ import 'package:international_draughts/core/theme/board_theme.dart';
 import 'package:international_draughts/core/theme/design_tokens.dart';
 import 'package:international_draughts/features/game/presentation/widgets/board/board_painter.dart';
 import 'package:international_draughts/features/game/presentation/widgets/board/piece_widget.dart';
+import 'package:international_draughts/shared/widgets/settings_action_button.dart';
 import '../data/tutorial_steps.dart';
 import 'learning_provider.dart';
 
@@ -33,6 +34,7 @@ class LearnScreen extends ConsumerWidget {
               ref.read(learningProvider.notifier).restart();
             },
           ),
+          const SettingsActionButton(),
         ],
       ),
       body: SafeArea(

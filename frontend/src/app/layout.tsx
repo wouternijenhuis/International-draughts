@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { OfflineBanner } from '@/components/pwa/OfflineBanner';
+import { GlobalSettings } from '@/components/settings/GlobalSettings';
 
 export const metadata: Metadata = {
   title: 'International Draughts',
@@ -40,6 +41,7 @@ export default function RootLayout({
           {children}
         </main>
         <InstallPrompt />
+        <GlobalSettings />
         <ServiceWorkerRegistration />
       </body>
     </html>

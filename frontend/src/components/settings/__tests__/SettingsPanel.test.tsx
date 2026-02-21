@@ -1,11 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SettingsPanel } from '../SettingsPanel';
-import { useGameStore } from '@/stores/game-store';
+import { useSettingsStore } from '@/stores/settings-store';
 
 describe('SettingsPanel', () => {
   beforeEach(() => {
-    useGameStore.getState().resetGame();
+    useSettingsStore.setState({
+      boardTheme: 'classic-wood',
+      showNotation: false,
+      showLegalMoves: true,
+      animationSpeed: 'normal',
+      isSettingsOpen: false,
+    });
   });
 
   it('renders all theme options', () => {
@@ -19,15 +25,15 @@ describe('SettingsPanel', () => {
   it('changes board theme when clicked', () => {
     render(<SettingsPanel />);
     fireEvent.click(screen.getByText('Ocean'));
-    expect(useGameStore.getState().config.boardTheme).toBe('ocean');
+    expect(useSettingsStore.getState().boardTheme).toBe('ocean');
   });
 
   it('toggles notation', () => {
     render(<SettingsPanel />);
     const toggle = screen.getByRole('switch', { name: /show notation/i });
-    const initial = useGameStore.getState().config.showNotation;
+    const initial = useSettingsStore.getState().showNotation;
     fireEvent.click(toggle);
-    expect(useGameStore.getState().config.showNotation).toBe(!initial);
+    expect(useSettingsStore.getState().showNotation).toBe(!initial);
   });
 
   it('renders heading as Display & Preferences', () => {

@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useGameStore } from '@/stores/game-store';
-import type { GameConfig } from '@/stores/game-store';
+import { useSettingsStore } from '@/stores/settings-store';
+import type { BoardTheme } from '@/stores/settings-store';
 
-const THEMES: { value: GameConfig['boardTheme']; label: string }[] = [
+const THEMES: { value: BoardTheme; label: string }[] = [
   { value: 'classic-wood', label: 'Classic Wood' },
   { value: 'dark', label: 'Dark' },
   { value: 'ocean', label: 'Ocean' },
@@ -12,7 +12,7 @@ const THEMES: { value: GameConfig['boardTheme']; label: string }[] = [
 ];
 
 export const SettingsPanel: React.FC = () => {
-  const { config, setConfig, setBoardTheme, toggleNotation } = useGameStore();
+  const { boardTheme, showNotation, showLegalMoves, animationSpeed, setBoardTheme, toggleNotation, setShowLegalMoves, setAnimationSpeed } = useSettingsStore();
 
   return (
     <div className="space-y-6 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md" role="form" aria-label="Display preferences">
@@ -28,11 +28,11 @@ export const SettingsPanel: React.FC = () => {
               onClick={() => setBoardTheme(theme.value)}
               className={`
                 px-3 py-2 rounded-lg text-sm border transition-colors
-                ${config.boardTheme === theme.value
+                ${boardTheme === theme.value
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                   : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}
               `}
-              aria-pressed={config.boardTheme === theme.value}
+              aria-pressed={boardTheme === theme.value}
             >
               {theme.label}
             </button>
@@ -49,16 +49,16 @@ export const SettingsPanel: React.FC = () => {
           id="notation-toggle"
           onClick={toggleNotation}
           role="switch"
-          aria-checked={config.showNotation}
+          aria-checked={showNotation}
           className={`
             relative w-11 h-6 rounded-full transition-colors
-            ${config.showNotation ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
+            ${showNotation ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
           `}
         >
           <span
             className={`
               absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform
-              ${config.showNotation ? 'translate-x-5' : ''}
+              ${showNotation ? 'translate-x-5' : ''}
             `}
           />
         </button>
@@ -71,18 +71,18 @@ export const SettingsPanel: React.FC = () => {
         </label>
         <button
           id="legal-moves-toggle"
-          onClick={() => setConfig({ showLegalMoves: !config.showLegalMoves })}
+          onClick={() => setShowLegalMoves(!showLegalMoves)}
           role="switch"
-          aria-checked={config.showLegalMoves}
+          aria-checked={showLegalMoves}
           className={`
             relative w-11 h-6 rounded-full transition-colors
-            ${config.showLegalMoves ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
+            ${showLegalMoves ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}
           `}
         >
           <span
             className={`
               absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform
-              ${config.showLegalMoves ? 'translate-x-5' : ''}
+              ${showLegalMoves ? 'translate-x-5' : ''}
             `}
           />
         </button>
@@ -95,14 +95,14 @@ export const SettingsPanel: React.FC = () => {
           {(['instant', 'fast', 'normal', 'slow'] as const).map((speed) => (
             <button
               key={speed}
-              onClick={() => setConfig({ animationSpeed: speed })}
+              onClick={() => setAnimationSpeed(speed)}
               className={`
                 flex-1 px-3 py-1.5 rounded-lg text-xs border transition-colors capitalize
-                ${config.animationSpeed === speed
+                ${animationSpeed === speed
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                   : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}
               `}
-              aria-pressed={config.animationSpeed === speed}
+              aria-pressed={animationSpeed === speed}
             >
               {speed}
             </button>

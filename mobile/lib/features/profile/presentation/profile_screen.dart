@@ -7,6 +7,7 @@ import 'package:international_draughts/features/auth/domain/auth_state.dart';
 import 'package:international_draughts/features/auth/domain/user.dart';
 import 'package:international_draughts/features/auth/presentation/auth_provider.dart';
 import 'package:international_draughts/features/profile/domain/player_stats.dart';
+import 'package:international_draughts/shared/widgets/settings_action_button.dart';
 
 import 'game_history.dart';
 import 'profile_provider.dart';
@@ -61,6 +62,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
+          const SettingsActionButton(),
           if (authState is Authenticated)
             IconButton(
               icon: const Icon(Icons.logout),

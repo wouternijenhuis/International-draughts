@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:international_draughts/core/routing/router.dart';
 import 'package:international_draughts/core/theme/design_tokens.dart';
+import 'package:international_draughts/shared/widgets/settings_action_button.dart';
 
 /// Home screen — the main landing page of the app.
 ///
@@ -20,13 +21,9 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person_outline),
             tooltip: 'Profile',
-            onPressed: () => context.go(AppRoutes.profile),
+            onPressed: () => context.push(AppRoutes.profile),
           ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
-            onPressed: () => context.go(AppRoutes.settings),
-          ),
+          const SettingsActionButton(),
         ],
       ),
       body: SafeArea(
@@ -63,19 +60,19 @@ class HomeScreen extends StatelessWidget {
               _HomeButton(
                 icon: Icons.play_arrow,
                 label: 'Play vs AI',
-                onPressed: () => context.go(AppRoutes.play),
+                onPressed: () => context.push(AppRoutes.play),
               ),
               const SizedBox(height: DesignTokens.spacingMd),
               _HomeButton(
                 icon: Icons.school,
                 label: 'Learn',
-                onPressed: () => context.go(AppRoutes.learn),
+                onPressed: () => context.push(AppRoutes.learn),
               ),
               const SizedBox(height: DesignTokens.spacingMd),
               _HomeButton(
                 icon: Icons.help_outline,
                 label: 'Tutorial',
-                onPressed: () => context.go(AppRoutes.tutorial),
+                onPressed: () => context.push(AppRoutes.tutorial),
               ),
 
               const Spacer(),
